@@ -155,7 +155,7 @@ Voxelarium.GeometryBufferMono = function () {
          this.addPoint( quad[2], undefined, norm, false, false, false, [min,max] );
      }
 
-     buffer.makeVoxCube = function() {
+     buffer.makeVoxCube = function(size) {
         var v1 = new THREE.Vector3(1,1,1);
         var v2 = new THREE.Vector3(-1,1,1);
         var v3 = new THREE.Vector3(1,-1,1);
@@ -164,27 +164,27 @@ Voxelarium.GeometryBufferMono = function () {
         var v6 = new THREE.Vector3(-1,1,-1);
         var v7 = new THREE.Vector3(1,-1,-1);
         var v8 = new THREE.Vector3(-1,-1,-1);
-        buffer.addSimpleQuad( [v1.clone().multiplyScalar(400),v2.clone().multiplyScalar(400),v3.clone().multiplyScalar(400),v4.clone().multiplyScalar(400)]
+        buffer.addSimpleQuad( [v1.clone().multiplyScalar(size),v2.clone().multiplyScalar(size),v3.clone().multiplyScalar(size),v4.clone().multiplyScalar(size)]
             , new THREE.Vector4( 0.2, 0.0, 1, 1.0 ), new THREE.Vector4( 0, 0, 0, 0.5 )
             , THREE.Vector3Forward
             , 200 )
-        buffer.addSimpleQuad( [v6.clone().multiplyScalar(400),v5.clone().multiplyScalar(400),v8.clone().multiplyScalar(400),v7.clone().multiplyScalar(400)]
+        buffer.addSimpleQuad( [v6.clone().multiplyScalar(size),v5.clone().multiplyScalar(size),v8.clone().multiplyScalar(size),v7.clone().multiplyScalar(size)]
             , new THREE.Vector4( 0.2, 1, 0, 1.0 ), new THREE.Vector4( 0, 0, 0, 0.5 )
             , THREE.Vector3Backward
             , 200 )
-        buffer.addSimpleQuad( [v5.clone().multiplyScalar(400),v6.clone().multiplyScalar(400),v1.clone().multiplyScalar(400),v2.clone().multiplyScalar(400)]
+        buffer.addSimpleQuad( [v5.clone().multiplyScalar(size),v6.clone().multiplyScalar(size),v1.clone().multiplyScalar(size),v2.clone().multiplyScalar(size)]
                 , new THREE.Vector4( 1, 0.0, 0, 1.0 ), new THREE.Vector4( 0, 0, 0, 0.5 )
                 , THREE.Vector3Up
                 , 200 )
-        buffer.addSimpleQuad( [v3.clone().multiplyScalar(400),v4.clone().multiplyScalar(400),v7.clone().multiplyScalar(400),v8.clone().multiplyScalar(400)]
+        buffer.addSimpleQuad( [v3.clone().multiplyScalar(size),v4.clone().multiplyScalar(size),v7.clone().multiplyScalar(size),v8.clone().multiplyScalar(size)]
                 , new THREE.Vector4( 0, 1, 1, 1.0 ), new THREE.Vector4( 0, 0, 0, 0.5 )
                 , THREE.Vector3Down
                 , 200 )
-        buffer.addSimpleQuad( [v5.clone().multiplyScalar(400),v1.clone().multiplyScalar(400),v7.clone().multiplyScalar(400),v3.clone().multiplyScalar(400)]
+        buffer.addSimpleQuad( [v5.clone().multiplyScalar(size),v1.clone().multiplyScalar(size),v7.clone().multiplyScalar(size),v3.clone().multiplyScalar(size)]
                 , new THREE.Vector4( 1, 0.0, 1, 1.0 ), new THREE.Vector4( 0, 0, 0, 0.5 )
                 , THREE.Vector3Right
                 , 200 )
-        buffer.addSimpleQuad( [v2.clone().multiplyScalar(400),v6.clone().multiplyScalar(400),v4.clone().multiplyScalar(400),v8.clone().multiplyScalar(400)]
+        buffer.addSimpleQuad( [v2.clone().multiplyScalar(size),v6.clone().multiplyScalar(size),v4.clone().multiplyScalar(size),v8.clone().multiplyScalar(size)]
                 , new THREE.Vector4( 1, 1, 0, 1.0 )
                 , new THREE.Vector4( 0, 0, 0, 0.5 )
                 , THREE.Vector3Left

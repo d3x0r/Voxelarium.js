@@ -1,6 +1,6 @@
 
 require( "./cluster.js")
-var fonts = require( "./fonts.js" );
+var fonts = require( "./voxel.fonts.js" );
 
 Voxelarium.World = function() {
     return {
@@ -12,9 +12,10 @@ Voxelarium.World = function() {
             return cluster;
         },
 
-        createTextCluster : function( text, v, mesher, font ) {
+        createTextCluster : function( text, v, mesher, font, voxelUnitSize ) {
             var cluster = Voxelarium.Cluster(256*8,8,1);
             cluster.mesher = mesher;
+            cluster.voxelUnitSize = voxelUnitSize || 20;
             cluster.getGeometryBuffer = Voxelarium.GeometryBufferMono;
             this.clusters.push( cluster );
             //var sector = cluster.createSector( 0, 0, 0 );

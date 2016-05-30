@@ -19,7 +19,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 	this.center = new THREE.Vector3();
 
 	this.userZoom = true;
-	this.userZoomSpeed = 1.0;
+	this.userZoomSpeed = 0.10;
 
 	this.userRotate = true;
 	this.userRotateSpeed = 1.0;
@@ -172,7 +172,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 		if( this.mode == 2 ) {
 			this.object.matrix.rotateRelative( -phiDelta, thetaDelta, 0 );
 			this.object.matrix.rotateRelative( 0, 0, -this.object.matrix.roll )
-			var tmp = this.center.clone().addScaledVector( this.object.matrix.forward, offset.length() );
+			var tmp = this.center.clone().addScaledVector( this.object.matrix.forward, offset.length() *(scale) );
 			this.object.matrix.origin.copy( tmp );
 			this.object.matrixWorldNeedsUpdate = true;
 		} else {

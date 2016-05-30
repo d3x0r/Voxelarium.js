@@ -1,31 +1,10 @@
 "use strict";
 
 
+var glow = require( './glow.renderer.js' );
 
-//var THREE = require( "../three.js/three.js/build/three.js" );
-//var mycam =
-var loader = new THREE.FontLoader();
-var font;
 var clusters = [];
-loader.load( 'src/fonts/Microsoft YaHei_Regular.js', function ( _font ) {
-	console.log( "Have a font?")
-    // your code here
-	font = _font;
 
-	var material = new THREE.MeshPhongMaterial({
-			color: 0xdddddd
-		});
-		var textGeom = new THREE.TextGeometry( 'Hello World!', {
-			font: font // Must be lowercase!
-			, height : 1
-			, size : 50
-
-		});
-		var textMesh = new THREE.Mesh( textGeom, material );
-		textMesh.position.z += 150
-		scene.add( textMesh );
-
-} );
 var l = 0;
 
 var voxelUniverse = Voxelarium.World();
@@ -40,12 +19,7 @@ var controls;
 	var scene2;
 	var scene3;
 	var camera, renderer;
-	var renderTargetGlow;
-	var	renderTarget;
 	var light;
-	var glowcomposer;
-	var scenecomposer;
-	var finalcomposer;
 	var geometry, material, mesh = [];
 	var frame_target = [];
 	var slow_animate = false;
@@ -67,61 +41,6 @@ var screen = { width:window.innerWidth, height:window.innerHeight };
 	var counter= 0;
 
 	var clock = new THREE.Clock()
-
-var finalshader = {
-    uniforms: {
-        tDiffuse: { type: "t", value: 0, texture: null }, // The base scene buffer
-        tGlow: { type: "t", value: 1, texture: null }, // The glow scene buffer
-		tDiffuseDepth: { type: "t", value: 0, texture: null }, // The base scene buffer
-        tGlowDepth: { type: "t", value: 1, texture: null }, // The glow scene buffer
-		cameraNear: { type: 'f', value: 1 },
-		cameraFar: { type: 'f', value: 10000 },
-    },
-
-    vertexShader: [
-        "varying vec2 vUv;",
-
-        "void main() {",
-
-            "vUv = vec2( uv.x, uv.y );",
-            "gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
-
-        "}"
-    ].join(""),
-
-    fragmentShader: [
-        "uniform sampler2D tDiffuse;",
-        "uniform sampler2D tGlow;",
-		"uniform sampler2D tDiffuseDepth;",
-		"uniform sampler2D tGlowDepth;",
-		"uniform float cameraNear;",
- 		"uniform float cameraFar;",
-
-        "varying vec2 vUv;",
-
-		"float readDepth (sampler2D depthSampler, vec2 coord) {",
-        "  float cameraFarPlusNear = cameraFar + cameraNear;",
-        "  float cameraFarMinusNear = cameraFar - cameraNear;",
-        "  float cameraCoef = 2.0 * cameraNear;",
-        "  return 100.0*(cameraCoef / (cameraFarPlusNear - texture2D(depthSampler, coord).x * cameraFarMinusNear));",
-        "}",
-
-        "void main() {",
-
-            "vec4 texel = texture2D( tDiffuse, vUv );",
-            "vec4 glow = texture2D( tGlow, vUv );",
-			"float texelDepth = readDepth( tDiffuseDepth, vUv );",
-			"float glowDepth = readDepth( tGlowDepth, vUv );",
-			//"float texelDepth = texture2D(tDiffuseDepth, vUv).x;",
-            //"if( (texel.r+texel.g+texel.b)== 0.0 ) ",
-			"    gl_FragColor = 0.1 * (texel + vec4(0.5, 0.75, 1.0, 1.0) * glow * 3.0);", // Blend the two buffers together (I colorized and intensified the glow at the same time)
-			"    gl_FragColor +=  vec4(texelDepth, glowDepth, 0.0, 1.0);", // Blend the two buffers together (I colorized and intensified the glow at the same time)
-			//"else gl_FragColor = texel;",
-			//"gl_FragColor = texel;",
-
-        "}"
-    ].join("")
-};
 
 
 
@@ -150,123 +69,6 @@ function setControls2() {
 }
 
 
-function makeComposers() {
-	renderer.autoClear = false;
-
-	// Prepare the glow composer's render target
-	var renderTargetParameters = { minFilter: THREE.LinearFilter
-			, magFilter: THREE.LinearFilter
-			//, format: THREE.RGBFormat
-			, stencilBufer: false };
-	if( !renderTargetGlow ){
-		renderTargetGlow = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight/*, renderTargetParameters*/ );
-		renderTargetGlow.texture.minFilter = THREE.LinearFilter;
-		renderTargetGlow.texture.magFilter = THREE.LinearFilter;
-		renderTargetGlow.texture.stencilBufer = false;
-		renderTargetGlow.depthTexture = new THREE.DepthTexture( );
-		//renderTargetGlow.depthTexture.type = isWebGL2 ? THREE.FloatType : THREE.UnsignedShortType;
-	}
-	// Prepare the blur shader passes
-	var hblur = new THREE.ShaderPass( THREE.HorizontalBlurShader );
-	var vblur = new THREE.ShaderPass( THREE.VerticalBlurShader );
-
-	var bluriness = 1;
-
-	hblur.uniforms[ "h" ].value = bluriness / window.innerWidth;
-	//hblur.material.depthTest = false;
-	//hblur.material.depthWrite = false;
-
-	vblur.uniforms[ "v" ].value = bluriness / window.innerHeight;
-	//vblur.material.depthTest = false;
-	//vblur.material.depthWrite = false;
-
-	// Prepare the glow scene render pass
-	var renderModelGlow = new THREE.RenderPass( scene2, camera);
-
-	// Create the glow composer
-	glowcomposer = new THREE.EffectComposer( renderer, renderTargetGlow );
-
-	// Add all the glow passes
-	glowcomposer.addPass( renderModelGlow );
-	glowcomposer.addPass( hblur );
-	glowcomposer.addPass( vblur );
-
-
-	// Prepare the base scene render pass
-	var renderModel = new THREE.RenderPass( scene, camera );
-	var renderModel2 = new THREE.RenderPass( scene2, camera );
-	renderModel.clear = true;
-	renderModel2.clear = false;
-
-
-	// Prepare the composer's render target
-	if( !renderTarget ) {
-		renderTarget = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight/*, renderTargetParameters*/ );
-		renderTargetGlow.texture.minFilter = THREE.LinearFilter;
-		renderTargetGlow.texture.magFilter = THREE.LinearFilter;
-		renderTargetGlow.texture.stencilBufer = false;
-		renderTarget.depthTexture = new THREE.DepthTexture();
-		//renderTarget.depthTexture.type = isWebGL2 ? THREE.FloatType : THREE.UnsignedShortType;
-		renderTarget.depthTexture.type = THREE.FloatType ;//: THREE.UnsignedShortType;
-	}
-	// Create the composer
-//	scenecomposer = new THREE.EffectComposer( renderer, renderTarget );
-
-	// First we need to assign the glow composer's output render target to the tGlow sampler2D of our shader
-	// Old Three.js pre-r50
-	//finalshader.uniforms[ "tGlow" ].texture = glowcomposer.renderTarget2;
-	// New Three.js
-	finalshader.uniforms[ "tGlow" ].value = glowcomposer.renderTarget2;
-	finalshader.uniforms[ "tGlowDepth" ].value = renderTargetGlow.depthTexture;
-	finalshader.uniforms[ "tDiffuseDepth" ].value = renderTarget.depthTexture;
-	finalshader.uniforms[ "cameraNear"].value = camera.near;
-	finalshader.uniforms[ "cameraFar"].value = camera.far;
-
-	//finalshader.uniforms[ "tDiffuse" ].value = scenecomposer.renderTarget2;
-	// Note that the tDiffuse sampler2D will be automatically filled by the EffectComposer
-
-	// Prepare the additive blending pass
-	var finalPass = new THREE.ShaderPass( finalshader );
-	finalPass.needsSwap = true;
-	// Make sure the additive blending is rendered to the screen (since it's the last pass)
-	finalPass.renderToScreen = true;
-
-	// Create the composer
-	finalcomposer = new THREE.EffectComposer( renderer, renderTarget );
-
-	// Add all passes
-	finalcomposer.addPass( renderModel );
-	finalcomposer.addPass( renderModel2 );
-	finalcomposer.addPass( finalPass );
-}
-
-function makeText( t,color, v )
-{
-	var canvas1 = document.createElement('canvas');
-	var context1 = canvas1.getContext('2d');
-	context1.font = "Bold 40px Arial";
-	context1.fillStyle = color;
-    context1.fillText(t, 0, 50);
-
-	// canvas contents will be used for a texture
-	var texture1 = new THREE.Texture(canvas1)
-	texture1.needsUpdate = true;
-
-    var material1 = new THREE.MeshBasicMaterial( {map: texture1, side:THREE.DoubleSide } );
-    material1.transparent = true;
-
-    var mesh1 = new THREE.Mesh(
-        new THREE.PlaneGeometry(canvas1.width, canvas1.height),
-        material1
-      );
-	  if( v )
-	  mesh1.position.set( v[0], v[1], v[2] );
-	  else
-	mesh1.position.set(0,0,150);
-	scene.add( mesh1 );
-	return mesh1;
-}
-
 var status_line;
 	function init() {
 		document.getElementById( "controls1").onclick = setControls1;
@@ -288,10 +90,10 @@ var status_line;
 		camera.matrixWorldNeedsUpdate = true;
 
 		 var geometryMaterial = Voxelarium.GeometryBuffer();
-		 geometryMaterial.makeVoxCube(  );
+		 geometryMaterial.makeVoxCube(  400 );
 		 geometryShader = Voxelarium.GeometryShader();
 		 geometryShaderMono = Voxelarium.GeometryShaderMono();
-		 //scene2.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
+		 scene2.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
 
 		 initVoxelarium();
 
@@ -309,7 +111,19 @@ var status_line;
 		          return;
 		        }
 
-		makeComposers();
+		glow.makeComposers( scene
+			, ()=>{
+				clusters.forEach( (cluster)=>{ cluster.SectorList.forEach( (sector)=>{
+					sector.solid_geometry.geometry.uniforms.edge_only = 0;
+				})})
+			}
+			, scene2
+			, ()=>{
+				clusters.forEach( (cluster)=>{ cluster.SectorList.forEach( (sector)=>{
+					sector.solid_geometry.geometry.uniforms.edge_only = 1;
+				})})
+			}
+		);
 
 		document.body.appendChild( renderer.domElement );
 
@@ -332,24 +146,8 @@ function slowanim() {
 
 function render() {
 	renderer.clear();
-	clusters.forEach( (cluster)=>{ cluster.SectorList.forEach( (sector)=>{
-		sector.solid_geometry.geometry.uniforms.edge_only = 1;
-	})})
-    glowcomposer.render();
 
-	clusters.forEach( (cluster)=>{ cluster.SectorList.forEach( (sector)=>{
-		sector.solid_geometry.geometry.uniforms.edge_only = 0;
-	})})
-	//scenecomposer.render();
-
-	finalshader.uniforms[ "tGlow" ].value = glowcomposer.renderTarget2;
-	finalshader.uniforms[ "tGlowDepth" ].value = renderTargetGlow.depthTexture.texture;
-	finalshader.uniforms[ "tDiffuseDepth" ].value = renderTarget.depthTexture.texture;
-	finalshader.uniforms[ "cameraNear"].value = camera.near;
-	finalshader.uniforms[ "cameraFar"].value = camera.far;
-
-
-    finalcomposer.render();
+	glow.render();
 }
 //render();
 
@@ -413,7 +211,7 @@ function initVoxelarium() {
 	words1.SectorList.forEach( (sector)=>{
 		basicMesher.MakeSectorRenderingData( sector );
 		scene2.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShaderMono ) )
-		sector.THREE_solid.matrix.Translate( -800, -8*20+offset, 0 );
+		sector.THREE_solid.matrix.Translate( -800, -1*8*20+offset, 0 );
 	})
 
 	var words1 = voxelUniverse.createTextCluster( "Play Game", Voxelarium.Voxels.BlackRockType, basicMesher, Voxelarium.Fonts.TI99 );
@@ -425,8 +223,27 @@ function initVoxelarium() {
 		sector.solid_geometry.geometry.uniforms.edge_only = 0;
 		sector.THREE_solid.matrix.Translate( -800, -2*8*20+offset, 0 );
 	})
+	var detailsize = 5;
+	renderVoxelWords( "Inventory", -800, -n*8*detailsize -3*8*20 -0*8*detailsize +offset, detailsize );
+	for( var n = 0; n < 50; n++ ) {
+		renderVoxelWords( "Server Name Goes here", -800,-n*8*detailsize -3*8*20-1*8*detailsize+offset, detailsize );
+		renderVoxelWords( "Players 0/3", -800 + 25 * 8*detailsize,-n*8*detailsize -3*8*20-1*8*detailsize+offset, detailsize );
+		renderVoxelWords( "Ping 333", -800 + (25+12)* 8*detailsize,-n*8*detailsize -3*8*20-1*8*detailsize+offset, detailsize );
+	}
+	function renderVoxelWords( string, xofs, offset, size ) {
+		var words1 = voxelUniverse.createTextCluster( string, Voxelarium.Voxels.BlackRockType, basicMesher, Voxelarium.Fonts.TI99, size );
+		clusters.push( words1 );
+		words1.SectorList.forEach( (sector)=>{
+			basicMesher.MakeSectorRenderingData( sector );
+			scene2.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShaderMono ) )
+			sector.solid_geometry.geometry.uniforms.in_FaceColor = new THREE.Vector4( 0.4, 0.8, 1, 1 );
+			sector.solid_geometry.geometry.uniforms.edge_only = 0;
+			sector.THREE_solid.matrix.Translate( xofs, offset, 0 );
+		})
 
+	}
 }
+
 
 function makeLine() {
 	//console.log( l )

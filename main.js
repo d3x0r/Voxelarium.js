@@ -31,7 +31,8 @@ function createWindow () {
   //mainWindow = new BrowserWindow({x:0, y:0, width:1920, height:1080, transparent:true, frame:false });
   //mainWindow = new BrowserWindow({transparent:true, frame:false, width: 800, height: 600});
   //mainWindow = new BrowserWindow({transparent:true, frame:false, fullscreen:true, alwaysOnTop:true });
-  mainWindow = new BrowserWindow({transparent:false, fullscreen:true });
+  mainWindow = new BrowserWindow({transparent:false, fullscreen:false });
+ // mainWindow = new BrowserWindow({transparent:false, fullscreen:true });
 
   // and load the index.html of the app.
   mainWindow.loadURL('file://' + __dirname + '/index.html');
