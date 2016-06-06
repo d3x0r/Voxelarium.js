@@ -6,9 +6,12 @@ Voxelarium.World = function() {
     return {
         clusters : [],
 
-        createCluster : function() {
+        createCluster : function( mesher, voxelUnitSize ) {
             var cluster = Voxelarium.Cluster(32,32,32);
-            clusters.push( cluster );
+            cluster.mesher = mesher;
+            cluster.voxelUnitSize = voxelUnitSize || 20;
+            cluster.getGeometryBuffer = Voxelarium.GeometryBuffer;
+            this.clusters.push( cluster );
             return cluster;
         },
 

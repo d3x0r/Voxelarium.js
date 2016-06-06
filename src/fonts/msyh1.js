@@ -65537,3 +65537,4 @@ height:16, baseline:13, chars:65536, flags:64, name:"msyh1.h", characters:[null
 ,null
 
 ] };
+Voxelarium.Fonts.MSYH = font;

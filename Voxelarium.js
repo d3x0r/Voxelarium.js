@@ -1,7 +1,11 @@
 
 var Voxelarium = { VERSION : "0.0.1" }
 
+Voxelarium.clock = new THREE.Clock()
+
+
 require( "../three.js/three.js/build/three.js")
+require( "./src/three.js.example/Projector.js" )
 require( "./src/three.js.post/shaders/CopyShader.js")
 require( "./src/three.js.post/shaders/HorizontalBlurShader.js")
 require( "./src/three.js.post/shaders/VerticalBlurShader.js")
@@ -30,18 +34,25 @@ require( "./src/three.js.post/TexturePass.js")
 //--- fonts ---
 Voxelarium.Fonts = {};
 require( "./src/fonts/TI99.js")
+//require( "./src/fonts/msyh1.js")
 
 require( "./src/constants.js")
 require( "./src/voxels.js" )
 
-require( "./src/sorting.tree.js")
-require( "./src/mesher.basic.js")
+require( "./src/sector.js")
+require( "./src/cluster.js")
+require( "./src/world.js")
 
 require( "./src/geometrybuffer.js")
 require( "./src/geometrymaterial.js")
 require( "./src/geometrybuffer.mono.js")
 require( "./src/geometrymaterial.mono.js")
+require( "./src/voxelSelector.js")
 
-require( "./src/sector.js")
-require( "./src/cluster.js")
-require( "./src/world.js")
+
+require( "./src/sorting.tree.js")
+require( "./src/mesher.basic.js")
+
+
+Object.freeze( Voxelarium );
+//Voxelarium.freeze();

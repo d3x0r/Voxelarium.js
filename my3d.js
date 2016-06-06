@@ -1,7 +1,7 @@
 "use strict";
 
 
-var glow = require( './glow.renderer.js' );
+//var glow = require( './glow.renderer.js' );
 
 var clusters = [];
 
@@ -78,15 +78,11 @@ var status_line;
 		scene2 = new THREE.Scene();
 		scene3 = new THREE.Scene();
 
-		// for phong hello world test....
-		light = new THREE.PointLight( 0xffFFFF, 1, 10000 );
-		light.position.set( 0, 0, 1000 );
-		scene.add( light );
 
 		camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
 
 		camera.matrixAutoUpdate = false;
-		camera.position.z = 800;
+		camera.position.z = 1500;
 		camera.matrixWorldNeedsUpdate = true;
 
 		 var geometryMaterial = Voxelarium.GeometryBuffer();
@@ -94,6 +90,13 @@ var status_line;
 		 geometryShader = Voxelarium.GeometryShader();
 		 geometryShaderMono = Voxelarium.GeometryShaderMono();
 		 scene2.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
+
+
+		 // for phong hello world test....
+ 		var light = new THREE.PointLight( 0xffFFFF, 1, 10000 );
+ 		light.position.set( 0, 0, 1000 );
+ 		scene.add( light );
+
 
 		 initVoxelarium();
 
@@ -129,6 +132,8 @@ var status_line;
 
 		controlNatural = new THREE.NaturalControls( camera, renderer.domElement );
 		controlNatural.disable();
+		//controlGame = new THREE.GameMouse( camera, renderer.domElement );
+
 		controlOrbit = new THREE.OrbitControls( camera, renderer.domElement );
 		camera.matrixAutoUpdate = false;
 		controlOrbit.enable();
@@ -138,18 +143,13 @@ var status_line;
 
 function slowanim() {
 	setTimeout( animate, 256 );
-
 }
-
-
 
 
 function render() {
 	renderer.clear();
-
 	glow.render();
 }
-//render();
 
 var nFrame = 0;
 var nTarget = 60;
@@ -166,13 +166,13 @@ function animate() {
 		//nFrame++;
 		if( nFrame++ < nTarget ) {
 			clusters.forEach( (cluster)=>{ cluster.SectorList.forEach( (sector)=>{
-				sector.solid_geometry.geometry.uniforms.in_FaceColor = new THREE.Vector4( 0.3 * 1, 0.7* 1,0.9* 1, 1.0 );
+				sector.solid_geometry.geometry.uniforms.in_FaceColor = new THREE.Vector4( 0.2 * 1, 0.5* 1,0.05* 1, 1.0 );
 				//sector.solid_geometry.geometry.uniforms.in_FaceColor = new THREE.Vector4( 0.3 * (nTarget-nFrame)/nTarget, 0.7* (nTarget-nFrame)/nTarget,0.9* (nTarget-nFrame)/nTarget, 1.0 );
-				sector.solid_geometry.geometry.uniforms.in_Color = new THREE.Vector4( 0.3 * (nFrame)/nTarget, 0.7* (nFrame)/nTarget,0.9* (nFrame)/nTarget, 1.0 );
+				sector.solid_geometry.geometry.uniforms.in_Color = new THREE.Vector4( 0.01 * (nFrame)/nTarget, 0.4* (nFrame)/nTarget,0.01* (nFrame)/nTarget, 1.0 );
 			})})
 		} else if( nFrame < nTarget2 ) {
 			clusters.forEach( (cluster)=>{ cluster.SectorList.forEach( (sector)=>{
-				sector.solid_geometry.geometry.uniforms.in_Color = new THREE.Vector4( 0.3 * (nTarget2-nFrame)/nTarget, 0.7* (nTarget2-nFrame)/nTarget,0.9* (nTarget2-nFrame)/nTarget, 1.0 );
+				sector.solid_geometry.geometry.uniforms.in_Color = new THREE.Vector4( 0.01 * (nTarget2-nFrame)/nTarget, 0.4* (nTarget2-nFrame)/nTarget,0.01* (nTarget2-nFrame)/nTarget, 1.0 );
 				//sector.solid_geometry.geometry.uniforms.in_FaceColor = new THREE.Vector4( 0.3 * (nFrame-nTarget)/nTarget, 0.7* (nFrame-nTarget)/nTarget,0.9* (nFrame-nTarget)/nTarget, 1.0 );
 			})})
 		}
@@ -206,7 +206,7 @@ function initVoxelarium() {
 		sector.THREE_solid.matrix.Translate( -800, +offset, 0 );
 	})
 
-	var words1 = voxelUniverse.createTextCluster( "Black Voxel", Voxelarium.Voxels.BlackRockType, basicMesher, Voxelarium.Fonts.TI99 );
+	var words1 = voxelUniverse.createTextCluster( "Blackvoxel", Voxelarium.Voxels.BlackRockType, basicMesher, Voxelarium.Fonts.TI99 );
 	clusters.push( words1 );
 	words1.SectorList.forEach( (sector)=>{
 		basicMesher.MakeSectorRenderingData( sector );
@@ -242,27 +242,6 @@ function initVoxelarium() {
 		})
 
 	}
-}
-
-
-function makeLine() {
-	//console.log( l )
-	var material = new THREE.LineBasicMaterial({
-		color:l===0? 0x0000ff:l===1?0x80ff80:l==2?0xff0000:0xff00ff
-	});
-	l++;
-	if( l == 3)
-		l = 0;
-	var geometry = new THREE.Geometry();
-	geometry.vertices.push(
-		new THREE.Vector3( -10, 0, 0 ),
-		new THREE.Vector3( 0, 10, 0 ),
-		new THREE.Vector3( 10, 0, 0 )
-	);
-
-	var line = new THREE.Line( geometry, material );
-	scene.add( line );
-	return line;
 }
 
 

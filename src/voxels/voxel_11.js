@@ -1,0 +1,7 @@
+Voxelarium.Voxels.add( "Paving relief 1", {
+Draw_TransparentRendering:0
+Draw_FullVoxelOpacity:1
+BlastResistance:50
+Documentation_PageNum : 1334
+}
+)

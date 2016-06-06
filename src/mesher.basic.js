@@ -1,4 +1,4 @@
-
+"use strict";
 var voxels = require( "./voxels.js")
 
 
@@ -6,8 +6,7 @@ Voxelarium.BasicMesher = function(  ) {
     var mesher = {
 		Culler : function( cluster ) {
             var culler = {
-    			FaceCulling : [],
-
+              cluster : cluster,
     			cullSector : function( sector, internal_faces, interesting_faces ) {
     				if( internal_faces )
     					Render_Basic.SectorUpdateFaceCulling( sector, false );
@@ -62,7 +61,7 @@ Voxelarium.BasicMesher = function(  ) {
     				else
     					sector[Voxelarium.RelativeVoxelOrds.AHEAD] = _Sector;
 
-    				if( 0 == ( offset & ( VoxelSector.ZVOXELBLOCMASK_Z << ( VoxelSector.ZVOXELBLOCSHIFT_X + VoxelSector.ZVOXELBLOCSHIFT_Y ) ) ) )
+    				if( 0 == ( ( offset / ( cluster.sectorSizeY * cluster.sectorSizeX ) ) % cluster.sectroSizeZ ) )
     				{
     					if( null == ( sector[Voxelarium.RelativeVoxelOrds.BEHIND] = _Sector.near_sectors[Voxelarium.RelativeVoxelOrds.BEHIND - 1] ) )
     						sector[Voxelarium.RelativeVoxelOrds.BEHIND] = VoxelWorld.WorkingFullSector;
@@ -97,19 +96,19 @@ Voxelarium.BasicMesher = function(  ) {
 
     					//Voxel_Address[i] = sector[i].Data.Data[Offset[i]];
     					VoxelType = ( sector[i].data.data[Offset[i]] );
-    					if( ( VoxelType.properties.DrawInfo & ZVOXEL_DRAWINFO_DRAWFULLVOXELOPACITY ) != 0 )
+    					if( ( VoxelType.properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_DRAWFULLVOXELOPACITY ) != 0 )
     						sector[i].Flag_Render_Dirty = true;
-    					if( ( VoxelType.properties.DrawInfo & ZVOXEL_DRAWINFO_DRAWTRANSPARENTRENDERING ) != 0 )
+    					if( ( VoxelType.properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_DRAWTRANSPARENTRENDERING ) != 0 )
     						sector[i].Flag_Render_Dirty_Transparent = true;
-    					VoxelState[i] = ( VoxelType.properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS );
+    					VoxelState[i] = ( VoxelType.properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_CULLINGBITS );
     				}
 
     				VoxelType = _Sector.data.data[Offset[Voxelarium.RelativeVoxelOrds.INCENTER]];
 
     				// Getting case subtables.
 
-    				ExtFaceState = ExtFaceStateTable[VoxelType.properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
-    				IntFaceState = IntFaceStateTable[VoxelType.properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
+    				ExtFaceState = Voxelarium.ExtFaceStateTable[VoxelType.properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_CULLINGBITS];
+    				IntFaceState = Voxelarium.IntFaceStateTable[VoxelType.properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_CULLINGBITS];
 
     				// Computing face culling for center main stored voxel.
 
@@ -181,10 +180,10 @@ Voxelarium.BasicMesher = function(  ) {
     			},
 
     			cullSingleVoxel2 : function( x, y, z ) {
-    				var sector = cluster.getSector( x / cluster.sectorSizeX, y >> VoxelSector.ZVOXELBLOCSHIFT_Y, z >> VoxelSector.ZVOXELBLOCSHIFT_Z );
-    				var offset = ( ( ( x & VoxelSector.ZVOXELBLOCMASK_X ) << VoxelSector.ZVOXELBLOCSHIFT_Y )
-    								+ ( y & VoxelSector.ZVOXELBLOCMASK_Y )
-    								+ ( ( z & VoxelSector.ZVOXELBLOCMASK_Z ) << ( VoxelSector.ZVOXELBLOCSHIFT_Y + VoxelSector.ZVOXELBLOCSHIFT_X ) ) );
+    				var sector = cluster.getSector( x / cluster.sectorSizeX, y / cluster.sectorSizeY, z / cluster.sectorSizeZ );
+    				var offset = ( ( ( x % cluster.sectorSizeX ) * cluster.sectorSizeY )
+    								+ ( y % cluster.sectorSizeY )
+    								+ ( ( z % cluster.sectorSizeZ ) << ( cluster.sectorSizeY + cluster.sectorSizeX ) ) );
     				CullSingleVoxel( sector, offset );
     			}
             }
@@ -195,18 +194,26 @@ Voxelarium.BasicMesher = function(  ) {
                 culler.FaceCulling[n] = 0xFF;
             return culler;
         }
-        , VoxelSector : new Array(27)
+        , sectorTable : new Array(27)
 		, SectorDataTable : new Array(27)
 		, BlocMatrix : [new Array(9),new Array(9),new Array(9)]
 
+    , initCulling : function( sector ) {
+      var tmp = sector.data.FaceCulling = new Array( sector.cluster.sectorSize );
+      for( var n = 0; n < tmp.length; n++ )
+        tmp[n] = 0xFF;
+    }
 		,SectorUpdateFaceCulling : function ( sector, isolated )
 		{
 			var MissingSector;
-
+      var cluster = sector.cluster;
 			var tmpp;
 			var i;
+      var sectorTable = this.sectorTable;
+      var SectorDataTable = this.SectorDataTable;
+      var BlocMatrix = this.BlocMatrix;
 
-			if( Isolated ) MissingSector = cluster.WorkingEmptySector;
+			if( isolated ) MissingSector = cluster.WorkingEmptySector;
 			else MissingSector = cluster.WorkingFullSector;
 
 			// (Voxelarium.FACEDRAW_Operations.ABOVE | Voxelarium.FACEDRAW_Operations.BELOW | Voxelarium.FACEDRAW_Operations.LEFT | Voxelarium.FACEDRAW_Operations.RIGHT | Voxelarium.FACEDRAW_Operations.AHEAD | Voxelarium.FACEDRAW_Operations.BEHIND);
@@ -225,18 +232,16 @@ Voxelarium.BasicMesher = function(  ) {
 			var xp, yp, zp;
 			var xpp, ypp, zpp;
 			var info;
-			var MainVoxelDrawInfo;
 
+      const tables = sector.cluster.lookupTables;
 			//sectorTable[0].Flag_Void_Regular = true;
 			//sectorTable[0].Flag_Void_Transparent = true;
-			VoxelTypeTable = world.VoxelTypeManager.VoxelTable;
 
 			for( xc = 0; xc < cluster.sectorSizeX; xc++ )
 			{
 				xp = xc + 1; xpp = xc + 2;
 				for( zc = 0; zc < cluster.sectorSizeZ; zc++ )
 				{
-                    var tables = sector.cluster.lookupTables;
 					zp = zc + 1; zpp = zc + 2;
 
 					// Prefetching the bloc matrix (only 2 rows)
@@ -271,6 +276,7 @@ Voxelarium.BasicMesher = function(  ) {
 						BlocMatrix[2] = tmpp;
 
 						// Fetching a new bloc of data slice;
+                        var hereOfs;
 
 						//      BlocMatrix[2][0] = SectorDataTable[(tables.tableX[xc ]+tables.tableY[ypp]+tables.tableZ[zc ])].Data;    [tables.ofTableX[xc ]+tables.ofTableY[ypp]+tables.ofTableZ[zc ]]
 						BlocMatrix[2][1] = SectorDataTable[( tables.tableX[xp] + tables.tableY[ypp] + tables.tableZ[zc] )][tables.ofTableX[xp] + tables.ofTableY[ypp] + tables.ofTableZ[zc]];
@@ -278,29 +284,29 @@ Voxelarium.BasicMesher = function(  ) {
 						BlocMatrix[2][3] = SectorDataTable[( tables.tableX[xc] + tables.tableY[ypp] + tables.tableZ[zp] )][tables.ofTableX[xc] + tables.ofTableY[ypp] + tables.ofTableZ[zp]];
 						BlocMatrix[2][4] = SectorDataTable[( tables.tableX[xp] + tables.tableY[ypp] + tables.tableZ[zp] )][tables.ofTableX[xp] + tables.ofTableY[ypp] + tables.ofTableZ[zp]];
 						BlocMatrix[2][5] = SectorDataTable[( tables.tableX[xpp] + tables.tableY[ypp] + tables.tableZ[zp] )][tables.ofTableX[xpp] + tables.ofTableY[ypp] + tables.ofTableZ[zp]];
+                        if( !BlocMatrix[2][5] )
+                            debugger
 						//      BlocMatrix[2][6] = SectorDataTable[(tables.tableX[xc ]+tables.tableY[ypp]+tables.tableZ[zpp])].Data;	   [tables.ofTableX[xc ]+tables.ofTableY[ypp]+tables.ofTableZ[zpp]]
 						BlocMatrix[2][7] = SectorDataTable[( tables.tableX[xp] + tables.tableY[ypp] + tables.tableZ[zpp] )][tables.ofTableX[xp] + tables.ofTableY[ypp] + tables.ofTableZ[zpp]];
 						//      BlocMatrix[2][8] = SectorDataTable[(tables.tableX[xpp]+tables.tableY[ypp]+tables.tableZ[zpp])].Data;	   [tables.ofTableX[xpp]+tables.ofTableY[ypp]+tables.ofTableZ[zpp]]
 
 						// Compute face culling info
 						info = 0;
-						if( BlocMatrix[1][4] > 0 )
+						if( BlocMatrix[1][4] )
 						{
+                            let MainVoxelDrawInfo = BlocMatrix[1][4].properties.DrawInfo;
+							let SubTable = Voxelarium.IntFaceStateTable[MainVoxelDrawInfo & Voxelarium.ZVOXEL_DRAWINFO_CULLINGBITS];
 
-							MainVoxelDrawInfo = BlocMatrix[1][4].properties.DrawInfo;
-							SubTable = IntFaceStateTable[MainVoxelDrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
-
-							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[1][1]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS] ) & Voxelarium.FACEDRAW_Operations.BEHIND );
-							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[1][7]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS] ) & Voxelarium.FACEDRAW_Operations.AHEAD );
-							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[1][3]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS] ) & Voxelarium.FACEDRAW_Operations.LEFT );
-							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[1][5]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS] ) & Voxelarium.FACEDRAW_Operations.RIGHT );
-							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[0][4]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS] ) & Voxelarium.FACEDRAW_Operations.BELOW );
-							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[2][4]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS] ) & Voxelarium.FACEDRAW_Operations.ABOVE );
+							info |= ( ( SubTable[BlocMatrix[1][1].properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_CULLINGBITS] ) & Voxelarium.FACEDRAW_Operations.BEHIND );
+							info |= ( ( SubTable[BlocMatrix[1][7].properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_CULLINGBITS] ) & Voxelarium.FACEDRAW_Operations.AHEAD );
+							info |= ( ( SubTable[BlocMatrix[1][3].properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_CULLINGBITS] ) & Voxelarium.FACEDRAW_Operations.LEFT );
+							info |= ( ( SubTable[BlocMatrix[1][5].properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_CULLINGBITS] ) & Voxelarium.FACEDRAW_Operations.RIGHT );
+							info |= ( ( SubTable[BlocMatrix[0][4].properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_CULLINGBITS] ) & Voxelarium.FACEDRAW_Operations.BELOW );
+							info |= ( ( SubTable[BlocMatrix[2][4].properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_CULLINGBITS] ) & Voxelarium.FACEDRAW_Operations.ABOVE );
 						}
 
 						// Write face culling info to face culling table
-
-                        sector.Culler.FaceCulling[ tables.ofTableX[xp] + tables.ofTableY[yp] + tables.ofTableZ[zp]] = info;
+                        sector.data.FaceCulling[tables.ofTableX[xp] + tables.ofTableY[yp] + tables.ofTableZ[zp]] = info;
 					}
 				}
 			}
@@ -322,9 +328,9 @@ Voxelarium.BasicMesher = function(  ) {
 			var FaceState;
 			//extern ushort IntFaceStateTable[][8];
 
-			x = sector.Pos_x;
-			y = sector.Pos_y;
-			z = sector.Pos_z;
+			x = sector.pos.x;
+			y = sector.pos.y;
+			z = sector.pos.z;
 
 			if( Isolated ) MissingSector = cluster.WorkingEmptySector;
 			else MissingSector = cluster.WorkingFullSector;
@@ -334,13 +340,14 @@ Voxelarium.BasicMesher = function(  ) {
 			CuledFaces = 0;
 
 			// Top Side
+      VoxelFC_In = Sector_In.data.FaceCulling;
+      VoxelData_In = Sector_In.data;
 
 			if( ( FacesToDraw & Voxelarium.FACEDRAW_Operations.ABOVE ) != 0 )
-				if( ( Sector_Out = sector.near_sectors[Voxelarium.RelativeVoxelOrds.ABOVE - 1] ) != null )
+				if( ( ( Sector_Out = sector.near_sectors[Voxelarium.RelativeVoxelOrds.ABOVE - 1])
+           || ( Sector_Out = MissingSector ) )  )
 				{
-					VoxelData_In = Sector_In.Data;
-					VoxelData_Out = Sector_Out.Data;
-					VoxelFC_In = Sector_In.Culler.FaceCulling;
+					VoxelData_Out = Sector_Out.data;
 
 					for( Off_Ip = cluster.sectorSizeY - 1, Off_Op = 0;
 						Off_Ip < ( cluster.sectorSizeY * cluster.sectorSizeX );
@@ -353,7 +360,7 @@ Voxelarium.BasicMesher = function(  ) {
 						{
 							Off_In = Off_Ip + Off_Aux;
 							Off_Out = Off_Op + Off_Aux;
-							FaceState = IntFaceStateTable[VoxelTypeTable[VoxelData_In.Data[Off_In]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS][VoxelTypeTable[VoxelData_Out.Data[Off_Out]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
+							FaceState = Voxelarium.IntFaceStateTable[VoxelData_In.data[Off_In].properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_CULLINGBITS][VoxelData_Out.data[Off_Out].properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_CULLINGBITS];
 							if( FaceState != 0 ) VoxelFC_In[Off_In] |= Voxelarium.FACEDRAW_Operations.ABOVE;
 							else VoxelFC_In[Off_In] &= ( ( ~Voxelarium.FACEDRAW_Operations.ABOVE ) & 0xFF );
 						}
@@ -363,11 +370,9 @@ Voxelarium.BasicMesher = function(  ) {
 			// Bottom Side
 
 			if( ( FacesToDraw & Voxelarium.FACEDRAW_Operations.BELOW ) != 0 )
-				if( ( Sector_Out = sector.near_sectors[Voxelarium.RelativeVoxelOrds.BELOW - 1] ) != null )
+				if( ( ( Sector_Out = sector.near_sectors[Voxelarium.RelativeVoxelOrds.BELOW - 1]) || ( Sector_Out = MissingSector)) != null )
 				{
-					VoxelData_In = Sector_In.Data;
-					VoxelData_Out = Sector_Out.Data;
-					VoxelFC_In = Sector_In.Culler.FaceCulling;
+					VoxelData_Out = Sector_Out.data;
 
 					for( Off_Ip = 0, Off_Op = cluster.sectorSizeY - 1;
 						 Off_Ip < ( cluster.sectorSizeY * cluster.sectorSizeZ );
@@ -380,15 +385,15 @@ Voxelarium.BasicMesher = function(  ) {
 						{
 							Off_In = Off_Ip + Off_Aux;
 							Off_Out = Off_Op + Off_Aux;
-							Voxel_In = VoxelData_In.Data[Off_In];
-							Voxel_Out = VoxelData_Out.Data[Off_Out];
+							Voxel_In = VoxelData_In.data[Off_In];
+							Voxel_Out = VoxelData_Out.data[Off_Out];
 							//ZVoxelType * VtIn =  VoxelTypeTable[ Voxel_In ];
 							//ZVoxelType * VtOut = VoxelTypeTable[ Voxel_Out ];
 
 
-							FaceState = IntFaceStateTable[VoxelTypeTable[Voxel_In].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS][VoxelTypeTable[Voxel_Out].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
+							FaceState = Voxelarium.IntFaceStateTable[Voxel_In.properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_CULLINGBITS][Voxel_Out.properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_CULLINGBITS];
 
-							//FaceState = IntFaceStateTable[ VoxelTypeTable[ VoxelData_In.Data[Off_In] ].DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS ][ VoxelTypeTable[ VoxelData_Out.Data[Off_Out] ].DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS ];
+							//FaceState = IntFaceStateTable[ VoxelTypeTable[ VoxelData_In.Data[Off_In] ].DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_CULLINGBITS ][ VoxelTypeTable[ VoxelData_Out.Data[Off_Out] ].DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_CULLINGBITS ];
 							if( FaceState != 0 ) VoxelFC_In[Off_In] |= Voxelarium.FACEDRAW_Operations.BELOW;
 							else VoxelFC_In[Off_In] &= ( ~Voxelarium.FACEDRAW_Operations.BELOW & 0xFF );
 						}
@@ -398,11 +403,9 @@ Voxelarium.BasicMesher = function(  ) {
 					// Left Side
 
 					if( ( FacesToDraw & Voxelarium.FACEDRAW_Operations.LEFT ) != 0 )
-				if( ( Sector_Out = sector.near_sectors[Voxelarium.RelativeVoxelOrds.LEFT - 1] ) != null )
+				if( ( ( Sector_Out = sector.near_sectors[Voxelarium.RelativeVoxelOrds.LEFT - 1]) || ( Sector_Out = MissingSector)) != null )
 				{
-					VoxelData_In = Sector_In.Data;
-					VoxelData_Out = Sector_Out.Data;
-					VoxelFC_In = Sector_In.Culler.FaceCulling;
+					VoxelData_Out = Sector_Out.data;
 					// VoxelData_In[63]=1;
 					// VoxelData_In[63 + cluster.sectorSizeY*15 ]=14; // x
 					// VoxelData_In[63 + cluster.sectorSizeY * cluster.sectorSizeX * 15] = 13; // z
@@ -417,7 +420,7 @@ Voxelarium.BasicMesher = function(  ) {
 							Off_In = Off_Ip + Off_Aux;
 							Off_Out = Off_Op + Off_Aux;
 							//VoxelData_In[Off_In]=1; VoxelData_Out[Off_Out]=14;
-							FaceState = IntFaceStateTable[VoxelTypeTable[VoxelData_In.Data[Off_In]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS][VoxelTypeTable[VoxelData_Out.Data[Off_Out]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
+							FaceState = Voxelarium.IntFaceStateTable[VoxelData_In.data[Off_In].properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_CULLINGBITS][VoxelData_Out.data[Off_Out].properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_CULLINGBITS];
 							if( FaceState != 0 ) VoxelFC_In[Off_In] |= Voxelarium.FACEDRAW_Operations.LEFT;
 							else VoxelFC_In[Off_In] &= ( ~Voxelarium.FACEDRAW_Operations.LEFT & 0xFF );
 						}
@@ -428,11 +431,9 @@ Voxelarium.BasicMesher = function(  ) {
 			// Right Side
 
 			if( ( FacesToDraw & Voxelarium.FACEDRAW_Operations.RIGHT ) != 0 )
-				if( ( Sector_Out = sector.near_sectors[Voxelarium.RelativeVoxelOrds.RIGHT - 1] ) != null )
+				if( ( ( Sector_Out = sector.near_sectors[Voxelarium.RelativeVoxelOrds.RIGHT - 1]) || ( Sector_Out = MissingSector)) != null )
 				{
-					VoxelData_In = Sector_In.Data;
-					VoxelData_Out = Sector_Out.Data;
-					VoxelFC_In = Sector_In.Culler.FaceCulling;
+					VoxelData_Out = Sector_Out.data;
 
 					for( Off_Ip = ( cluster.sectorSizeY * ( cluster.sectorSizeX - 1 )), Off_Op = 0;
 						Off_Op < ( cluster.sectorSizeY * cluster.sectorSizeX * cluster.sectorSizeZ );
@@ -442,7 +443,7 @@ Voxelarium.BasicMesher = function(  ) {
 						{
 							Off_In = Off_Ip + Off_Aux;
 							Off_Out = Off_Op + Off_Aux;
-							FaceState = IntFaceStateTable[VoxelTypeTable[VoxelData_In.Data[Off_In]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS][VoxelTypeTable[VoxelData_Out.Data[Off_Out]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
+							FaceState = Voxelarium.IntFaceStateTable[VoxelData_In.data[Off_In].properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_CULLINGBITS][VoxelData_Out.data[Off_Out].properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_CULLINGBITS];
 							if( FaceState != 0 ) VoxelFC_In[Off_In] |= Voxelarium.FACEDRAW_Operations.RIGHT; else VoxelFC_In[Off_In] &= ( ~Voxelarium.FACEDRAW_Operations.RIGHT & 0xFF );
 						}
 					}
@@ -452,11 +453,9 @@ Voxelarium.BasicMesher = function(  ) {
 			// Front Side
 
 			if( ( FacesToDraw & Voxelarium.FACEDRAW_Operations.AHEAD ) != 0 )
-				if( ( Sector_Out = sector.near_sectors[Voxelarium.RelativeVoxelOrds.AHEAD - 1] ) != null )
+				if( ( ( Sector_Out = sector.near_sectors[Voxelarium.RelativeVoxelOrds.AHEAD - 1]) || ( Sector_Out = MissingSector)) != null )
 				{
-					VoxelData_In = Sector_In.Data;
-					VoxelData_Out = Sector_Out.Data;
-					VoxelFC_In = Sector_In.Culler.FaceCulling;
+					VoxelData_Out = Sector_Out.data;
 
 					for( Off_Ip = ( cluster.sectorSizeY * cluster.sectorSizeX * ( cluster.sectorSizeZ - 1 ) ), Off_Op = 0;
 						Off_Op < ( cluster.sectorSizeY * cluster.sectorSizeX );
@@ -466,7 +465,7 @@ Voxelarium.BasicMesher = function(  ) {
 						{
 							Off_In = Off_Ip + Off_Aux;
 							Off_Out = Off_Op + Off_Aux;
-							FaceState = IntFaceStateTable[VoxelTypeTable[VoxelData_In.Data[Off_In]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS][VoxelTypeTable[VoxelData_Out.Data[Off_Out]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
+							FaceState = Voxelarium.IntFaceStateTable[VoxelData_In.data[Off_In].properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_CULLINGBITS][VoxelData_Out.data[Off_Out].properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_CULLINGBITS];
 							if( FaceState != 0 ) VoxelFC_In[Off_In] |= Voxelarium.FACEDRAW_Operations.AHEAD;
 							else VoxelFC_In[Off_In] &= ( ~Voxelarium.FACEDRAW_Operations.AHEAD & 0xFF );
 						}
@@ -477,11 +476,10 @@ Voxelarium.BasicMesher = function(  ) {
 			// Back Side
 
 			if( ( FacesToDraw & Voxelarium.FACEDRAW_Operations.BEHIND ) != 0 )
-				if( ( Sector_Out = sector.near_sectors[Voxelarium.RelativeVoxelOrds.BEHIND - 1] ) != null )
+				if( ( ( Sector_Out = sector.near_sectors[Voxelarium.RelativeVoxelOrds.BEHIND - 1] ) || ( Sector_Out = MissingSector ) ) != null )
 						{
-							VoxelData_In = Sector_In.Data;
-							VoxelData_Out = Sector_Out.Data;
-							VoxelFC_In = Sector_In.Culler.FaceCulling;
+							VoxelData_Out = Sector_Out.data;
+
 							for( Off_Ip = 0, Off_Op = ( cluster.sectorSizeY * cluster.sectorSizeX * ( cluster.sectorSizeZ - 1 ) );
 								Off_Ip < ( cluster.sectorSizeY * cluster.sectorSizeX );
 								Off_Ip += cluster.sectorSizeY, Off_Op += cluster.sectorSizeY ) // x (0..15)
@@ -490,7 +488,7 @@ Voxelarium.BasicMesher = function(  ) {
 								{
 									Off_In = Off_Ip + Off_Aux;
 									Off_Out = Off_Op + Off_Aux;
-									FaceState = IntFaceStateTable[VoxelTypeTable[VoxelData_In.Data[Off_In]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS][VoxelTypeTable[VoxelData_Out.Data[Off_Out]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
+									FaceState = Voxelarium.IntFaceStateTable[VoxelData_In.data[Off_In].properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_CULLINGBITS][VoxelData_Out.data[Off_Out].properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_CULLINGBITS];
 									if( FaceState != 0 ) VoxelFC_In[Off_In] |= Voxelarium.FACEDRAW_Operations.BEHIND; else VoxelFC_In[Off_In] &= ( ~Voxelarium.FACEDRAW_Operations.BEHIND & 0xFF );
 								}
 							}
@@ -501,9 +499,9 @@ Voxelarium.BasicMesher = function(  ) {
 			//sector.PartialCulling &= ( Voxelarium.FACEDRAW_Operations.ABOVE | Voxelarium.FACEDRAW_Operations.BELOW | Voxelarium.FACEDRAW_Operations.LEFT | Voxelarium.FACEDRAW_Operations.RIGHT | Voxelarium.FACEDRAW_Operations.AHEAD | Voxelarium.FACEDRAW_Operations.BEHIND );
 			if( CuledFaces != 0 )
 			{
-				//Log.log( "sector {0} {1} {2} is dirty", sector.Pos_x, sector.Pos_y, sector.Pos_z );
+				//Log.log( "sector {0} {1} {2} is dirty", sector.pos.x, sector.pos.y, sector.pos.z );
 				Sector_Out.Flag_Render_Dirty = true;
-                Sector_In.Flag_Render_Dirty = true;
+        Sector_In.Flag_Render_Dirty = true;
 			}
 
 			return ( CuledFaces );
@@ -515,7 +513,7 @@ Voxelarium.BasicMesher = function(  ) {
 			{
 				return;
 			}
-			Location.sector.Culler.CullSingleVoxel( Location.sector, Location.Offset );
+			Location.sector.cluster.culler.CullSingleVoxel( Location.sector, Location.Offset );
 
 			Location.sector.Flag_IsModified |= ImportanceFactor;
 		}
@@ -572,18 +570,21 @@ Voxelarium.BasicMesher = function(  ) {
                 sector.solid_geometry = cluster.getGeometryBuffer();
                 sector.Flag_Render_Dirty = true;
             }
-            if( !sector.culler )
-                sector.culler = cluster.mesher.Culler( cluster );
+            if( !sector.data.FaceCulling )
+            {
+                sector.culler = cluster.mesher.culler;
+                this.initCulling( sector );
+              }
 			// Display list creation or reuse.
 			if( sector.Flag_Render_Dirty )
 			{
 				var geometry = sector.solid_geometry;
 				var voxelSize = cluster.voxelUnitSize;
-				var FaceCulling = sector.culler.FaceCulling;
-				//Log.log( "Is Dirty Building sector {0} {1} {2}", sector.Pos_x, sector.Pos_y, sector.Pos_z );
-				Sector_Display_x = ( sector.Pos_x * cluster.sectorSizeX * voxelSize );
-				Sector_Display_y = ( sector.Pos_y * cluster.sectorSizeY * voxelSize );
-				Sector_Display_z = ( sector.Pos_z * cluster.sectorSizeZ * voxelSize );
+				var FaceCulling = sector.data.FaceCulling;
+				//Log.log( "Is Dirty Building sector {0} {1} {2}", sector.pos.x, sector.pos.y, sector.pos.z );
+				Sector_Display_x = ( sector.pos.x * cluster.sectorSizeX * voxelSize );
+				Sector_Display_y = ( sector.pos.y * cluster.sectorSizeY * voxelSize );
+				Sector_Display_z = ( sector.pos.z * cluster.sectorSizeZ * voxelSize );
 
 				sector.Flag_Void_Regular = true;
 				sector.Flag_Void_Transparent = true;
@@ -599,11 +600,14 @@ Voxelarium.BasicMesher = function(  ) {
 						, ( sector.near_sectors[Voxelarium.RelativeVoxelOrds.BELOW - 1] != null ) ? "Yes" : "no"
 						, ( sector.near_sectors[Voxelarium.RelativeVoxelOrds.BEHIND - 1] != null ) ? "Yes" : "no"
 						, ( sector.near_sectors[Voxelarium.RelativeVoxelOrds.AHEAD - 1] != null ) ? "Yes" : "no"
-						, sector.Pos_x, sector.Pos_y, sector.Pos_z
+						, sector.pos.x, sector.pos.y, sector.pos.z
 						);
 					*/
                     sector.data.data.forEach( (voxel,Offset)=>
 					{
+                        if( geometry.available > 256000 ){debugger;
+                        return;
+                    }
                         if( !voxel ) return;
 						{
 							{
@@ -611,7 +615,9 @@ Voxelarium.BasicMesher = function(  ) {
 
 								if( voxel && info != Voxelarium.FACEDRAW_Operations.NONE )
 								{
-									if( voxel.properties.Draw_TransparentRendering )
+                                    if( voxel.properties.DrawInfo === Voxelarium.ZVOXEL_DRAWINFO_VOID )
+                                        draw = false;
+									else if( voxel.properties.Draw_TransparentRendering )
 										{ Draw = false; sector.Flag_Void_Transparent = false; }
 									else
 										{ Draw = true; sector.Flag_Void_Regular = false; }
@@ -635,7 +641,7 @@ Voxelarium.BasicMesher = function(  ) {
 
 									if( info != 0 )
 									{
-										//Log.log( "Set sector {0} {1} {2} offset {3}   {4:x}", sector.Pos_x, sector.Pos_y, sector.Pos_z, Offset, info );
+										//Log.log( "Set sector {0} {1} {2} offset {3}   {4:x}", sector.pos.x, sector.pos.y, sector.pos.z, Offset, info );
 										//sector.physics.SetVoxel( Offset );
 									}
 									else
@@ -674,7 +680,7 @@ Voxelarium.BasicMesher = function(  ) {
 										if( face_is_shaded )
 											geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.LEFT], P3, P7, P0, P4, face, edge, power );
 										else
-											geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.LEFT], P3, P7, P0, P4, VoxelTypeTable[cube].TextureCoords );
+											geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.LEFT], P3, P7, P0, P4, cube.TextureCoords );
 									}
 
 									// Right
@@ -684,7 +690,7 @@ Voxelarium.BasicMesher = function(  ) {
 										if( face_is_shaded )
 											geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.RIGHT], P1, P5, P2, P6, face, edge, power );
 										else
-											geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.RIGHT], P1, P5, P2, P6, VoxelTypeTable[cube].TextureCoords );
+											geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.RIGHT], P1, P5, P2, P6, cube.TextureCoords );
 									}
 									//Front
 									if( ( info & Voxelarium.FACEDRAW_Operations.BEHIND ) != 0 )
@@ -693,7 +699,7 @@ Voxelarium.BasicMesher = function(  ) {
 										if( face_is_shaded )
 											geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.BEHIND], P0, P4, P1, P5, face, edge, power );
 										else
-											geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.BEHIND], P0, P4, P1, P5, VoxelTypeTable[cube].TextureCoords );
+											geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.BEHIND], P0, P4, P1, P5, cube.TextureCoords );
 									}
 
 									//Back
@@ -703,7 +709,7 @@ Voxelarium.BasicMesher = function(  ) {
 										if( face_is_shaded )
 											geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.AHEAD], P2, P6, P3, P7, face, edge, power );
 										else
-											geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.AHEAD], P2, P6, P3, P7, VoxelTypeTable[cube].TextureCoords );
+											geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.AHEAD], P2, P6, P3, P7, cube.TextureCoords );
 									}
 
 									// Top
@@ -713,7 +719,7 @@ Voxelarium.BasicMesher = function(  ) {
 										if( face_is_shaded )
 											geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.ABOVE], P4, P7, P5, P6, face, edge, power );
 										else
-											geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.ABOVE], P4, P7, P5, P6, VoxelTypeTable[cube].TextureCoords );
+											geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.ABOVE], P4, P7, P5, P6, cube.TextureCoords );
 									}
 
 									// Bottom
@@ -723,7 +729,7 @@ Voxelarium.BasicMesher = function(  ) {
 										if( face_is_shaded )
 											geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.BELOW], P3, P0, P2, P1, face, edge, power );
 										else
-											geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.BELOW], P3, P0, P2, P1, VoxelTypeTable[cube].TextureCoords );
+											geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.BELOW], P3, P0, P2, P1, cube.TextureCoords );
 									}
 								}
 								//else
@@ -770,14 +776,14 @@ Voxelarium.BasicMesher = function(  ) {
 
 			var P0, P1, P2, P3, P4, P5, P6, P7;
 
-			//Log.log( "Building sector {0} {1} {2}", sector.Pos_x, sector.Pos_y, sector.Pos_z );
+			//Log.log( "Building sector {0} {1} {2}", sector.pos.x, sector.pos.y, sector.pos.z );
 			// Display list creation or reuse.
 			var geometry = sector.transparent_geometry;
 			var voxelSize = sector.cluster.voxelUnitSize;
-			var FaceCulling = sector.Culler .FaceCulling;
-			Sector_Display_x = ( sector.Pos_x * sector.Size_x * voxelSize );
-			Sector_Display_y = ( sector.Pos_y * sector.Size_y * voxelSize );
-			Sector_Display_z = ( sector.Pos_z * sector.Size_z * voxelSize );
+			var FaceCulling = sector.data.FaceCulling;
+			Sector_Display_x = ( sector.pos.x * sector.Size_x * voxelSize );
+			Sector_Display_y = ( sector.pos.y * sector.Size_y * voxelSize );
+			Sector_Display_z = ( sector.pos.z * sector.Size_z * voxelSize );
 
 			var SectorIndexes = SortedSectorIndexes[viewed_as];
 			/*
@@ -800,7 +806,7 @@ Voxelarium.BasicMesher = function(  ) {
 			*/
 			if( sector.Flag_Render_Dirty_Transparent )
 			{
-				//Log.log( "Regnerate Alpha Geometry {0} {1} {2}", sector.Pos_x, sector.Pos_y, sector.Pos_z );
+				//Log.log( "Regnerate Alpha Geometry {0} {1} {2}", sector.pos.x, sector.pos.y, sector.pos.z );
 				{
 					var face_is_shaded = true;
 					var view_order_list = null;
@@ -1051,7 +1057,7 @@ Voxelarium.BasicMesher = function(  ) {
 												if( face_is_shaded )
 													geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.LEFT], P3, P7, P0, P4, face, edge, power );
 												else
-													geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.LEFT], P3, P7, P0, P4, VoxelTypeTable[cube].TextureCoords );
+													geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.LEFT], P3, P7, P0, P4, cube.TextureCoords );
 											}
 											break;
 										case Voxelarium.RelativeVoxelOrds.RIGHT:
@@ -1063,7 +1069,7 @@ Voxelarium.BasicMesher = function(  ) {
 												if( face_is_shaded )
 													geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.RIGHT], P1, P5, P2, P6, face, edge, power );
 												else
-													geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.RIGHT], P1, P5, P2, P6, VoxelTypeTable[cube].TextureCoords );
+													geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.RIGHT], P1, P5, P2, P6, cube.TextureCoords );
 											}
 											break;
 										case Voxelarium.RelativeVoxelOrds.BEHIND:
@@ -1074,7 +1080,7 @@ Voxelarium.BasicMesher = function(  ) {
 												if( face_is_shaded )
 													geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.BEHIND], P0, P4, P1, P5, face, edge, power );
 												else
-													geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.BEHIND], P0, P4, P1, P5, VoxelTypeTable[cube].TextureCoords );
+													geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.BEHIND], P0, P4, P1, P5, cube.TextureCoords );
 											}
 											break;
 										case Voxelarium.RelativeVoxelOrds.AHEAD:
@@ -1085,7 +1091,7 @@ Voxelarium.BasicMesher = function(  ) {
 												if( face_is_shaded )
 													geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.AHEAD], P2, P6, P3, P7, face, edge, power );
 												else
-													geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.AHEAD], P2, P6, P3, P7, VoxelTypeTable[cube].TextureCoords );
+													geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.AHEAD], P2, P6, P3, P7, cube.TextureCoords );
 											}
 											break;
 										case Voxelarium.RelativeVoxelOrds.ABOVE:
@@ -1096,7 +1102,7 @@ Voxelarium.BasicMesher = function(  ) {
 												if( face_is_shaded )
 													geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.ABOVE], P4, P7, P5, P6, face, edge, power );
 												else
-													geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.ABOVE], P4, P7, P5, P6, VoxelTypeTable[cube].TextureCoords );
+													geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.ABOVE], P4, P7, P5, P6, cube.TextureCoords );
 											}
 											break;
 										case Voxelarium.RelativeVoxelOrds.BELOW:
@@ -1107,7 +1113,7 @@ Voxelarium.BasicMesher = function(  ) {
 												if( face_is_shaded )
 													geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.BELOW], P3, P0, P2, P1, face, edge, power );
 												else
-													geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.BELOW], P3, P0, P2, P1, VoxelTypeTable[cube].TextureCoords );
+													geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.BELOW], P3, P0, P2, P1, cube.TextureCoords );
 											}
 											break;
 										}

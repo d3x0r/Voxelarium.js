@@ -1,0 +1,8 @@
+Voxelarium.Voxels.add( "T3 Pump", {
+Draw_TransparentRendering:0
+Draw_FullVoxelOpacity:1
+MiningHardness : 2000;
+MiningType     : 1;
+Documentation_PageNum : 0
+}
+)

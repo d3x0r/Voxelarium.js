@@ -17,7 +17,7 @@ Voxelarium.Sector = function( cluster, x, y, z ) {
 		near_sectors : new Array(27), // can index with relativeOrds-1 (self is not in this array)
 
 		handle_x : 0, handle_y:0, handle_z : 0, // used in Genesis templates; 'origin' of this sector
-		Pos_x : x, Pos_y : y, Pos_z : z,
+		pos : new THREE.Vector3( x, y, z ),
 
 		// Version control : Added for handling better world evolution.
 		ZoneType : 0,     // The type of the zone.
@@ -30,6 +30,7 @@ Voxelarium.Sector = function( cluster, x, y, z ) {
 		data : { data : new Array( cluster.sectorSize )
 				, sleepState : Voxelarium.PackedBoolArray( cluster.sectorSize )
             	, otherInfos : []
+							, FaceCulling : null
             	},
 		ModifTracker : Voxelarium.ModificationTracker( cluster.sectorSize ),
 
@@ -60,10 +61,11 @@ Voxelarium.Sector = function( cluster, x, y, z ) {
 			var offset = this.getOffset( x, y, z );
 			this.data.data[offset] = CubeValue;
 
-			if( CubeValue.ExtensionType )
-				this.data.otherInfos[offset] = Activator.CreateInstance( VoxelTypeManager.VoxelTable[CubeValue].ExtensionType );
+			if( CubeValue && CubeValue.extension )
+				this.data.otherInfos[offset] = CubeValue.extension();
 			else
 				this.data.otherInfos[offset] = null;
+			this.Flag_Render_Dirty = true;
 		},
 
 		getCube : function( x, y, z ) {
@@ -71,26 +73,29 @@ Voxelarium.Sector = function( cluster, x, y, z ) {
 			return ( newSector.data.data[Offset] );
 		},
 
-		MakeSector : function() {
+		MakeSector : function( type ) {
 			var x, y, z;
 			var Cnt;
-
-			if( this.Pos_y < 0 ) { Cnt = Voxelarium.Voxels.types[0]; this.Flag_Void_Regular = false; this.Flag_Void_Transparent = true; }
+			if( type ) Cnt = type;
+			else if( this.Pos_y < 0 ) { Cnt = Voxelarium.Voxels.types[0]; this.Flag_Void_Regular = false; this.Flag_Void_Transparent = true; }
 			else { Cnt = null; this.Flag_Void_Regular = true; this.Flag_Void_Transparent = true; }
-			for( z = 0; z < this.size_x; z++ )
+			for( z = 0; z < this.cluster.sectorSizeX; z++ )
 			{
-				for( y = 0; y < this.size_y; y++ )
+				for( y = 0; y < this.cluster.sectorSizeY; y++ )
 				{
-					for( x = 0; x < this.size_x; x++ )
+					for( x = 0; x < this.cluster.sectorSizeZ; x++ )
 					{
-						newSector.SetCube( x, y, z, Cnt );
+						newSector.setCube( x, y, z, Cnt );
 					}
 				}
 			}
 		},
 
-		getVoxelRef : VoxelRef,
-
+		getVoxelRef : function(x,y,z) {
+			if( x < 0 ) x += this.cluster.sectorSizeX;
+			if( y < 0 ) y += this.cluster.sectorSizeY;
+			if( z < 0 ) z += this.cluster.sectorSizeZ;
+			 return makeVoxelRef( this.cluster, this, x, y, z ); }
 
         }
         return newSector;
@@ -109,37 +114,72 @@ function NearVoxelRef() {
 	 return result;
 }
 
-function VoxelRef( x, y, z )
-{
-	var result = { sector : this
-			, offset : 0
-			, x : x, y : y, z : z
-		 	, wx : this.Pos_x * this.size_x + x
-			, wy : this.Pos_y * this.size_y + y
-			, wz : this.Pos_z * this.size_z + z
-			, voxelType : null
-			, cluster : this.cluster
-			, voxelExtension : null
-			, forEach : forEach
-			, clone : function() { return this.sector.getVoxelRef( this.x, this.y, this.z ) }
-			, getNearVoxel : GetVoxelRef
-			 }
+function VoxelRef( x, y, z ) {
+}
 
-	{
-		result.offset = ( x * this.size_y )  + y + ( z * ( this.size_x * this.size_z) );
-		result.voxelType = this.data.data[result.offset];
-		result.voxelExtension = sector.data.otherInfos[result.offset];
+var refPool = [];
+
+Voxelarium.VoxelRef = makeVoxelRef
+
+
+function makeVoxelRef( cluster, sector, x, y, z )
+{
+	var result;
+	result = refPool.pop();
+	if( !result ) {
+		result = { sector : sector
+				, offset : 0
+				, x : x, y : y, z : z
+			 	, wx : sector?(sector.pos.x * cluster.sectorSizeX + x):x
+				, wy : sector?(sector.pos.y * cluster.sectorSizeY + y):y
+				, wz : sector?(sector.pos.z * cluster.sectorSizeZ + z):z
+				, voxelType : null
+				, cluster : cluster
+				, voxelExtension : null
+				, forEach : forEach
+				, delete : function() { refPool.push( this ); }
+				, clone : function() { return this.sector.getVoxelRef( this.x, this.y, this.z ) }
+				, getNearVoxel : GetVoxelRef
+				 }
+		Object.seal( result );
 	}
+	else {
+		result.sector = sector;
+		result.offset = 0;
+		result.x = x;
+		result.y = y;
+		result.z = z;
+		result.wx = sector?(sector.pos.x * cluster.sectorSizeX + x):x
+		result.wy = sector?(sector.pos.y * cluster.sectorSizeY + y):y
+		result.wz = sector?(sector.pos.z * cluster.sectorSizeZ + z):z
+		result.voxelType = null;
+		result.cluster = cluster;
+		result.voxelExtension = null;
+	}
+    if( sector ) {
+		// wx coords will still be accurate even if the sub-range and origin sector move now.
+		if( result.x < 0 ) { result.x += cluster.sectorSizeX; result.sector = ( result.sector && result.sector.near_sectors[Voxelarium.RelativeVoxelOrds.RIGHT] || result.sector ) }
+		if( result.y < 0 ) { result.y += cluster.sectorSizeY; result.sector = ( result.sector && result.sector.near_sectors[Voxelarium.RelativeVoxelOrds.BELOW] || result.sector ) }
+		if( result.z < 0 ) { result.z += cluster.sectorSizeZ; result.sector = ( result.sector && result.sector.near_sectors[Voxelarium.RelativeVoxelOrds.AHEAD] || result.sector ) }
+		if( result.x >= cluster.sectorSizeX ) { result.x -= cluster.sectorSizeX; result.sector = ( result.sector && result.sector.near_sectors[Voxelarium.RelativeVoxelOrds.LEFT] || result.sector ) }
+		if( result.y >= cluster.sectorSizeY ) { result.y += cluster.sectorSizeY; result.sector = ( result.sector && result.sector.near_sectors[Voxelarium.RelativeVoxelOrds.ABOVE] || result.sector ) }
+		if( result.z >= cluster.sectorSizeZ ) { result.z += cluster.sectorSizeZ; result.sector = ( result.sector && result.sector.near_sectors[Voxelarium.RelativeVoxelOrds.BEHIND] || result.sector ) }
+
+		result.offset = ( result.x * cluster.sectorSizeY )  + result.y + ( result.z * ( cluster.sectorSizeY * cluster.sectorSizeX ) );
+		  result.voxelType = sector.data.data[result.offset]
+		  result.voxelExtension = sector.data.otherInfos[result.offset];
+    }
+	return result;
 }
 
 	function forEach( voxelRef2, not_zero, callback )
 	{
 		var voxelRef1 = this;
-		if( voxelRef1.sector == null || voxelRef2.sector == null )
+		//if( voxelRef1.sector == null || voxelRef2.sector == null )
+		//	return not_zero ? 1 : 0;
+		if( voxelRef1.cluster !== voxelRef2.cluster )
 			return not_zero ? 1 : 0;
-		if( voxelRef1.sector.cluster !== voxelRef2.sector.cluster )
-			return not_zero ? 1 : 0;
-		var cluster = voxelRef1.sector.cluster;
+		var cluster = voxelRef1.cluster;
 
 		var v1x = voxelRef1.wx;
 		var v1y = voxelRef1.wy;
@@ -147,9 +187,9 @@ function VoxelRef( x, y, z )
 		var v2x = voxelRef2.wx;
 		var v2y = voxelRef2.wy;
 		var v2z = voxelRef2.wz;
-		var del_x = v2x - voxelRef1x;
-		var del_y = v2y - voxelRef1y;
-		var del_z = v2z - voxelRef1z;
+		var del_x = v2x - v1x;
+		var del_y = v2y - v1y;
+		var del_z = v2z - v1z;
 		var abs_x = del_x < 0 ? -del_x : del_x;
 		var abs_y = del_y < 0 ? -del_y : del_y;
 		var abs_z = del_z < 0 ? -del_z : del_z;
@@ -188,10 +228,11 @@ function VoxelRef( x, y, z )
 										y += incy;
 									}
 									{
-										let v = cluster.getVoxelRef( x, y, z );
+										let v = cluster.getVoxelRef( false, x, y, z );
 										if( v ) {
 											let val = callback( v );
-											if( ( !not_zero && val != 0 ) || ( not_zero && val == 0 ) )
+											if( val !== v ) v.delete();
+											if( ( !not_zero && val ) || ( not_zero && !val ) )
 												return val;
 										}
 									}
@@ -215,7 +256,7 @@ function VoxelRef( x, y, z )
 									if( errz > 0 )
 									{
 										errz -= abs_x;
-										z += incx;
+										z += incz;
 									}
 									erry += abs_y;
 									if( erry > 0 )
@@ -224,10 +265,11 @@ function VoxelRef( x, y, z )
 										y += incy;
 									}
 									{
-										let v = cluster.getVoxelRef( x, y, z );
+										let v = cluster.getVoxelRef( false, x, y, z );
 										if( v ) {
 											let val = callback( v );
-											if( ( !not_zero && val != 0 ) || ( not_zero && val == 0 ) )
+											if( val !== v ) v.delete();
+											if( ( !not_zero && val ) || ( not_zero && !val ) )
 												return val;
 										}
 									}
@@ -245,7 +287,7 @@ function VoxelRef( x, y, z )
 						var incz = del_z < 0 ? -1 : 1;
 						{
 							var x = v1x;
-							var z = v1x;
+							var z = v1z;
 							for( var y = v1y + incy; y != v2y; y += incy )
 							{
 								errx += abs_x;
@@ -261,10 +303,11 @@ function VoxelRef( x, y, z )
 									z += incz;
 								}
 								{
-									let v = cluster.getVoxelRef( x, y, z );
+									let v = cluster.getVoxelRef( false, x, y, z );
 									if( v ) {
 										let val = callback( v );
-										if( ( !not_zero && val != 0 ) || ( not_zero && val == 0 ) )
+										if( val !== v ) v.delete();
+										if( ( !not_zero && val ) || ( not_zero && !val ) )
 											return val;
 									}
 								}
@@ -293,10 +336,11 @@ function VoxelRef( x, y, z )
 									y += incy;
 								}
 								{
-									let v = cluster.getVoxelRef( x, y, z );
+									let v = cluster.getVoxelRef( false, x, y, z );
 									if( v ) {
 										let val = callback( v );
-										if( ( !not_zero && val != 0 ) || ( not_zero && val == 0 ) )
+										if( val !== v ) v.delete();
+										if( ( !not_zero && val ) || ( not_zero && !val ) )
 											return val;
 									}
 								}
@@ -309,10 +353,9 @@ function VoxelRef( x, y, z )
 						var errx = -abs_y / 2;
 						var incy = del_y < 0 ? -1 : 1;
 						var incx = del_x < 0 ? -1 : 1;
-						// z is longest path
 						{
 							var x = v1x;
-							var z = v1x;
+							var z = v1z;
 							for( var y = v1y + incy; y != v2y; y += incy )
 							{
 								errx += abs_x;
@@ -322,10 +365,11 @@ function VoxelRef( x, y, z )
 									x += incx;
 								}
 								{
-									let v = cluster.getVoxelRef( x, y, z );
+									let v = cluster.getVoxelRef( false, x, y, z );
 									if( v ) {
 										let val = callback( v );
-										if( ( !not_zero && val != 0 ) || ( not_zero && val == 0 ) )
+										if( val !== v ) v.delete();
+										if( ( !not_zero && val ) || ( not_zero && !val ) )
 											return val;
 									}
 								}
@@ -353,13 +397,14 @@ function VoxelRef( x, y, z )
 								if( errz > 0 )
 								{
 									errz -= abs_x;
-									z += incx;
+									z += incz;
 								}
 								{
-									let v = cluster.getVoxelRef( x, y, z );
+									let v = cluster.getVoxelRef( false, x, y, z );
 									if( v ) {
 										let val = callback( v );
-										if( ( !not_zero && val != 0 ) || ( not_zero && val == 0 ) )
+										if( val !== v ) v.delete();
+										if( ( !not_zero && val ) || ( not_zero && !val ) )
 											return val;
 									}
 								}
@@ -384,10 +429,11 @@ function VoxelRef( x, y, z )
 									x += incx;
 								}
 								{
-									let v = cluster.getVoxelRef( x, y, z );
+									let v = cluster.getVoxelRef( false, x, y, z );
 									if( v ) {
 										let val = callback( v );
-										if( ( !not_zero && val != 0 ) || ( not_zero && val == 0 ) )
+										if( val !== v ) v.delete();
+										if( ( !not_zero && val ) || ( not_zero && !val ) )
 											return val;
 									}
 								}
@@ -401,10 +447,11 @@ function VoxelRef( x, y, z )
 					var incx = del_x < 0 ? -1 : 1;
 					for( var x = v1x + incx; x != v2x; x += incx )
 					{
-						let v = cluster.getVoxelRef( x, y, z );
+						let v = cluster.getVoxelRef( false, x, y, z );
 						if( v ) {
 							let val = callback( v );
-							if( ( !not_zero && val != 0 ) || ( not_zero && val == 0 ) )
+							if( val !== v ) v.delete();
+							if( ( !not_zero && val ) || ( not_zero && !val ) )
 								return val;
 						}
 					}
@@ -425,7 +472,7 @@ function VoxelRef( x, y, z )
 						var incz = del_z < 0 ? -1 : 1;
 						{
 							var x = v1x;
-							var z = v1x;
+							var z = v1z;
 							for( var y = v1y + incy; y != v2y; y += incy )
 							{
 								errz += abs_z;
@@ -435,10 +482,11 @@ function VoxelRef( x, y, z )
 									z += incz;
 								}
 								{
-									let v = cluster.getVoxelRef( x, y, z );
+									let v = cluster.getVoxelRef( false, x, y, z );
 									if( v ) {
 										let val = callback( v );
-										if( ( !not_zero && val != 0 ) || ( not_zero && val == 0 ) )
+										if( val !== v ) v.delete();
+										if( ( !not_zero && val ) || ( not_zero && !val ) )
 											return val;
 									}
 								}
@@ -463,10 +511,11 @@ function VoxelRef( x, y, z )
 									y += incy;
 								}
 								{
-									let v = cluster.getVoxelRef( x, y, z );
+									let v = cluster.getVoxelRef( false, x, y, z );
 									if( v ) {
 										let val = callback( v );
-										if( ( !not_zero && val != 0 ) || ( not_zero && val == 0 ) )
+										if( val !== v ) v.delete();
+										if( ( !not_zero && val ) || ( not_zero && !val ) )
 											return val;
 									}
 								}
@@ -481,10 +530,11 @@ function VoxelRef( x, y, z )
 					var incy = del_y < 0 ? -1 : 1;
 					for( var y = v1y + incy; y != v2y; y += incy )
 					{
-						let v = cluster.getVoxelRef( x, y, z );
+						let v = cluster.getVoxelRef( false, x, y, z );
 						if( v ) {
 							let val = callback( v );
-							if( ( !not_zero && val != 0 ) || ( not_zero && val == 0 ) )
+							if( val !== v ) v.delete();
+							if( ( !not_zero && val ) || ( not_zero && !val ) )
 								return val;
 						}
 					}
@@ -498,20 +548,22 @@ function VoxelRef( x, y, z )
 					if( del_z > 0 )
 						for( var z = v1z + 1; z < v2z; z++ )
 						{
-							let v = cluster.getVoxelRef( x, y, z );
+							let v = cluster.getVoxelRef( false, x, y, z );
 							if( v ) {
 								let val = callback( v );
-								if( ( !not_zero && val != 0 ) || ( not_zero && val == 0 ) )
+								if( val !== v ) v.delete();
+								if( ( !not_zero && val ) || ( not_zero && !val ) )
 									return val;
 							}
 						}
 					else
 						for( var z = v2z + 1; z < v1z; z++ )
 						{
-							let v = cluster.getVoxelRef( x, y, z );
+							let v = cluster.getVoxelRef( false, x, y, z );
 							if( v ) {
 								let val = callback( v );
-								if( ( !not_zero && val != 0 ) || ( not_zero && val == 0 ) )
+								if( val !== v ) v.delete();
+								if( ( !not_zero && val ) || ( not_zero && !val ) )
 									return val;
 							}
 						}

@@ -1,7 +1,10 @@
 
+		// for phong hello world test....
+		var light = new THREE.PointLight( 0xffFFFF, 1, 10000 );
+		light.position.set( 0, 0, 1000 );
+		scene.add( light );
 
-//var THREE = require( "../three.js/three.js/build/three.js" );
-//var mycam =
+
 var loader = new THREE.FontLoader();
 var font;
 loader.load( 'src/fonts/Microsoft YaHei_Regular.js', function ( _font ) {

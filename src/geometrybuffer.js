@@ -4,6 +4,10 @@ Voxelarium.GeometryBuffer = function () {
     var buffer = {};
      buffer.geometry = new THREE.BufferGeometry();
 
+     buffer.geometry.uniforms = {
+             edge_only : true,
+     	};
+
     // create a simple square shape. We duplicate the top left and bottom right
     // vertices because each vertex needs to appear once per triangle.
     buffer.position = new Float32Array( [] );

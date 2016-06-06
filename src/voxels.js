@@ -2,13 +2,15 @@
 Voxelarium.Voxels = {
 	types : [],
 	add : function( type, properties,reaction ) {
-        	this.types.push( this[type] = { properties : properties
+        	this.types.push( this[type] = {
+                		 name : type
+                		, properties : properties
 				, reaction : reaction
 			 	, createVoxelExtension : null
 				, deleteVoxelExtension : null
 				, TextureCoords : {}
 			} );
-			if( !properties.DrawInfo )
+			if( typeof properties.DrawInfo === "undefined" )
 				properties.DrawInfo = Voxelarium.ZVOXEL_DRAWINFO_DRAWFULLVOXELOPACITY;
 			return this[type];
 		}
@@ -66,4 +68,54 @@ Documentation_PageNum = 0;
 
 }
 
-require( "./voxels/voxel_1.js" )
+
+Voxelarium.Voxels.add( "Void", {
+      Is_PlayerCanPassThrough : true,
+      Draw_TransparentRendering : false,
+      Draw_FullVoxelOpacity : false,
+      DrawInfo : Voxelarium.ZVOXEL_DRAWINFO_VOID,
+      Is_Harming : false,
+      FrictionCoef : 0.0001,
+      Grip_Vertical : 0.0,
+      Grip_Horizontal : 0.8,
+      Is_SpaceGripType : false,
+      Is_KeepControlOnJumping : true,
+      Is_Active : false,
+      Is_CanBeReplacedBy_Water : true,
+      Is_CombinableWith_GreenAcid : false,
+      Is_CanBeReplacedBy_GreenAcid : true,
+      Is_CanBeReplacedBy_MustardGaz : true,
+      BvProp_CanBePickedUpByRobot : false,
+      BvProp_XrRobotPickMinLevel : 255,
+      BvProp_PrRobotReplaceMinLevel : 0,
+      BvProp_PrRobotPickMinLevel : 255,
+      BvProp_PrRobotMoveMinLevel : 0,
+      BvProp_AtomicFireResistant : true,
+      Is_Liquid : false,
+      Is_Gaz : true,
+      Is_Loadable_ByLoader_L1 : false,
+      BvProp_MoveableByTreadmill : false,
+      BvProp_EgmyT1Resistant : false,
+      LiquidDensity : 0.0,
+} );
+
+
+
+var xhrObj = new XMLHttpRequest();
+for( var n = 1; ; n++ ) {
+	try {
+        console.log( "require ", n );
+		xhrObj.open('GET', `./src/voxels/voxel_${n}.js`, false);
+		xhrObj.send(null);
+		eval(xhrObj.responseText);
+
+		//require( `./voxels/voxel_${n}.js` )
+	}
+	catch( err ) {
+        	console.log( err );
+		break;
+	}
+}
+
+//Voxelarium.Voxels.types[0] = Voxelarium.Voxels.types.Void;
+//Voxelarium.Voxels.types[1] = Voxelarium.Voxels.types["BlackRock Blue"];

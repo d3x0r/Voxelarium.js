@@ -7,7 +7,7 @@ Voxelarium.PackedBoolArray = function ( size ){
     if( !size )
         size = 32*32*32;
     var pba = {
-        _bits : new ArrayBuffer( size / 8 ),
+        _bits : new ArrayBuffer( Math.floor( ( size + 31 ) /32 ) * 4 ),
         bits : null,
         get : function( bit ) { return ( this.bits[bit>>5] & 1 << ( bit & 0x1f ) ) !== 0; },
         set : function( bit ) { this.bits[bit>>5] |= 1 << ( bit & 0x1f ); },
