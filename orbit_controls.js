@@ -173,7 +173,7 @@ THREE.OrbitControls = function ( object, clusterLookAt, domElement ) {
 		if( this.mode == 2 ) {
 			this.object.matrix.rotateRelative( -phiDelta, thetaDelta, 0 );
 			this.object.matrix.rotateRelative( 0, 0, -this.object.matrix.roll )
-			var tmp = this.center.clone().addScaledVector( this.object.matrix.forward, offset.length() *(scale) );
+			var tmp = this.center.clone().addScaledVector( this.object.matrix.backward, offset.length() *(scale) );
 			this.object.matrix.origin.copy( tmp );
 			this.object.matrixWorldNeedsUpdate = true;
 		} else {

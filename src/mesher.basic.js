@@ -284,8 +284,11 @@ Voxelarium.BasicMesher = function(  ) {
 						BlocMatrix[2][3] = SectorDataTable[( tables.tableX[xc] + tables.tableY[ypp] + tables.tableZ[zp] )][tables.ofTableX[xc] + tables.ofTableY[ypp] + tables.ofTableZ[zp]];
 						BlocMatrix[2][4] = SectorDataTable[( tables.tableX[xp] + tables.tableY[ypp] + tables.tableZ[zp] )][tables.ofTableX[xp] + tables.ofTableY[ypp] + tables.ofTableZ[zp]];
 						BlocMatrix[2][5] = SectorDataTable[( tables.tableX[xpp] + tables.tableY[ypp] + tables.tableZ[zp] )][tables.ofTableX[xpp] + tables.ofTableY[ypp] + tables.ofTableZ[zp]];
-                        if( !BlocMatrix[2][5] )
-                            debugger
+                        if( !BlocMatrix[2][5] ){
+                            console.log( "voxel in sector has become undefined.")
+                            return;
+                            //debugger
+                        }
 						//      BlocMatrix[2][6] = SectorDataTable[(tables.tableX[xc ]+tables.tableY[ypp]+tables.tableZ[zpp])].Data;	   [tables.ofTableX[xc ]+tables.ofTableY[ypp]+tables.ofTableZ[zpp]]
 						BlocMatrix[2][7] = SectorDataTable[( tables.tableX[xp] + tables.tableY[ypp] + tables.tableZ[zpp] )][tables.ofTableX[xp] + tables.ofTableY[ypp] + tables.ofTableZ[zpp]];
 						//      BlocMatrix[2][8] = SectorDataTable[(tables.tableX[xpp]+tables.tableY[ypp]+tables.tableZ[zpp])].Data;	   [tables.ofTableX[xpp]+tables.ofTableY[ypp]+tables.ofTableZ[zpp]]
@@ -616,7 +619,7 @@ Voxelarium.BasicMesher = function(  ) {
 								if( voxel && info != Voxelarium.FACEDRAW_Operations.NONE )
 								{
                                     if( voxel.properties.DrawInfo === Voxelarium.ZVOXEL_DRAWINFO_VOID )
-                                        draw = false;
+                                        Draw = false;
 									else if( voxel.properties.Draw_TransparentRendering )
 										{ Draw = false; sector.Flag_Void_Transparent = false; }
 									else

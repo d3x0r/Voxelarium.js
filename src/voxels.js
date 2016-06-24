@@ -8,7 +8,9 @@ Voxelarium.Voxels = {
 				, reaction : reaction
 			 	, createVoxelExtension : null
 				, deleteVoxelExtension : null
-				, TextureCoords : {}
+				, textureCoords : {}
+				, image : null
+				, texture : null
 			} );
 			if( typeof properties.DrawInfo === "undefined" )
 				properties.DrawInfo = Voxelarium.ZVOXEL_DRAWINFO_DRAWFULLVOXELOPACITY;
@@ -99,22 +101,61 @@ Voxelarium.Voxels.add( "Void", {
       LiquidDensity : 0.0,
 } );
 
+Voxelarium.Voxels.getIndex = function( type ) {
+	var types = Voxelarium.Voxels.types;
+	return types.findIndex( (v)=>v === type );
+}
+
+var xhrObj;
+Voxelarium.Voxels.load = function( cb ) {
+	var n = 1
+	xhrObj = new XMLHttpRequest();
+	//var xhrObj2 = new XMLHttpRequest();
+	loadAVoxel( n, cb );
+}
+
+function loadAVoxel( n, cb ) {
+	{
+		try {
+			xhrObj.open('GET', `./src/voxels/voxel_${n}.js`);
+			xhrObj.send(null);
+			xhrObj.onload = ()=>{
+				if( xhrObj.status === 200 ) {
+					eval(xhrObj.responseText);
 
 
-var xhrObj = new XMLHttpRequest();
-for( var n = 1; ; n++ ) {
-	try {
-        console.log( "require ", n );
-		xhrObj.open('GET', `./src/voxels/voxel_${n}.js`, false);
-		xhrObj.send(null);
-		eval(xhrObj.responseText);
-
-		//require( `./voxels/voxel_${n}.js` )
+					var t = Voxelarium.Voxels.types[Voxelarium.Voxels.types.length-1];
+					/*
+					( t.image = new Image() ).src = "./src/voxels/images/voxel_${n}.png";//xhrObj.responseText;
+					t.image.onload = ()=>{
+						t.textureCoords = Voxelarium.TextureAtlas.add( t.image )
+					}
+					*/
+					xhrObj.open('GET', `./src/voxels/images/voxel_${n}.png`);
+					xhrObj.send(null);
+					xhrObj.onload = ()=>{
+						if( xhrObj.responseText.length > 0 ) {
+							( t.image = new Image() ).src = xhrObj.response;
+							//t.texture = new THREE.Texture( t.image );
+							//window.URL.createObjectURL(xhr2.response)
+							t.textureCoords = Voxelarium.TextureAtlas.add( t.image )
+						}
+						setTimeout( ()=>{ loadAVoxel( n+1, cb ) } )
+					}
+				}
+				else {
+					cb();
+				}
+			}
+			//require( `./voxels/voxel_${n}.js` )
+		}
+		catch( err ) {
+			console.log( "require ", n );
+	        	console.log( err );
+				cb();
+		}
 	}
-	catch( err ) {
-        	console.log( err );
-		break;
-	}
+
 }
 
 //Voxelarium.Voxels.types[0] = Voxelarium.Voxels.types.Void;

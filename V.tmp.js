@@ -8494,8 +8494,8 @@ THREE.RenderPass.prototype = {
 	constructor: THREE.RenderPass,
 
 	render: function ( renderer, writeBuffer, readBuffer, delta, maskActive ) {
-
-		this.scene.overrideMaterial = this.overrideMaterial;
+                if( !this.scene ) this.scene = new THREE.Scene();
+			this.scene.overrideMaterial = this.overrideMaterial;
 
 		if ( this.clearColor ) {
 
@@ -9823,6 +9823,66 @@ Voxelarium.World = function() {
 }
 
 },{"./cluster.js":1,"./voxel.fonts.js":37}],41:[function(require,module,exports){
+
+var Voxelarium = { VERSION : "0.0.1" }
+
+Voxelarium.clock = new THREE.Clock()
+
+
+require( "../three.js/three.js/build/three.js")
+require( "./src/three.js.example/Projector.js" )
+require( "./src/three.js.post/shaders/CopyShader.js")
+require( "./src/three.js.post/shaders/HorizontalBlurShader.js")
+require( "./src/three.js.post/shaders/VerticalBlurShader.js")
+require( "./src/three.js.post/shaders/ConvolutionShader.js")
+require( "./src/three.js.post/shaders/DotScreenShader.js")
+require( "./src/three.js.post/shaders/FilmShader.js")
+require( "./src/three.js.post/EffectComposer.js")
+require( "./src/three.js.post/BloomPass.js")
+
+
+require( "./src/three.js.post/AdaptiveToneMappingPass.js")
+require( "./src/three.js.post/BokehPass.js")
+require( "./src/three.js.post/ClearPass.js")
+require( "./src/three.js.post/DotScreenPass.js")
+require( "./src/three.js.post/FilmPass.js")
+require( "./src/three.js.post/GlitchPass.js")
+require( "./src/three.js.post/ManualMSAARenderPass.js")
+require( "./src/three.js.post/MaskPass.js")
+require( "./src/three.js.post/RenderPass.js")
+require( "./src/three.js.post/SavePass.js")
+require( "./src/three.js.post/ShaderPass.js")
+require( "./src/three.js.post/SMAAPass.js")
+require( "./src/three.js.post/TAARenderPass.js")
+require( "./src/three.js.post/TexturePass.js")
+
+//--- fonts ---
+Voxelarium.Fonts = {};
+require( "./src/fonts/TI99.js")
+//require( "./src/fonts/msyh1.js")
+
+require( "./src/constants.js")
+require( "./src/voxels.js" )
+
+require( "./src/sector.js")
+require( "./src/cluster.js")
+require( "./src/world.js")
+
+require( "./src/geometrybuffer.js")
+require( "./src/geometrymaterial.js")
+require( "./src/geometrybuffer.mono.js")
+require( "./src/geometrymaterial.mono.js")
+require( "./src/voxelSelector.js")
+
+
+require( "./src/sorting.tree.js")
+require( "./src/mesher.basic.js")
+
+
+Object.freeze( Voxelarium );
+//Voxelarium.freeze();
+
+},{"../three.js/three.js/build/three.js":42,"./src/cluster.js":1,"./src/constants.js":2,"./src/fonts/TI99.js":3,"./src/geometrybuffer.js":4,"./src/geometrybuffer.mono.js":5,"./src/geometrymaterial.js":6,"./src/geometrymaterial.mono.js":7,"./src/mesher.basic.js":8,"./src/sector.js":12,"./src/sorting.tree.js":13,"./src/three.js.example/Projector.js":14,"./src/three.js.post/AdaptiveToneMappingPass.js":15,"./src/three.js.post/BloomPass.js":16,"./src/three.js.post/BokehPass.js":17,"./src/three.js.post/ClearPass.js":18,"./src/three.js.post/DotScreenPass.js":19,"./src/three.js.post/EffectComposer.js":20,"./src/three.js.post/FilmPass.js":21,"./src/three.js.post/GlitchPass.js":22,"./src/three.js.post/ManualMSAARenderPass.js":23,"./src/three.js.post/MaskPass.js":24,"./src/three.js.post/RenderPass.js":25,"./src/three.js.post/SMAAPass.js":26,"./src/three.js.post/SavePass.js":27,"./src/three.js.post/ShaderPass.js":28,"./src/three.js.post/TAARenderPass.js":29,"./src/three.js.post/TexturePass.js":30,"./src/three.js.post/shaders/ConvolutionShader.js":31,"./src/three.js.post/shaders/CopyShader.js":32,"./src/three.js.post/shaders/DotScreenShader.js":33,"./src/three.js.post/shaders/FilmShader.js":34,"./src/three.js.post/shaders/HorizontalBlurShader.js":35,"./src/three.js.post/shaders/VerticalBlurShader.js":36,"./src/voxelSelector.js":38,"./src/voxels.js":39,"./src/world.js":40}],42:[function(require,module,exports){
 // File:src/Three.js
 
 /**
@@ -11747,31 +11807,9 @@ THREE.Vector3 = function ( x, y, z ) {
 
 };
 
-THREE.Vector3Pool = {
-	new : function(x,y,z) {
-		var r = vectorPool.pop();
-		if( r ) {
-			r.x = x;
-			r.y = y;
-			r.z = z;
-		}
-		else{
-			r = new THREE.Vector3(x,y,z);
-		}
-		return r;
-	}
-}
-
-var vectorPool = [];
-
 THREE.Vector3.prototype = {
 
 	constructor: THREE.Vector3,
-
-	delete : function() {
-		vectorPool.push( this );
-		return this;
-	},
 
 	set: function ( x, y, z ) {
 
@@ -11845,7 +11883,7 @@ THREE.Vector3.prototype = {
 
 	clone: function () {
 
-		return THREE.Vector3Pool.new( this.x, this.y, this.z );
+		return new this.constructor( this.x, this.y, this.z );
 
 	},
 
@@ -12537,10 +12575,10 @@ THREE.Vector3.prototype = {
 THREE.Vector3Unit = new THREE.Vector3( 1, 1, 1 );
 THREE.Vector3Zero = new THREE.Vector3( 0, 0, 0 );
 THREE.Vector3Right = new THREE.Vector3( -1, 0, 0 );
-THREE.Vector3Backward = new THREE.Vector3( 0, 0, -1 );
+THREE.Vector3Backward = new THREE.Vector3( 0, 0, 1 );
 THREE.Vector3Up = new THREE.Vector3( 0, 1, 0 );
 THREE.Vector3Left = new THREE.Vector3( 1, 0, 0 );
-THREE.Vector3Forward = new THREE.Vector3( 0, 0, 1 );
+THREE.Vector3Forward = new THREE.Vector3( 0, 0, -1 );
 THREE.Vector3Down = new THREE.Vector3( 0, -1, 0 );
 
 ["Vector3Unit"
@@ -12576,32 +12614,9 @@ THREE.Vector4 = function ( x, y, z, w ) {
 
 };
 
-THREE.Vector4Pool = {
-	new : function(x,y,z,w) {
-		var r = vector4Pool.pop();
-		if( r ) {
-			r.x = x || 0;
-			r.y = y || 0;
-			r.z = z || 0;
-			r.w = w || 1;
-		}
-		else{
-			r = new THREE.Vector4(x,y,z,w);
-		}
-		return r;
-	}
-}
-
-var vector4Pool = [];
-
 THREE.Vector4.prototype = {
 
 	constructor: THREE.Vector4,
-
-	delete : function() {
-		vector4Pool.push( this );
-		return this;
-	},
 
 	set: function ( x, y, z, w ) {
 
@@ -14696,59 +14711,6 @@ THREE.Matrix4 = function () {
 	this.origin = new THREE.Vector3();
 	Object.defineProperty(this, "origin", { writable:false } );
 
-	this.motion = null;
-        this.motion = {
-        	tick : 0,
-        	speed : new THREE.Vector3(),
-                acceleration : new THREE.Vector3(),
-                rotation : new THREE.Vector3(),
-                torque : new THREE.Vector3(),
-                mass : 1.0,
-                move : function( m, delta ) {
-					this.speed.addScaledVector( this.acceleration, delta );
-					m.origin.addScaledVector( this.speed, delta );
-
-					this.rotation.addScaledVector( this.torque, delta );
-
-					m.rotateRelative( this.rotation.x, this.rotation.y, this.rotation.z );
-				}
-					// delta = delta / 1000;
-					/*
-					   ** this is becoming a physics engine frame...
-					   ** might as well just add that.
-                	var delta_accel = this.acceleration.clone().scale(delta);
-					if( ( this.rotation.x > ( Math.PI / 4 ) )
-					   ||( this.rotation.x < -( Math.PI / 4 ) )
-					   ||( this.rotation.y > ( Math.PI / 4 ) )
-					   ||( this.rotation.y < -( Math.PI / 4 ) )
-					   ||( this.rotation.z > ( Math.PI / 4 ) )
-					   ||( this.rotation.z < -( Math.PI / 4 ) )
-					   ){
-						   var max = this.rotation.x;
-						   if( max < this.rotation.y )
-						   	 max = this.rotation.y;
-						   if( max < this.rotation.z )
-						     max = this.rotation.z;
-						 var min = this.rotation.x;
-  						   if( min > this.rotation.y )
-  						   	 max = this.rotation.y;
-  						   if( min > this.rotation.z )
-  						     max = this.rotation.z;
-							if( min < 0 )
-								if( max < -min )
-									max = -min;
-							var t;
-							for( t = 1; t < 100; t++ )
-								if( ( max / t ) < ( Math.PI / 4 ))
-									break;
-
-							delta_accel.scale( 1 / t );
-					   }
-					  */
-
-        };
-
-
 	this.tick = 0;
 
 	if ( arguments.length > 0 ) {
@@ -15794,9 +15756,9 @@ THREE.Matrix4.prototype = {
 		}
     },
 	Translate: function(x,y,z) {
-			this.origin.x += x;
-			this.origin.y += y;
-			this.origin.z += z;
+			this.origin.x = x;
+			this.origin.y = y;
+			this.origin.z = z;
 	},
 	rotateRelative: function( x, y, z ){
 		//console.trace( "rotate starts as ", this )
@@ -15852,18 +15814,6 @@ THREE.Matrix4.prototype = {
 	get backward() {
 			return new THREE.Vector3( -this.elements[8], -this.elements[9], -this.elements[10] );
         },
-
-	move : function (x,y,z) {
-        	if( this.motion )
-				this.motion.move();
-        	this.origin.addScaledVector( this.forward, z ).addScaledVector( this.up, y ).addScaledVector( this.left, x ) },
-	moveNow : function ( x,y,z ) { this.origin.addScaledVector( this.forward, z ).addScaledVector( this.up, y ).addScaledVector( this.left, x ) },
-	moveForward : function ( n ) { this.origin.addScaledVector( this.forward, n ); },
-	moveUp : function ( n ) { this.origin.addScaledVector( this.up, n ); },
-	moveLeft : function ( n ) { this.origin.addScaledVector( this.left, n ); },
-	moveBackward : function ( n ) { this.origin.addScaledVector( this.backward, n ); },
-	moveDown : function ( n ) { this.origin.addScaledVector( this.down, n ); },
-	moveRight : function ( n ) { this.origin.addScaledVector( this.right, n ); },
 
 	get inv_left() {
         	return new THREE.Vector3( this.elements[0], this.elements[4], this.elements[8] );
@@ -51929,64 +51879,4 @@ THREE.MorphBlendMesh.prototype.update = function ( delta ) {
 };
 
 
-},{}],42:[function(require,module,exports){
-
-var Voxelarium = { VERSION : "0.0.1" }
-
-Voxelarium.clock = new THREE.Clock()
-
-
-require( "../three.js/three.js/build/three.js")
-require( "./src/three.js.example/Projector.js" )
-require( "./src/three.js.post/shaders/CopyShader.js")
-require( "./src/three.js.post/shaders/HorizontalBlurShader.js")
-require( "./src/three.js.post/shaders/VerticalBlurShader.js")
-require( "./src/three.js.post/shaders/ConvolutionShader.js")
-require( "./src/three.js.post/shaders/DotScreenShader.js")
-require( "./src/three.js.post/shaders/FilmShader.js")
-require( "./src/three.js.post/EffectComposer.js")
-require( "./src/three.js.post/BloomPass.js")
-
-
-require( "./src/three.js.post/AdaptiveToneMappingPass.js")
-require( "./src/three.js.post/BokehPass.js")
-require( "./src/three.js.post/ClearPass.js")
-require( "./src/three.js.post/DotScreenPass.js")
-require( "./src/three.js.post/FilmPass.js")
-require( "./src/three.js.post/GlitchPass.js")
-require( "./src/three.js.post/ManualMSAARenderPass.js")
-require( "./src/three.js.post/MaskPass.js")
-require( "./src/three.js.post/RenderPass.js")
-require( "./src/three.js.post/SavePass.js")
-require( "./src/three.js.post/ShaderPass.js")
-require( "./src/three.js.post/SMAAPass.js")
-require( "./src/three.js.post/TAARenderPass.js")
-require( "./src/three.js.post/TexturePass.js")
-
-//--- fonts ---
-Voxelarium.Fonts = {};
-require( "./src/fonts/TI99.js")
-//require( "./src/fonts/msyh1.js")
-
-require( "./src/constants.js")
-require( "./src/voxels.js" )
-
-require( "./src/sector.js")
-require( "./src/cluster.js")
-require( "./src/world.js")
-
-require( "./src/geometrybuffer.js")
-require( "./src/geometrymaterial.js")
-require( "./src/geometrybuffer.mono.js")
-require( "./src/geometrymaterial.mono.js")
-require( "./src/voxelSelector.js")
-
-
-require( "./src/sorting.tree.js")
-require( "./src/mesher.basic.js")
-
-
-Object.freeze( Voxelarium );
-//Voxelarium.freeze();
-
-},{"../three.js/three.js/build/three.js":41,"./src/cluster.js":1,"./src/constants.js":2,"./src/fonts/TI99.js":3,"./src/geometrybuffer.js":4,"./src/geometrybuffer.mono.js":5,"./src/geometrymaterial.js":6,"./src/geometrymaterial.mono.js":7,"./src/mesher.basic.js":8,"./src/sector.js":12,"./src/sorting.tree.js":13,"./src/three.js.example/Projector.js":14,"./src/three.js.post/AdaptiveToneMappingPass.js":15,"./src/three.js.post/BloomPass.js":16,"./src/three.js.post/BokehPass.js":17,"./src/three.js.post/ClearPass.js":18,"./src/three.js.post/DotScreenPass.js":19,"./src/three.js.post/EffectComposer.js":20,"./src/three.js.post/FilmPass.js":21,"./src/three.js.post/GlitchPass.js":22,"./src/three.js.post/ManualMSAARenderPass.js":23,"./src/three.js.post/MaskPass.js":24,"./src/three.js.post/RenderPass.js":25,"./src/three.js.post/SMAAPass.js":26,"./src/three.js.post/SavePass.js":27,"./src/three.js.post/ShaderPass.js":28,"./src/three.js.post/TAARenderPass.js":29,"./src/three.js.post/TexturePass.js":30,"./src/three.js.post/shaders/ConvolutionShader.js":31,"./src/three.js.post/shaders/CopyShader.js":32,"./src/three.js.post/shaders/DotScreenShader.js":33,"./src/three.js.post/shaders/FilmShader.js":34,"./src/three.js.post/shaders/HorizontalBlurShader.js":35,"./src/three.js.post/shaders/VerticalBlurShader.js":36,"./src/voxelSelector.js":38,"./src/voxels.js":39,"./src/world.js":40}]},{},[42]);
+},{}]},{},[41]);

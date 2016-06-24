@@ -5,7 +5,7 @@ Voxelarium.GeometryBuffer = function () {
      buffer.geometry = new THREE.BufferGeometry();
 
      buffer.geometry.uniforms = {
-             edge_only : true,
+             edge_only : false,
      	};
 
     // create a simple square shape. We duplicate the top left and bottom right
@@ -47,7 +47,7 @@ Voxelarium.GeometryBuffer = function () {
      buffer.geometry.addAttribute( 'in_FaceColor', new THREE.BufferAttribute( buffer.in_FaceColor, 4, true ) );
      buffer.geometry.addAttribute( 'in_Normal', new THREE.BufferAttribute( buffer.in_Normal, 3 ) );
      buffer.geometry.addAttribute( 'in_Pow', new THREE.BufferAttribute( buffer.in_Pow, 1 ) );
-     buffer.geometry.addAttribute( 'in_use_texture', new THREE.BufferAttribute( buffer.in_use_texture, 1 ) );
+     buffer.geometry.addAttribute( 'in_use_texture', new THREE.BufferAttribute( buffer.in_use_texture, 1, true ) );
      buffer.geometry.addAttribute( 'in_flat_color', new THREE.BufferAttribute( buffer.in_flat_color, 1 ) );
      buffer.geometry.addAttribute( 'in_decal_texture', new THREE.BufferAttribute( buffer.in_decal_texture, 1 ) );
      buffer.geometry.addAttribute( 'in_Modulous', new THREE.BufferAttribute( buffer.in_Modulous, 2, false ) );
@@ -122,11 +122,20 @@ Voxelarium.GeometryBuffer = function () {
          this.geometry.attributes.in_Modulous.needsUpdate = true;
      }
 
-     buffer.addPoint = function( v, t, c, fc, n, p, ut, flat, dt, mod ) {
+     buffer.addPoint = function( v, t, tBase, c, fc, n, p, ut, flat, dt, mod ) {
          if( this.used >= this.available )
             this.expand();
+            const u2 = this.used * 2;
             const u3 = this.used * 3;
             const u4 = this.used * 4;
+        if( t ) {
+            this.in_Texture[u2+0] = t[tBase+0];
+            this.in_Texture[u2+1] = t[tBase+1];
+        }
+        else {
+            this.in_Texture[u2+0] = 0;
+            this.in_Texture[u2+1] = 0;
+        }
         this.position[u3 + 0 ] = v.x;
         this.position[u3 + 1 ] = v.y;
         this.position[u3 + 2 ] = v.z;
@@ -161,25 +170,36 @@ Voxelarium.GeometryBuffer = function () {
 
          const min = 0;
          const max = 1;
-         this.addPoint( P1, undefined, color, faceColor, norm, pow, false, false, false, [min,min] );
-         this.addPoint( P2, undefined, color, faceColor, norm, pow, false, false, false, [max,min] );
-         this.addPoint( P3, undefined, color, faceColor, norm, pow, false, false, false, [min,max] );
-         this.addPoint( P2, undefined, color, faceColor, norm, pow, false, false, false, [max,min] );
-         this.addPoint( P4, undefined, color, faceColor, norm, pow, false, false, false, [max,max] );
-         this.addPoint( P3, undefined, color, faceColor, norm, pow, false, false, false, [min,max] );
+         this.addPoint( P1, undefined, undefined, color, faceColor, norm, pow, false, false, false, [min,min] );
+         this.addPoint( P2, undefined, undefined, color, faceColor, norm, pow, false, false, false, [max,min] );
+         this.addPoint( P3, undefined, undefined, color, faceColor, norm, pow, false, false, false, [min,max] );
+         this.addPoint( P2, undefined, undefined, color, faceColor, norm, pow, false, false, false, [max,min] );
+         this.addPoint( P4, undefined, undefined, color, faceColor, norm, pow, false, false, false, [max,max] );
+         this.addPoint( P3, undefined, undefined, color, faceColor, norm, pow, false, false, false, [min,max] );
      }
      buffer.addSimpleQuad = function( quad, color, faceColor, norm, pow ) {
-         var min = -2;
-         var max = 2;
-         this.addPoint( quad[0], undefined, color, faceColor, norm, pow, false, false, false, [min,min] );
-         this.addPoint( quad[1], undefined, color, faceColor, norm, pow, false, false, false, [max,min] );
-         this.addPoint( quad[2], undefined, color, faceColor, norm, pow, false, false, false, [min,max] );
-         this.addPoint( quad[1], undefined, color, faceColor, norm, pow, false, false, false, [max,min] );
-         this.addPoint( quad[3], undefined, color, faceColor, norm, pow, false, false, false, [max,max] );
-         this.addPoint( quad[2], undefined, color, faceColor, norm, pow, false, false, false, [min,max] );
+         var min = 0;
+         var max = 1;
+         this.addPoint( quad[0], undefined, undefined, color, faceColor, norm, pow, false, false, false, [min,min] );
+         this.addPoint( quad[1], undefined, undefined, color, faceColor, norm, pow, false, false, false, [max,min] );
+         this.addPoint( quad[2], undefined, undefined, color, faceColor, norm, pow, false, false, false, [min,max] );
+         this.addPoint( quad[1], undefined, undefined, color, faceColor, norm, pow, false, false, false, [max,min] );
+         this.addPoint( quad[3], undefined, undefined, color, faceColor, norm, pow, false, false, false, [max,max] );
+         this.addPoint( quad[2], undefined, undefined, color, faceColor, norm, pow, false, false, false, [min,max] );
+     }
+     const white = new THREE.Vector4( 0.5, 0, 0, 1 );
+     buffer.addSimpleQuadTex = function( quad, uvs, norm, pow ) {
+         var min = 0;
+         var max = 1.0;
+         this.addPoint( quad[0], uvs, 0, white, white, norm, pow, 255, false, false, [min,min] );
+         this.addPoint( quad[1], uvs, 2, white, white, norm, pow, 255, false, false, [max,min] );
+         this.addPoint( quad[2], uvs, 4, white, white, norm, pow, 255, false, false, [min,max] );
+         this.addPoint( quad[1], uvs, 2, white, white, norm, pow, 255, false, false, [max,min] );
+         this.addPoint( quad[3], uvs, 6, white, white, norm, pow, 255, false, false, [max,max] );
+         this.addPoint( quad[2], uvs, 4, white, white, norm, pow, 255, false, false, [min,max] );
      }
 
-     buffer.makeVoxCube = function( size ) {
+     buffer.makeVoxCube = function( size, voxelType ) {
         var v1 = new THREE.Vector3(1,1,1);
         var v2 = new THREE.Vector3(-1,1,1);
         var v3 = new THREE.Vector3(1,-1,1);
@@ -188,31 +208,88 @@ Voxelarium.GeometryBuffer = function () {
         var v6 = new THREE.Vector3(-1,1,-1);
         var v7 = new THREE.Vector3(1,-1,-1);
         var v8 = new THREE.Vector3(-1,-1,-1);
-        buffer.addSimpleQuad( [v1.clone().multiplyScalar(size),v2.clone().multiplyScalar(size),v3.clone().multiplyScalar(size),v4.clone().multiplyScalar(size)]
-            , new THREE.Vector4( 0.2, 0.0, 1, 1.0 ), new THREE.Vector4( 0, 0, 0, 0.5 )
+        var quad;
+        if( voxelType && voxelType.image ) {
+            var in_uvs = voxelType.textureCoords.uvs;
+            var uvs = [in_uvs[1*2+0]
+                        ,in_uvs[1*2+1]
+                        ,in_uvs[0*2+0]
+                        ,in_uvs[0*2+1]
+                        ,in_uvs[3*2+0]
+                        ,in_uvs[3*2+1]
+                        ,in_uvs[2*2+0]
+                        ,in_uvs[2*2+1]
+                    ];
+            buffer.addSimpleQuadTex( quad=[v1.clone().multiplyScalar(size),v2.clone().multiplyScalar(size),v3.clone().multiplyScalar(size),v4.clone().multiplyScalar(size)]
+                , uvs
+                , THREE.Vector3Forward
+                , 200 )
+                quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
+
+            buffer.addSimpleQuadTex( quad = [v6.clone().multiplyScalar(size),v5.clone().multiplyScalar(size),v8.clone().multiplyScalar(size),v7.clone().multiplyScalar(size)]
+                , voxelType.textureCoords.uvs
+                , THREE.Vector3Backward
+                , 200 )
+                quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
+            buffer.addSimpleQuadTex( quad = [v5.clone().multiplyScalar(size),v6.clone().multiplyScalar(size),v1.clone().multiplyScalar(size),v2.clone().multiplyScalar(size)]
+                    , voxelType.textureCoords.uvs
+                    , THREE.Vector3Up
+                    , 200 )
+                    quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
+            buffer.addSimpleQuadTex( quad = [v3.clone().multiplyScalar(size),v4.clone().multiplyScalar(size),v7.clone().multiplyScalar(size),v8.clone().multiplyScalar(size)]
+                    , voxelType.textureCoords.uvs
+                    , THREE.Vector3Down
+                    , 200 )
+                    quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
+            buffer.addSimpleQuadTex( quad = [v5.clone().multiplyScalar(size),v1.clone().multiplyScalar(size),v7.clone().multiplyScalar(size),v3.clone().multiplyScalar(size)]
+                    , voxelType.textureCoords.uvs
+                    , THREE.Vector3Right
+                    , 200 )
+                    quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
+            buffer.addSimpleQuadTex( quad = [v2.clone().multiplyScalar(size),v6.clone().multiplyScalar(size),v4.clone().multiplyScalar(size),v8.clone().multiplyScalar(size)]
+                    , voxelType.textureCoords.uvs
+                    , THREE.Vector3Left
+                    , 200 )
+                    quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
+
+        }else {
+        buffer.addSimpleQuad( quad=[v1.clone().multiplyScalar(size),v2.clone().multiplyScalar(size),v3.clone().multiplyScalar(size),v4.clone().multiplyScalar(size)]
+            , voxelType && voxelType.properties.EdgeColor || new THREE.Vector4( 0.2, 0.0, 1, 1.0 )
+            , voxelType && voxelType.properties.FaceColor || new THREE.Vector4( 0, 0, 0, 0.5 )
             , THREE.Vector3Forward
             , 200 )
-        buffer.addSimpleQuad( [v6.clone().multiplyScalar(size),v5.clone().multiplyScalar(size),v8.clone().multiplyScalar(size),v7.clone().multiplyScalar(size)]
-            , new THREE.Vector4( 0.2, 1, 0, 1.0 ), new THREE.Vector4( 0, 0, 0, 0.5 )
+            quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
+        buffer.addSimpleQuad( quad = [v6.clone().multiplyScalar(size),v5.clone().multiplyScalar(size),v8.clone().multiplyScalar(size),v7.clone().multiplyScalar(size)]
+            , voxelType && voxelType.properties.EdgeColor || new THREE.Vector4( 0.2, 1, 0, 1.0 )
+            , voxelType && voxelType.properties.FaceColor || new THREE.Vector4( 0, 0, 0, 0.5 )
             , THREE.Vector3Backward
             , 200 )
-        buffer.addSimpleQuad( [v5.clone().multiplyScalar(size),v6.clone().multiplyScalar(size),v1.clone().multiplyScalar(size),v2.clone().multiplyScalar(size)]
-                , new THREE.Vector4( 1, 0.0, 0, 1.0 ), new THREE.Vector4( 0, 0, 0, 0.5 )
+            quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
+        buffer.addSimpleQuad( quad = [v5.clone().multiplyScalar(size),v6.clone().multiplyScalar(size),v1.clone().multiplyScalar(size),v2.clone().multiplyScalar(size)]
+                , voxelType && voxelType.properties.EdgeColor || new THREE.Vector4( 1, 0.0, 0, 1.0 )
+                , voxelType && voxelType.properties.FaceColor || new THREE.Vector4( 0, 0, 0, 0.5 )
                 , THREE.Vector3Up
                 , 200 )
-        buffer.addSimpleQuad( [v3.clone().multiplyScalar(size),v4.clone().multiplyScalar(size),v7.clone().multiplyScalar(size),v8.clone().multiplyScalar(size)]
-                , new THREE.Vector4( 0, 1, 1, 1.0 ), new THREE.Vector4( 0, 0, 0, 0.5 )
+                quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
+        buffer.addSimpleQuad( quad = [v3.clone().multiplyScalar(size),v4.clone().multiplyScalar(size),v7.clone().multiplyScalar(size),v8.clone().multiplyScalar(size)]
+                , voxelType && voxelType.properties.EdgeColor || new THREE.Vector4( 0, 1, 1, 1.0 )
+                , voxelType && voxelType.properties.FaceColor || new THREE.Vector4( 0, 0, 0, 0.5 )
                 , THREE.Vector3Down
                 , 200 )
-        buffer.addSimpleQuad( [v5.clone().multiplyScalar(size),v1.clone().multiplyScalar(size),v7.clone().multiplyScalar(size),v3.clone().multiplyScalar(size)]
-                , new THREE.Vector4( 1, 0.0, 1, 1.0 ), new THREE.Vector4( 0, 0, 0, 0.5 )
+                quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
+        buffer.addSimpleQuad( quad = [v5.clone().multiplyScalar(size),v1.clone().multiplyScalar(size),v7.clone().multiplyScalar(size),v3.clone().multiplyScalar(size)]
+                , voxelType && voxelType.properties.EdgeColor || new THREE.Vector4( 1, 0.0, 1, 1.0 )
+                , voxelType && voxelType.properties.FaceColor || new THREE.Vector4( 0, 0, 0, 0.5 )
                 , THREE.Vector3Right
                 , 200 )
-        buffer.addSimpleQuad( [v2.clone().multiplyScalar(size),v6.clone().multiplyScalar(size),v4.clone().multiplyScalar(size),v8.clone().multiplyScalar(size)]
-                , new THREE.Vector4( 1, 1, 0, 1.0 )
-                , new THREE.Vector4( 0, 0, 0, 0.5 )
+                quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
+        buffer.addSimpleQuad( quad = [v2.clone().multiplyScalar(size),v6.clone().multiplyScalar(size),v4.clone().multiplyScalar(size),v8.clone().multiplyScalar(size)]
+                , voxelType && voxelType.properties.EdgeColor || new THREE.Vector4( 1, 1, 0, 1.0 )
+                , voxelType && voxelType.properties.FaceColor || new THREE.Vector4( 0, 0, 0, 0.5 )
                 , THREE.Vector3Left
                 , 200 )
+                quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
+        }
         this.markDirty(  );
      }
 

@@ -1,6 +1,6 @@
 Voxelarium.Voxels.add( "Graton beige", {
-Draw_TransparentRendering:0
-Draw_FullVoxelOpacity:1
-Documentation_PageNum : 1349
+Draw_TransparentRendering:0,
+Draw_FullVoxelOpacity:1,
+Documentation_PageNum : 1349,
 }
 )

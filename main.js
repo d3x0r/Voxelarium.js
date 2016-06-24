@@ -35,7 +35,9 @@ function createWindow () {
  // mainWindow = new BrowserWindow({transparent:false, fullscreen:true });
 
   // and load the index.html of the app.
-  mainWindow.loadURL('file://' + __dirname + '/index.html');
+//  mainWindow.loadURL('file://' + __dirname + '/index.html');
+  mainWindow.loadURL('http://localhost:24680/index2.html');
+//  mainWindow.loadURL('http://d3x0r.org:24680/index2.html');
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();

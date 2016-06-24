@@ -1,9 +1,9 @@
 Voxelarium.Voxels.add( "Special Fire", {
-Draw_FullVoxelOpacity:1
-MiningHardness : 2000
-MiningType:2
-BvProp_Active:1
-Documentation_PageNum : 0
-BvProp_AtomicFireResistant : 1
+Draw_FullVoxelOpacity:1,
+MiningHardness : 2000,
+MiningType:2,
+BvProp_Active:1,
+Documentation_PageNum : 0,
+BvProp_AtomicFireResistant : 1,
 }
 )

@@ -29,8 +29,8 @@ THREE.RenderPass.prototype = {
 	constructor: THREE.RenderPass,
 
 	render: function ( renderer, writeBuffer, readBuffer, delta, maskActive ) {
-
-		this.scene.overrideMaterial = this.overrideMaterial;
+                if( !this.scene ) this.scene = new THREE.Scene();
+			this.scene.overrideMaterial = this.overrideMaterial;
 
 		if ( this.clearColor ) {
 
