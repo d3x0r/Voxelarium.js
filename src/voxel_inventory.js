@@ -203,7 +203,7 @@ Voxelarium.Inventory = function( geometryShader,domElement ) {
             return;
         }
         var origin = currentRef.object.position;
-        console.log( `inventory at ${origin.x} ${origin.y} ${origin.z}`)
+        //console.log( `inventory at ${origin.x} ${origin.y} ${origin.z}`)
         for( var n = 0; n < 1; n++ ) {
             x = origin.x  - unit/2 - 0.1
             y = origin.y  - unit/2 - 0.1

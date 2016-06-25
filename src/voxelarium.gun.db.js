@@ -109,12 +109,38 @@ function playerPositionChange( data ) {
 }
 
 
-function setupEvents() {
+function setupEvents( cb ) {
     //db.player.local.path("position").on( playerPositionChange );
     db.player.global.path("position").on( playerPositionChange );
+    loadWorld( cb );
 }
 
-var defaultTimeout;
+function loadVoxels(val) {
+    console.log( "realod code and texture from database...")
+    //val.map( "voxelTypes")
+}
+function loadVoxels2(val) {
+    console.log( "realod code and texture from database...")
+    //val.map( "voxelTypes")
+}
+
+function initialVoxelTypeLoad(cb) {
+    Voxelarium.Voxels.load( ()=>{
+        var branch = db.world.voxelInfo;
+        var code = branch.path( "code" );
+        var texture = branch.path( "texture" );
+        Voxelarium.Voxels.types.forEach( (type)=>{
+            code.path( type.ID ).put( type.codeData );
+            texture.path( type.ID ).put( type.textureData );
+        });
+        cb();
+    });
+}
+
+function loadWorld( cb ) {
+    ( db.world.voxelInfo = db.world.db.path( "voxelInfo" ) ).not( ()=>{initialVoxelTypeLoad(cb) }).val( loadVoxels );
+
+}
 
 function doDefaultInit() {
     db.player.id = new Date().getTime();
@@ -124,8 +150,9 @@ function doDefaultInit() {
     // the val() in init will fire here; so global gets initialized in normal path...
 }
 
+var defaultTimeout;
 db.init = function( cb ) {
-    defaultTimeout = setTimeout( doDefaultInit, 250 );
+     defaultTimeout = setTimeout( doDefaultInit, 250 );
     db.player.local.path("id").not( doDefaultInit ).val( (data)=>{
         clearTimeout( defaultTimeout );
         db.player.id = data;
@@ -133,8 +160,8 @@ db.init = function( cb ) {
         db.player.local.path("world_id").val( (data)=> {
           db.player.world_id = data;
           db.world.db = db.globalDb.path( "world" ).path( db.player.world_id );
-          setupEvents();
-          if( cb ) cb();
+          setupEvents(cb);
+          //if( cb ) cb();
         } );
     })
     //db.player.local.path("id").put( new Date().getTime() )

@@ -3,7 +3,8 @@ Voxelarium.Voxels = {
 	types : [],
 	add : function( type, properties,reaction ) {
         	this.types.push( this[type] = {
-                		 name : type
+						 ID : this.types.length
+                		, name : type
                 		, properties : properties
 				, reaction : reaction
 			 	, createVoxelExtension : null
@@ -11,6 +12,8 @@ Voxelarium.Voxels = {
 				, textureCoords : {}
 				, image : null
 				, texture : null
+				, codeData : null
+				, textureData : null
 			} );
 			if( typeof properties.DrawInfo === "undefined" )
 				properties.DrawInfo = Voxelarium.ZVOXEL_DRAWINFO_DRAWFULLVOXELOPACITY;
@@ -122,25 +125,18 @@ function loadAVoxel( n, cb ) {
 			xhrObj.onload = ()=>{
 				if( xhrObj.status === 200 ) {
 					eval(xhrObj.responseText);
+					var t = Voxelarium.Voxels.types[n];
 
-
-					var t = Voxelarium.Voxels.types[Voxelarium.Voxels.types.length-1];
-					/*
-					( t.image = new Image() ).src = "./src/voxels/images/voxel_${n}.png";//xhrObj.responseText;
-					t.image.onload = ()=>{
-						t.textureCoords = Voxelarium.TextureAtlas.add( t.image )
-					}
-					*/
+					t.codeData = xhrObj.responseText;
 					xhrObj.open('GET', `./src/voxels/images/voxel_${n}.png`);
 					xhrObj.send(null);
 					xhrObj.onload = ()=>{
 						if( xhrObj.responseText.length > 0 ) {
 							( t.image = new Image() ).src = xhrObj.response;
-							//t.texture = new THREE.Texture( t.image );
-							//window.URL.createObjectURL(xhr2.response)
+							t.textureData = xhrObj.response;
 							t.textureCoords = Voxelarium.TextureAtlas.add( t.image )
 						}
-						setTimeout( ()=>{ loadAVoxel( n+1, cb ) } )
+						loadAVoxel( n+1, cb );
 					}
 				}
 				else {

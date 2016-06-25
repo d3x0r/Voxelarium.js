@@ -199,7 +199,7 @@ scene.add( controlGame.casting.mesh );
 		camera.matrixAutoUpdate = false;
 		controls = controlGame;
 
-		Voxelarium.db.init( initVoxelarium );
+		initVoxelarium();
 
 		//
 		//scene2.add( controlGame.casting.mesh )
@@ -266,83 +266,83 @@ function initVoxelarium() {
 	geometryShader = Voxelarium.GeometryShader();
 	Voxelarium.TextureAtlas.init( 32, 64 );
 
-	Voxelarium.Voxels.load( ()=>{
-		
-		geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
-		//mesh.material.needsUpdate = true;
+	//Voxelarium.Voxels.load( ()=>{
+		Voxelarium.db.init( ()=>{
+			geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
+			//mesh.material.needsUpdate = true;
 
-	/*
-		var material1 = new THREE.MeshBasicMaterial( {map: Voxelarium.TextureAtlas.texture, side:THREE.DoubleSide } );
-	    material1.transparent = true;
+		/*
+			var material1 = new THREE.MeshBasicMaterial( {map: Voxelarium.TextureAtlas.texture, side:THREE.DoubleSide } );
+		    material1.transparent = true;
 
-		var mesh1 = new THREE.Mesh(
-	        new THREE.PlaneGeometry(Voxelarium.TextureAtlas.canvas.width, Voxelarium.TextureAtlas.canvas.height),
-	        material1
-	      );
+			var mesh1 = new THREE.Mesh(
+		        new THREE.PlaneGeometry(Voxelarium.TextureAtlas.canvas.width, Voxelarium.TextureAtlas.canvas.height),
+		        material1
+		      );
 
-		mesh1.position.set(0,50,0);
+			mesh1.position.set(0,50,0);
 
-		scene.add( mesh1 );
-	*/
-
-
+			scene.add( mesh1 );
+		*/
 
 
-		//geometryShaderMono = Voxelarium.GeometryShaderMono();
-		//scene2.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
-
-		var cluster = voxelUniverse.createCluster( basicMesher, 20 );
-		cluster.THREE_solid = new THREE.Object3D();
-		scene2.add( cluster.THREE_solid );
-		clusters.push( cluster );
-		cluster.pivot.add( THREE.Vector3Pool.new( cluster.voxelUnitSize * ( cluster.sectorSizeX/2 )
-				, -1 * cluster.voxelUnitSize * ( cluster.sectorSizeY/2 )
-				, cluster.voxelUnitSize * ( cluster.sectorSizeZ/2 ) ).delete() );
-		controlOrbit.center = cluster.pivot;
-		controlGame.clusters = clusters;
-		//var sector = Voxelarium.Sector(cluster,0,-1,0);
-		var sector = cluster.createSector( 0, -1, 0 );
-		sector.MakeSector(Voxelarium.Voxels.types[1]);
-
-		//var s = sector.stringify();
-		//sector.decode( s );
-		//console.log( "sector encode looks like", s );
-		basicMesher.initCulling( sector );
-
-		// this was patched/hacked to do the full sector including
-		// neighbors if they exist.
-		basicMesher.SectorUpdateFaceCulling( sector, true )
-		//basicMesher.SectorUpdateFaceCulling_Partial( cluster, sector, Voxelarium.FACEDRAW_Operations.ALL, true )
-		basicMesher.MakeSectorRenderingData( sector );
-
-		Voxelarium.db.world.cluster = cluster;
-		Voxelarium.db.world.loadSector( sector ); // hook into database event read.
-
-		cluster.THREE_solid.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShader ) );
-
-		scene2.add( Voxelarium.selector.meshGlow );
-		scene3.add( Voxelarium.selector.mesh );
-
-		var inventory_geometryShader =  Voxelarium.GeometryShader();
-		inventory_geometryShader.depthTest = false;
-		inventory_geometryShader.depthWrite = false;
-		inventory_geometryShader.transparent = false;
-		inventory_geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
-
-		 inventory = Voxelarium.Inventory(inventory_geometryShader,renderer.domElement);
-		inventory.THREE_solid.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
-		scene3.add( inventory.THREE_solid );
-		//scene3.add( inventory.selector.THREE_solid );
-		//sector.THREE_solid.matrix.Translate( -16*20, 16*20, -16*20 );
-		//camera.matrix.Translate( 16*20, -16*20, 16*20 );
 
 
-		window.addEventListener( 'keydown', master_onKeyDown, false );
-		window.addEventListener( 'keyup', master_onKeyUp, false );
+			//geometryShaderMono = Voxelarium.GeometryShaderMono();
+			//scene2.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
 
-		animate();
+			var cluster = voxelUniverse.createCluster( basicMesher, 20 );
+			cluster.THREE_solid = new THREE.Object3D();
+			scene2.add( cluster.THREE_solid );
+			clusters.push( cluster );
+			cluster.pivot.add( THREE.Vector3Pool.new( cluster.voxelUnitSize * ( cluster.sectorSizeX/2 )
+					, -1 * cluster.voxelUnitSize * ( cluster.sectorSizeY/2 )
+					, cluster.voxelUnitSize * ( cluster.sectorSizeZ/2 ) ).delete() );
+			controlOrbit.center = cluster.pivot;
+			controlGame.clusters = clusters;
+			//var sector = Voxelarium.Sector(cluster,0,-1,0);
+			var sector = cluster.createSector( 0, -1, 0 );
+			sector.MakeSector(Voxelarium.Voxels.types[1]);
 
-	});
+			//var s = sector.stringify();
+			//sector.decode( s );
+			//console.log( "sector encode looks like", s );
+			basicMesher.initCulling( sector );
+
+			// this was patched/hacked to do the full sector including
+			// neighbors if they exist.
+			basicMesher.SectorUpdateFaceCulling( sector, true )
+			//basicMesher.SectorUpdateFaceCulling_Partial( cluster, sector, Voxelarium.FACEDRAW_Operations.ALL, true )
+			basicMesher.MakeSectorRenderingData( sector );
+
+			Voxelarium.db.world.cluster = cluster;
+			Voxelarium.db.world.loadSector( sector ); // hook into database event read.
+
+			cluster.THREE_solid.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShader ) );
+
+			scene2.add( Voxelarium.selector.meshGlow );
+			scene3.add( Voxelarium.selector.mesh );
+
+			var inventory_geometryShader =  Voxelarium.GeometryShader();
+			inventory_geometryShader.depthTest = false;
+			inventory_geometryShader.depthWrite = false;
+			inventory_geometryShader.transparent = false;
+			inventory_geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
+
+			 inventory = Voxelarium.Inventory(inventory_geometryShader,renderer.domElement);
+			inventory.THREE_solid.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
+			scene3.add( inventory.THREE_solid );
+			//scene3.add( inventory.selector.THREE_solid );
+			//sector.THREE_solid.matrix.Translate( -16*20, 16*20, -16*20 );
+			//camera.matrix.Translate( 16*20, -16*20, 16*20 );
+
+
+			window.addEventListener( 'keydown', master_onKeyDown, false );
+			window.addEventListener( 'keyup', master_onKeyUp, false );
+
+			animate();
+		});
+	//});
 
 
 }
