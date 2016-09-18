@@ -1,6 +1,8 @@
 "use strict";
 
 
+require( "./src/voxelarium.gun.db.js" )
+
 //var words1 = voxelUniverse.createTextCluster( "Hello World" );
 //var glow = require( './glow.renderer.js' );
 
@@ -24,6 +26,12 @@ var controls;
 
 	var tests = [];
 	var clusters = [];
+
+var inventory = null;
+
+var keys = { LEFT: 37, UP: 38, RIGHT: 39, BOTTOM: 40
+	, A:65, S:83, D:68, W:87, SPACE:32, C:67
+    , I : 73 };
 
 var screen = { width:window.innerWidth, height:window.innerHeight };
 
@@ -129,12 +137,17 @@ var status_line;
 		scene2 = new THREE.Scene();
 		scene3 = new THREE.Scene();
 
+		scene.matrixAutoUpdate = false;
+		scene2.matrixAutoUpdate = false;
+		scene3.matrixAutoUpdate = false;
+
 		// for phong hello world test....
 	//	light = new THREE.PointLight( 0xffFFFF, 1, 10000 );
 	//	light.position.set( 0, 0, 1000 );
 //		scene.add( light );
 
-		camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
+		camera = Voxelarium.camera;
+		//Voxelarium.camera = camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
 
 		//myPerspective( camera.projectionMatrix, 90, window.innerWidth / window.innerHeight, 1, 10000 );
 
@@ -181,6 +194,8 @@ var status_line;
 		controlGame = new THREE.GameMouse( camera, renderer.domElement );
 		controlGame.enable();
 
+scene.add( controlGame.casting.mesh );
+
 		camera.matrixAutoUpdate = false;
 		controls = controlGame;
 
@@ -202,10 +217,21 @@ function render() {
 //render();
 
 var clock = new THREE.Clock();
+var db_delta = 0;
 function animate() {
 	var delta = clock.getDelta();
-
-		controls.update();
+	db_delta += delta;
+		if( !Voxelarium.db.player.positionUpdate ) {
+			controls.update( delta );
+			if( db_delta > 0.500 ) {
+				Voxelarium.db.animate();
+				db_delta = 0;
+			}
+		}
+		else {
+			// this writes it...
+			Voxelarium.db.player.positionUpdate = false;
+		}
 
 		Voxelarium.selector.update();
 
@@ -215,6 +241,8 @@ function animate() {
 			requestAnimationFrame( animate );
 		//var unit = Math.PI/2; //worst case visible
 
+		inventory.animate( camera, delta );
+
 	render();
 
 }
@@ -223,47 +251,119 @@ function animate() {
 
 function initVoxelarium() {
 	var basicMesher = Voxelarium.BasicMesher(  );
-
 	var voxelUniverse = Voxelarium.World();
 	var geometryShader;
 	var geometryShaderMono;
 
+
+	//geometryShader = Voxelarium.GeometryShader();
+	//geometryShaderMono = Voxelarium.GeometryShaderMono();
+
+
+
 	var geometryMaterial = Voxelarium.GeometryBuffer();
 	geometryMaterial.makeVoxCube(  );
 	geometryShader = Voxelarium.GeometryShader();
-	//geometryShaderMono = Voxelarium.GeometryShaderMono();
-	//scene2.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
+	Voxelarium.TextureAtlas.init( 32, 64 );
 
-	var cluster = voxelUniverse.createCluster( basicMesher, 20 );
-	cluster.THREE_solid = new THREE.Object3D();
-	scene2.add( cluster.THREE_solid );
-	clusters.push( cluster );
-	cluster.pivot.add( THREE.Vector3Pool.new( cluster.voxelUnitSize * ( cluster.sectorSizeX/2 )
-			, -1 * cluster.voxelUnitSize * ( cluster.sectorSizeY/2 )
-			, cluster.voxelUnitSize * ( cluster.sectorSizeZ/2 ) ).delete() );
-	controlOrbit.center = cluster.pivot;
-	controlGame.clusters = clusters;
-	//var sector = Voxelarium.Sector(cluster,0,-1,0);
-	var sector = cluster.createSector( 0, -1, 0 );
-	sector.MakeSector(Voxelarium.Voxels.types[1]);
-	basicMesher.initCulling( sector );
+	//Voxelarium.Voxels.load( ()=>{
+		Voxelarium.db.init( ()=>{
+			geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
+			//mesh.material.needsUpdate = true;
 
-	// this was patched/hacked to do the full sector including
-	// neighbors if they exist.
-	basicMesher.SectorUpdateFaceCulling( sector, true )
-	//basicMesher.SectorUpdateFaceCulling_Partial( cluster, sector, Voxelarium.FACEDRAW_Operations.ALL, true )
-	basicMesher.MakeSectorRenderingData( sector );
+		/*
+			var material1 = new THREE.MeshBasicMaterial( {map: Voxelarium.TextureAtlas.texture, side:THREE.DoubleSide } );
+		    material1.transparent = true;
 
-	cluster.THREE_solid.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShader ) );
+			var mesh1 = new THREE.Mesh(
+		        new THREE.PlaneGeometry(Voxelarium.TextureAtlas.canvas.width, Voxelarium.TextureAtlas.canvas.height),
+		        material1
+		      );
 
-	scene2.add( Voxelarium.selector.meshGlow );
-	scene3.add( Voxelarium.selector.mesh );
+			mesh1.position.set(0,50,0);
 
-	//sector.THREE_solid.matrix.Translate( -16*20, 16*20, -16*20 );
-	//camera.matrix.Translate( 16*20, -16*20, 16*20 );
+			scene.add( mesh1 );
+		*/
+
+
+
+
+			//geometryShaderMono = Voxelarium.GeometryShaderMono();
+			//scene2.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
+
+			var cluster = voxelUniverse.createCluster( basicMesher, 20 );
+			cluster.THREE_solid = new THREE.Object3D();
+			scene2.add( cluster.THREE_solid );
+			clusters.push( cluster );
+			cluster.pivot.add( THREE.Vector3Pool.new( cluster.voxelUnitSize * ( cluster.sectorSizeX/2 )
+					, -1 * cluster.voxelUnitSize * ( cluster.sectorSizeY/2 )
+					, cluster.voxelUnitSize * ( cluster.sectorSizeZ/2 ) ).delete() );
+			controlOrbit.center = cluster.pivot;
+			controlGame.clusters = clusters;
+			//var sector = Voxelarium.Sector(cluster,0,-1,0);
+			var sector = cluster.createSector( 0, -1, 0 );
+			sector.MakeSector(Voxelarium.Voxels.types[1]);
+
+			//var s = sector.stringify();
+			//sector.decode( s );
+			//console.log( "sector encode looks like", s );
+			basicMesher.initCulling( sector );
+
+			// this was patched/hacked to do the full sector including
+			// neighbors if they exist.
+			basicMesher.SectorUpdateFaceCulling( sector, true )
+			//basicMesher.SectorUpdateFaceCulling_Partial( cluster, sector, Voxelarium.FACEDRAW_Operations.ALL, true )
+			basicMesher.MakeSectorRenderingData( sector );
+
+			Voxelarium.db.world.cluster = cluster;
+			Voxelarium.db.world.loadSector( sector ); // hook into database event read.
+
+			cluster.THREE_solid.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShader ) );
+
+			scene2.add( Voxelarium.selector.meshGlow );
+			scene3.add( Voxelarium.selector.mesh );
+
+			var inventory_geometryShader =  Voxelarium.GeometryShader();
+			inventory_geometryShader.depthTest = false;
+			inventory_geometryShader.depthWrite = false;
+			inventory_geometryShader.transparent = false;
+			inventory_geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
+
+			 inventory = Voxelarium.Inventory(inventory_geometryShader,renderer.domElement);
+			inventory.THREE_solid.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
+			scene3.add( inventory.THREE_solid );
+			//scene3.add( inventory.selector.THREE_solid );
+			//sector.THREE_solid.matrix.Translate( -16*20, 16*20, -16*20 );
+			//camera.matrix.Translate( 16*20, -16*20, 16*20 );
+
+
+			window.addEventListener( 'keydown', master_onKeyDown, false );
+			window.addEventListener( 'keyup', master_onKeyUp, false );
+
+			animate();
+		});
+	//});
+
 
 }
 
+function master_onKeyDown( event ) {
+
+
+	switch ( event.keyCode ) {
+		case keys.I:
+
+			controls.disable();
+			inventory.activate( ()=>{ controls.enable() });
+			break;
+	}
+
+}
+
+function master_onKeyUp( event ) {
+
+	switch ( event.keyCode ) {
+	}
+}
 
 init();
-animate();

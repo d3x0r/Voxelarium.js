@@ -1,8 +1,8 @@
 Voxelarium.Voxels.add( "BlackRock (Test to remove)", {
-Draw_TransparentRendering:0
-Draw_FullVoxelOpacity:1
-MiningHardness : 2000;
-MiningType     : 1;
-Documentation_PageNum : 0
+Draw_TransparentRendering:0,
+Draw_FullVoxelOpacity:1,
+MiningHardness : 2000,
+MiningType     : 1,
+Documentation_PageNum : 0,
 }
 )

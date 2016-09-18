@@ -225,7 +225,7 @@ function initVoxelarium() {
 	})
 	var detailsize = 5;
 	renderVoxelWords( "Inventory", -800, -n*8*detailsize -3*8*20 -0*8*detailsize +offset, detailsize );
-	for( var n = 0; n < 50; n++ ) {
+	for( var n = 0; n < 10; n++ ) {
 		renderVoxelWords( "Server Name Goes here", -800,-n*8*detailsize -3*8*20-1*8*detailsize+offset, detailsize );
 		renderVoxelWords( "Players 0/3", -800 + 25 * 8*detailsize,-n*8*detailsize -3*8*20-1*8*detailsize+offset, detailsize );
 		renderVoxelWords( "Ping 333", -800 + (25+12)* 8*detailsize,-n*8*detailsize -3*8*20-1*8*detailsize+offset, detailsize );

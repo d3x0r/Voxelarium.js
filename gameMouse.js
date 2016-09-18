@@ -31,37 +31,37 @@ casting.addRef = function updateCastMesh( currentRef) {
     , new THREE.Vector3( x + unit, y + unit, z + unit )
     ]
     var geometry = casting.geometry;
-//    console.log( "add", x, y, z )
-var v = casting.cubes * 24*3;
-vertices[v++] = P[0].x; vertices[v++] = P[0].y; vertices[v++] = P[0].z;
-vertices[v++] = P[1].x; vertices[v++] = P[1].y; vertices[v++] = P[1].z;
-vertices[v++] = P[1].x; vertices[v++] = P[1].y; vertices[v++] = P[1].z;
-vertices[v++] = P[3].x; vertices[v++] = P[3].y; vertices[v++] = P[3].z;
-vertices[v++] = P[3].x; vertices[v++] = P[3].y; vertices[v++] = P[3].z;
-vertices[v++] = P[2].x; vertices[v++] = P[2].y; vertices[v++] = P[2].z;
-vertices[v++] = P[2].x; vertices[v++] = P[2].y; vertices[v++] = P[2].z;
-vertices[v++] = P[0].x; vertices[v++] = P[0].y; vertices[v++] = P[0].z;
+    //    console.log( "add", x, y, z )
+    var v = casting.cubes * 24*3;
+    vertices[v++] = P[0].x; vertices[v++] = P[0].y; vertices[v++] = P[0].z;
+    vertices[v++] = P[1].x; vertices[v++] = P[1].y; vertices[v++] = P[1].z;
+    vertices[v++] = P[1].x; vertices[v++] = P[1].y; vertices[v++] = P[1].z;
+    vertices[v++] = P[3].x; vertices[v++] = P[3].y; vertices[v++] = P[3].z;
+    vertices[v++] = P[3].x; vertices[v++] = P[3].y; vertices[v++] = P[3].z;
+    vertices[v++] = P[2].x; vertices[v++] = P[2].y; vertices[v++] = P[2].z;
+    vertices[v++] = P[2].x; vertices[v++] = P[2].y; vertices[v++] = P[2].z;
+    vertices[v++] = P[0].x; vertices[v++] = P[0].y; vertices[v++] = P[0].z;
 
-vertices[v++] = P[4].x; vertices[v++] = P[4].y; vertices[v++] = P[4].z;
-vertices[v++] = P[5].x; vertices[v++] = P[5].y; vertices[v++] = P[5].z;
-vertices[v++] = P[5].x; vertices[v++] = P[5].y; vertices[v++] = P[5].z;
-vertices[v++] = P[7].x; vertices[v++] = P[7].y; vertices[v++] = P[7].z;
-vertices[v++] = P[7].x; vertices[v++] = P[7].y; vertices[v++] = P[7].z;
-vertices[v++] = P[6].x; vertices[v++] = P[6].y; vertices[v++] = P[6].z;
-vertices[v++] = P[6].x; vertices[v++] = P[6].y; vertices[v++] = P[6].z;
-vertices[v++] = P[4].x; vertices[v++] = P[4].y; vertices[v++] = P[4].z;
+    vertices[v++] = P[4].x; vertices[v++] = P[4].y; vertices[v++] = P[4].z;
+    vertices[v++] = P[5].x; vertices[v++] = P[5].y; vertices[v++] = P[5].z;
+    vertices[v++] = P[5].x; vertices[v++] = P[5].y; vertices[v++] = P[5].z;
+    vertices[v++] = P[7].x; vertices[v++] = P[7].y; vertices[v++] = P[7].z;
+    vertices[v++] = P[7].x; vertices[v++] = P[7].y; vertices[v++] = P[7].z;
+    vertices[v++] = P[6].x; vertices[v++] = P[6].y; vertices[v++] = P[6].z;
+    vertices[v++] = P[6].x; vertices[v++] = P[6].y; vertices[v++] = P[6].z;
+    vertices[v++] = P[4].x; vertices[v++] = P[4].y; vertices[v++] = P[4].z;
 
-vertices[v++] = P[0].x; vertices[v++] = P[0].y; vertices[v++] = P[0].z;
-vertices[v++] = P[4].x; vertices[v++] = P[4].y; vertices[v++] = P[4].z;
-vertices[v++] = P[1].x; vertices[v++] = P[1].y; vertices[v++] = P[1].z;
-vertices[v++] = P[5].x; vertices[v++] = P[5].y; vertices[v++] = P[5].z;
-vertices[v++] = P[2].x; vertices[v++] = P[2].y; vertices[v++] = P[2].z;
-vertices[v++] = P[6].x; vertices[v++] = P[6].y; vertices[v++] = P[6].z;
-vertices[v++] = P[3].x; vertices[v++] = P[3].y; vertices[v++] = P[3].z;
-vertices[v++] = P[7].x; vertices[v++] = P[7].y; vertices[v++] = P[7].z;
-this.cubes++;
-geometry.attributes.position.needsUpdate = true
-//geometry.verticesNeedUpdate = true;
+    vertices[v++] = P[0].x; vertices[v++] = P[0].y; vertices[v++] = P[0].z;
+    vertices[v++] = P[4].x; vertices[v++] = P[4].y; vertices[v++] = P[4].z;
+    vertices[v++] = P[1].x; vertices[v++] = P[1].y; vertices[v++] = P[1].z;
+    vertices[v++] = P[5].x; vertices[v++] = P[5].y; vertices[v++] = P[5].z;
+    vertices[v++] = P[2].x; vertices[v++] = P[2].y; vertices[v++] = P[2].z;
+    vertices[v++] = P[6].x; vertices[v++] = P[6].y; vertices[v++] = P[6].z;
+    vertices[v++] = P[3].x; vertices[v++] = P[3].y; vertices[v++] = P[3].z;
+    vertices[v++] = P[7].x; vertices[v++] = P[7].y; vertices[v++] = P[7].z;
+    this.cubes++;
+    geometry.attributes.position.needsUpdate = true
+    geometry.verticesNeedUpdate = true;
 }
 
 
@@ -78,42 +78,23 @@ THREE.GameMouse = function ( object, domElement ) {
   this.mouseRay = { n : THREE.Vector3Zero.clone(), o: new THREE.Vector3().delete() }
   this.mouseClock = new THREE.Clock();
   this.mouseEvents = [];
+  this.currentAddType = Voxelarium.Voxels.types[2];
 
   var mouseButtonCount = 0;
   var mouseScrollX = 0;
   var mouseScrollY = 0;
   var cursorDistance = 650;
-  var projector = new THREE.Projector();
-  var raycaster = new THREE.Raycaster();
 
-  this.gameMouseMove = function(camera,e){
-      var mouseVector = THREE.Vector3Pool.new(
-           2 * (e.clientX / window.innerWidth) - 1
-           , 1 - 2 * ( e.clientY / window.innerHeight )
-           , 0.5
-      );
-
-
-     mouseVector.unproject( camera );
-
-     raycaster.set( camera.position, mouseVector.sub( camera.position ).normalize() );
-
-     scope.mouseRay.n = mouseVector.sub( camera.position ).normalize();
-     scope.mouseRay.o = camera.matrix.origin;
-     var cluster = clusters[0];
-      var intersects = raycaster.intersectObjects( cluster.THREE_solid.children );
-      if( intersects ) {
-
-      }
+  this.setCurrentType = function( type ) {
+      this.currentAddType = type;
   }
-
   this.setMouseRay = function( camera, e ) {
       //#define BEGIN_SCALE 1
       var rect = scope.domElement.getBoundingClientRect();
       const w = rect.right-rect.left;//window.innerWidth;
       const h = rect.bottom-rect.top;//window.innerHeight;
-      var x = (((e.clientX-rect.left)-(w/2.0))/w);
-      var y = (((e.clientY-rect.top)-(h/2.0))/h);
+      var x = (((e.clientX-rect.left)-(w/2.0))/w) * 2;
+      var y = (((e.clientY-rect.top)-(h/2.0))/h) * 2;
       //console.log( `mouse at ${x}, ${y}` )
 
       var mouse_ray_slope = camera.matrix.left.multiplyScalar( x*camera.aspect );
@@ -123,7 +104,7 @@ THREE.GameMouse = function ( object, domElement ) {
       //mouse_ray_slope.addScaledVector( camera.matrix.forward, -0.47 );
       // 75 degree view and like 3/4 aspect
       //mouse_ray_slope.addScaledVector( camera.matrix.forward, -0.605 );//-Math.sqrt(1 - mouse_ray_slope.length()) );
-      mouse_ray_slope.addScaledVector( camera.matrix.forward, -0.68 );//-Math.sqrt(1 - mouse_ray_slope.length()) );
+      mouse_ray_slope.addScaledVector( camera.matrix.forward, 1.304);//0.652 );//-Math.sqrt(1 - mouse_ray_slope.length()) );
 
       //mouse_ray_slope.unproject( camera );
 
@@ -145,6 +126,8 @@ THREE.GameMouse = function ( object, domElement ) {
   }
 
   this.update = function() {
+    if( !scope.clusters )
+      return;
      switch( scope.mode )
      {
      case 0:
@@ -164,7 +147,11 @@ THREE.GameMouse = function ( object, domElement ) {
             if( result ) {
                 Voxelarium.selector.currentAddVoxel = cluster.getVoxelRef( false, result.PredPointedVoxel.x, result.PredPointedVoxel.y, result.PredPointedVoxel.z )
               Voxelarium.selector.currentVoxel = result.ref;
-          } else if( false ){
+          }
+          /* this was another way of getting voxels... raycast is the routine for this now?
+            rayCast projects a line through each plane going going out, and is more accurate than this.
+            Plus rayCast can return the side of detection. */
+          if( false ){
 
                 var vox = o.clone().addScaledVector( scope.mouseRay.n, cursorDistance ).delete()
 
@@ -206,21 +193,23 @@ THREE.GameMouse = function ( object, domElement ) {
                 if( mEvent.down ) {
                     if( mEvent.button === 0 ) { // left
                         var ref = Voxelarium.selector.currentAddVoxel;
-                        if( ref.sector ){
-                            ref.sector.setCube( ref.x, ref.y, ref.z, Voxelarium.Voxels.types[2] )
+                        if( ref && ref.sector ){
+                            ref.sector.setCube( ref.x, ref.y, ref.z, scope.currentAddType )
                             ref.cluster.mesher.SectorUpdateFaceCulling( ref.sector, true )
                             //basicMesher.SectorUpdateFaceCulling_Partial( cluster, sector, Voxelarium.FACEDRAW_Operations.ALL, true )
                             ref.cluster.mesher.MakeSectorRenderingData( ref.sector );
+                            Voxelarium.db.world.storeSector( ref.sector );
                         }
 
                     }
                     if( mEvent.button === 2 ) { // right
                         var ref = Voxelarium.selector.currentVoxel;
-                        if( ref.sector ){
+                        if( ref && ref.sector ){
                             ref.sector.setCube( ref.x, ref.y, ref.z, Voxelarium.Voxels.Void )
                             ref.cluster.mesher.SectorUpdateFaceCulling( ref.sector, true )
                             //basicMesher.SectorUpdateFaceCulling_Partial( cluster, sector, Voxelarium.FACEDRAW_Operations.ALL, true )
                             ref.cluster.mesher.MakeSectorRenderingData( ref.sector );
+                            Voxelarium.db.world.storeSector( ref.sector );
                         }
                     }
                 }
@@ -259,18 +248,15 @@ function mouseEvent( x, y, b, down ) {
       mouseEvent( event.clientX, event.clientY, event.button, false );
   }
 
-function onMouseMove( event ) {
+    function onMouseMove( event ) {
 
-	if ( scope.enabled === false ) return;
+    	if ( scope.enabled === false ) return;
 
-	event.preventDefault();
+    	event.preventDefault();
 
-    scope.setMouseRay( camera, event );
+        scope.setMouseRay( camera, event );
 
-    // three.js picking changed....
-    //scope.gameMouseMove( camera, event );
-
-}
+    }
 
     function onMouseWheel( event ) {
         event.preventDefault();

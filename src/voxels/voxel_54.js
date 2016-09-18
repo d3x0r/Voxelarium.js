@@ -1,6 +1,6 @@
 Voxelarium.Voxels.add( "Rocky Blue", {
-Draw_TransparentRendering:0
-Draw_FullVoxelOpacity:1
-Documentation_PageNum : 1355
+Draw_TransparentRendering:0,
+Draw_FullVoxelOpacity:1,
+Documentation_PageNum : 1355,
 }
 )

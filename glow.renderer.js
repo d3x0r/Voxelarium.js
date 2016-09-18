@@ -9,7 +9,6 @@ var finalcomposer;
 var renderTargetGlow;
 var	renderTarget;
 
-
 var finalshader = {
     uniforms: {
         tDiffuse: { type: "t", value: 0, texture: null }, // The base scene buffer
@@ -67,11 +66,13 @@ var finalshader = {
 
 var preGlow;
 var preFlat;
+var overlay;
 
 //exports.makeComposers =
 glow.makeComposers =
 function makeComposers( sceneFlat, preFlatSetup, sceneGlow, preGlowSetup, sceneOver ) {
 	renderer.autoClear = false;
+    overlay = sceneOver;
     preGlow = preGlowSetup;
     preFlat = preFlatSetup;
 	// Prepare the glow composer's render target
@@ -116,10 +117,10 @@ function makeComposers( sceneFlat, preFlatSetup, sceneGlow, preGlowSetup, sceneO
 	// Prepare the base scene render pass
 	var renderModel = new THREE.RenderPass( sceneFlat, camera );
 	var renderModel2 = new THREE.RenderPass( sceneGlow, camera );
-    var renderModel3 = new THREE.RenderPass( sceneOver, camera );
+    //var renderModel3 = new THREE.RenderPass( sceneOver, camera );
 	renderModel.clear = true;
 	renderModel2.clear = false;
-    renderModel3.clear = false;
+    //renderModel3.clear = false;
 
 
 	// Prepare the composer's render target
@@ -150,9 +151,11 @@ function makeComposers( sceneFlat, preFlatSetup, sceneGlow, preGlowSetup, sceneO
 
 	// Prepare the additive blending pass
 	var finalPass = new THREE.ShaderPass( finalshader );
-	finalPass.needsSwap = true;
+    //finalPass.
+	finalPass.needsSwap = false;
 	// Make sure the additive blending is rendered to the screen (since it's the last pass)
 	finalPass.renderToScreen = true;
+    //renderModel3.renderToScreen = true;
 
 	// Create the composer
 	finalcomposer = new THREE.EffectComposer( renderer, renderTarget );
@@ -160,15 +163,14 @@ function makeComposers( sceneFlat, preFlatSetup, sceneGlow, preGlowSetup, sceneO
 	// Add all passes
 	finalcomposer.addPass( renderModel );
 	finalcomposer.addPass( renderModel2 );
-    finalcomposer.addPass( renderModel3 );
 	finalcomposer.addPass( finalPass );
+    //finalcomposer.addPass( renderModel3 );
 }
 
 
 
 //exports.render =
-glow.render =
-function glowRender() {
+glow.render = function glowRender() {
     preGlow();
     glowcomposer.render();
 
@@ -183,4 +185,5 @@ function glowRender() {
 
 
     finalcomposer.render();
+     renderer.render( overlay, camera );
 }

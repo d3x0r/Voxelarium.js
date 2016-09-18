@@ -1,6 +1,6 @@
 Voxelarium.Voxels.add( "Alien Wood", {
-Draw_TransparentRendering:0
-Draw_FullVoxelOpacity:1
+Draw_TransparentRendering:0,
+Draw_FullVoxelOpacity:1,
 Documentation_PageNum : 1361
 }
 )

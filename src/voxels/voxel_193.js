@@ -1,8 +1,8 @@
 Voxelarium.Voxels.add( "Motor Housing", {
-Draw_FullVoxelOpacity:1
-MiningHardness : 2000
-MiningType:2
-BvProp_Active:1
-Documentation_PageNum : 1442
+Draw_FullVoxelOpacity:1,
+MiningHardness : 2000,
+MiningType:2,
+BvProp_Active:1,
+Documentation_PageNum : 1442,
 }
 )
