@@ -185,5 +185,6 @@ glow.render = function glowRender() {
 
 
     finalcomposer.render();
-     renderer.render( overlay, camera );
+	if( overlay )
+	     renderer.render( overlay, camera );
 }

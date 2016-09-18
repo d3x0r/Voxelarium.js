@@ -158,7 +158,7 @@ var nTarget2 = 120;
 function animate() {
 	var delta = clock.getDelta();
 
-		controls.update();
+		controls.update(delta);
 
 		tests.forEach( (test)=>{ test.animate(); } )
 
