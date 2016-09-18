@@ -1,10 +1,11 @@
 
 var Voxelarium = { VERSION : "0.0.1" }
 
+var THREE = require( "../three.js/build/three.js")
+
 Voxelarium.clock = new THREE.Clock()
 
 
-require( "../three.js/three.js/build/three.js")
 require( "./src/three.js.example/Projector.js" )
 require( "./src/three.js.post/shaders/CopyShader.js")
 require( "./src/three.js.post/shaders/HorizontalBlurShader.js")

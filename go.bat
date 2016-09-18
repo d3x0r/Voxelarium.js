@@ -1,1 +1,1 @@
-..\..\electron-quick-start\node_modules\electron-prebuilt\dist\electron.exe . 
+..\electron-quick-start\node_modules\electron\dist\electron.exe . 
