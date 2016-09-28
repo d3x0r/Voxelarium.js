@@ -183,9 +183,11 @@ function require(identifier, callback, compiler) {
 	function onLoad() {
 		if (request.readyState != 4)
 			return;
-		if (request.status != 200) {
-			cache[cacheid] = require.oldRequire( identifier );
-			return;
+		if (request.status && request.status != 200) {
+			if( require.oldRequire ) {
+				cache[cacheid] = require.oldRequire( identifier );
+				return;
+			}
 			throw new SmoothieError("unable to load "+descriptor.id+" ("+request.status+" "+request.statusText+")");
 		}
 		if (lock[cacheid]) {
@@ -214,8 +216,8 @@ function resolve(identifier) {
 	var root = m[2] ? requirePath[p[1]?parseInt(p[1]):0] : requirePath[m[1]?parseInt(m[1]):0];
 	parser.href = (m[2]?root+p[2]+m[2]+'/':root)+m[3]+(m[4]?m[4]:'index');
 	var uri = parser.href+(m[5]?m[5]:'.js');
-	if (uri.substr(0,root.length) != root)
-		throw new SmoothieError("Relative identifier outside of module root");
+	//if (uri.substr(0,root.length) != root)
+	//	throw new SmoothieError("Relative identifier outside of module root");
 	var id = (m[1]?m[1]+":":"0:")+parser.href.substr(root.length)+(m[5]?m[5]:'');
 	return {'id':id,'uri':uri};
 }

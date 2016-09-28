@@ -28,8 +28,6 @@ var mode = 0;
 
 	var counter= 0;
 
-//init();
-//animate();
 
 function setMode1(){
 	console.log( "reset counter (mode1)")

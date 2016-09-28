@@ -115,9 +115,22 @@ function setupEvents( cb ) {
     loadWorld( cb );
 }
 
-function loadVoxels(val) {
-    console.log( "realod code and texture from database...")
-    //val.map( "voxelTypes")
+loadVoxels = (cb, val)=>{
+  var count = val.codeCount;
+  db.world.voxelInfo.path( "code" ).map( (data,field)=>{
+      eval(data.code);
+      var t = Voxelarium.Voxels.types[field]
+      if( data.texture ) {
+        count++;
+        ( t.image = new Image() ).src = t.textureData = data.texture;
+          t.image.onload = ()=> {
+             //console.log( "Wait until load to setup coords")
+             t.textureCoords = Voxelarium.TextureAtlas.add( t.image )
+             if( !--count ) cb();
+          }
+      }
+      if( !--count ) cb();
+  });
 }
 function loadVoxels2(val) {
     console.log( "realod code and texture from database...")
@@ -127,18 +140,35 @@ function loadVoxels2(val) {
 function initialVoxelTypeLoad(cb) {
     Voxelarium.Voxels.load( ()=>{
         var branch = db.world.voxelInfo;
+        var code = {};
+        var n = 0;
+        Voxelarium.Voxels.types.forEach( (type)=>{
+            if( !type.ID ) return;
+            n++;
+            code[ type.ID ] = { code: type.codeData, texture : type.textureData};
+        });
+        branch.put( { code : code, codeCount : n } );
+        /*
         var code = branch.path( "code" );
         var texture = branch.path( "texture" );
         Voxelarium.Voxels.types.forEach( (type)=>{
             code.path( type.ID ).put( type.codeData );
             texture.path( type.ID ).put( type.textureData );
         });
+        */
         cb();
     });
 }
 
 function loadWorld( cb ) {
-    ( db.world.voxelInfo = db.world.db.path( "voxelInfo" ) ).not( ()=>{initialVoxelTypeLoad(cb) }).val( loadVoxels );
+//    ( db.world.voxelInfo = db.world.db.path( "voxelInfo" ) ).not( ()=>{initialVoxelTypeLoad(cb) }).val( loadVoxels );
+    ( db.world.voxelInfo = db.world.db.path( "voxelInfo" ) )
+        .not( ()=>{
+            initialVoxelTypeLoad(cb)
+         }).val( (val)=>{
+            console.log( "also val callback...", this );
+         setTimeout( ()=>{ loadVoxels(cb,val) } ) } );
+
 
 }
 

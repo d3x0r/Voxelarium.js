@@ -1,4 +1,10 @@
 
+const attribs = ["position","in_Texture"
+,"in_Color", "in_FaceColor", "in_Modulous"
+,"in_Normal", "in_Pow", "in_flat_color", "in_use_texture", "in_decal_texture"
+];
+const attrib_bytes = [4,4,1,1,4,1,1,1,1,1]
+const attrib_sizes = [3,2,4,4,2,3,1,1,1,1]
 
 Voxelarium.GeometryBuffer = function () {
     var buffer = {};
@@ -41,23 +47,36 @@ Voxelarium.GeometryBuffer = function () {
     attribute  vec2 in_Modulous;
 */
 //buffer.geometry
+    attribs.forEach( (att,index)=>{
+      buffer.geometry.addAttribute( att, new THREE.BufferAttribute( buffer[att], attrib_sizes[index] ))
+    })
+    if(0){
     buffer.geometry.addAttribute( 'position', new THREE.BufferAttribute( buffer.position, 3 ) );
      buffer.geometry.addAttribute( 'in_Texture', new THREE.BufferAttribute( buffer.in_Texture, 2 ) );
      buffer.geometry.addAttribute( 'in_Color', new THREE.BufferAttribute( buffer.in_Color, 4,true ) );
      buffer.geometry.addAttribute( 'in_FaceColor', new THREE.BufferAttribute( buffer.in_FaceColor, 4, true ) );
      buffer.geometry.addAttribute( 'in_Normal', new THREE.BufferAttribute( buffer.in_Normal, 3 ) );
+     buffer.geometry.addAttribute( 'in_Modulous', new THREE.BufferAttribute( buffer.in_Modulous, 2, false ) );
      buffer.geometry.addAttribute( 'in_Pow', new THREE.BufferAttribute( buffer.in_Pow, 1 ) );
      buffer.geometry.addAttribute( 'in_use_texture', new THREE.BufferAttribute( buffer.in_use_texture, 1, true ) );
      buffer.geometry.addAttribute( 'in_flat_color', new THREE.BufferAttribute( buffer.in_flat_color, 1 ) );
      buffer.geometry.addAttribute( 'in_decal_texture', new THREE.BufferAttribute( buffer.in_decal_texture, 1 ) );
-     buffer.geometry.addAttribute( 'in_Modulous', new THREE.BufferAttribute( buffer.in_Modulous, 2, false ) );
+     console.log( "create full", buffer.geometry.attributes );
 
+   }
 
 
      buffer.expand = function() {
          var newbuf;
          this.available = ( this.available + 1 ) * 2;
 
+/*
+          attribs.forEach( (att,index)=>{
+            newbuf =   new Float32Array( new ArrayBuffer( this.available * ( attrib_bytes[index] * attrib_sizes[index] ) ) );
+            newbuf.set( buffer.position );
+            buffer[att] = newbuf;
+          })
+        */
          newbuf =   new Float32Array( new ArrayBuffer( this.available * ( 4 * 3 ) ) );
          newbuf.set( buffer.position );
          buffer.position = newbuf;
@@ -101,15 +120,15 @@ Voxelarium.GeometryBuffer = function () {
      };
 
      buffer.markDirty = function () {
-         ["position","in_Texture"
-         ,"in_Color", "in_FaceColor", "in_Modulous"
-         ,"in_Normal", "in_Pow", "in_flat_color", "in_use_texture", "in_decal_texture"
-     ].forEach( (att)=>{
+
+         attribs.forEach( (att)=>{
              var attrib = this.geometry.getAttribute(att);
              attrib.needsUpdate = true;
              attrib.array = buffer[att];
          })
+         //console.log( "dirty", this.geometry.attributes );
 
+    /*
          this.geometry.attributes.position.needsUpdate = true;
          this.geometry.attributes.in_Texture.needsUpdate = true;
          this.geometry.attributes.in_Color.needsUpdate = true;
@@ -120,6 +139,8 @@ Voxelarium.GeometryBuffer = function () {
          this.geometry.attributes.in_flat_color.needsUpdate = true;
          this.geometry.attributes.in_decal_texture.needsUpdate = true;
          this.geometry.attributes.in_Modulous.needsUpdate = true;
+      */
+
      }
 
      buffer.addPoint = function( v, t, tBase, c, fc, n, p, ut, flat, dt, mod ) {

@@ -79,7 +79,7 @@ var status_line;
 		scene3 = new THREE.Scene();
 
 
-		camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
+		camera = Voxelarium.camera;
 
 		camera.matrixAutoUpdate = false;
 		camera.position.z = 1500;
@@ -132,11 +132,10 @@ var status_line;
 
 		controlNatural = new THREE.NaturalControls( camera, renderer.domElement );
 		controlNatural.disable();
-		//controlGame = new THREE.GameMouse( camera, renderer.domElement );
 
 		controlOrbit = new THREE.OrbitControls( camera, renderer.domElement );
-		camera.matrixAutoUpdate = false;
 		controlOrbit.enable();
+
 		controls = controlOrbit;
 
 	}
@@ -194,6 +193,11 @@ function animate() {
 }
 
 function initVoxelarium() {
+
+	Voxelarium.TextureAtlas.init( 32, 64 );
+
+	Voxelarium.Voxels.load( ()=>{
+
 	var basicMesher = Voxelarium.BasicMesher(  );
 
 
@@ -242,6 +246,7 @@ function initVoxelarium() {
 		})
 
 	}
+})
 }
 
 

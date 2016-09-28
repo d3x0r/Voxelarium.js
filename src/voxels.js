@@ -122,19 +122,30 @@ function loadAVoxel( n, cb ) {
 		try {
 			xhrObj.open('GET', `./src/voxels/voxel_${n}.js`);
 			xhrObj.send(null);
+			xhrObj.onerror = (err)=>{
+				  //console.log( "require ", n );
+		      //console.log( err );
+					cb();
+					return;
+			};
 			xhrObj.onload = ()=>{
-				if( xhrObj.status === 200 ) {
+				if( !xhrObj.status || xhrObj.status === 200 ) {
 					eval(xhrObj.responseText);
 					var t = Voxelarium.Voxels.types[n];
 
 					t.codeData = xhrObj.responseText;
 					xhrObj.open('GET', `./src/voxels/images/voxel_${n}.png`);
+					xhrObj.onerror = (err )=>{console.log( "error:", err);
+				   loadAVoxel( n+1, cb );}
 					xhrObj.send(null);
 					xhrObj.onload = ()=>{
 						if( xhrObj.responseText.length > 0 ) {
 							( t.image = new Image() ).src = xhrObj.response;
 							t.textureData = xhrObj.response;
-							t.textureCoords = Voxelarium.TextureAtlas.add( t.image )
+							t.image.onload = ()=> {
+								 //console.log( "Wait until load to setup coords")
+							   t.textureCoords = Voxelarium.TextureAtlas.add( t.image )
+						  }
 						}
 						loadAVoxel( n+1, cb );
 					}

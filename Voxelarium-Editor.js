@@ -194,7 +194,7 @@ var status_line;
 		controlGame = new THREE.GameMouse( camera, renderer.domElement );
 		controlGame.enable();
 
-scene.add( controlGame.casting.mesh );
+		scene.add( controlGame.casting.mesh );
 
 		camera.matrixAutoUpdate = false;
 		controls = controlGame;

@@ -1,7 +1,8 @@
 
 var Voxelarium = { VERSION : "0.0.1" }
 
-var THREE = require( "../three.js/build/three.js")
+if( !THREE )
+	var THREE = require( "../three.js/build/three.js")
 
 Voxelarium.clock = new THREE.Clock()
 
