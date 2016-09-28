@@ -198,6 +198,18 @@ Voxelarium.GeometryBuffer = function () {
          this.addPoint( P4, undefined, undefined, color, faceColor, norm, pow, false, false, false, [max,max] );
          this.addPoint( P3, undefined, undefined, color, faceColor, norm, pow, false, false, false, [min,max] );
      }
+     buffer.AddQuadTexture = function( norm, P1,P2,P3,P4,uvs ) {
+
+return;
+         const min = 0;
+         const max = 1;
+         this.addPoint( P1, uvs, 0, white, white, norm, 0, 255, false, false, [min,min] );
+         this.addPoint( P2, uvs, 2, white, white, norm, 0, 255, false, false, [max,min] );
+         this.addPoint( P3, uvs, 4, white, white, norm, 0, 255, false, false, [min,max] );
+         this.addPoint( P2, uvs, 2, white, white, norm, 0, 255, false, false, [max,min] );
+         this.addPoint( P4, uvs, 6, white, white, norm, 0, 255, false, false, [max,max] );
+         this.addPoint( P3, uvs, 4, white, white, norm, 0, 255, false, false, [min,max] );
+     }
      buffer.addSimpleQuad = function( quad, color, faceColor, norm, pow ) {
          var min = 0;
          var max = 1;

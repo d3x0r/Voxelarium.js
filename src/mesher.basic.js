@@ -560,9 +560,9 @@ Voxelarium.BasicMesher = function(  ) {
 			var x, y, z;
 			var ofs;
 			var info;
-			var cube, prevcube;
+			var cube;
 			/* build sector geometry */
-            var cluster = sector.cluster;
+      var cluster = sector.cluster;
 			var Offset;
 			var cubx, cuby, cubz;
 			var Sector_Display_x, Sector_Display_y, Sector_Display_z;
@@ -606,11 +606,12 @@ Voxelarium.BasicMesher = function(  ) {
 						, sector.pos.x, sector.pos.y, sector.pos.z
 						);
 					*/
-                    sector.data.data.forEach( (voxel,Offset)=>
+          sector.data.data.forEach( (voxel,Offset)=>
 					{
-                        if( geometry.available > 256000 ){debugger;
-                        return;
-                    }
+                        if( geometry.available > 256000 ){
+                            debugger;
+                            return;
+                        }
                         if( !voxel ) return;
 						{
 							{
@@ -639,8 +640,11 @@ Voxelarium.BasicMesher = function(  ) {
 										power = voxel.properties.EdgePower;
 										face_is_shaded = true;
 									}
-									else
-										face_is_shaded = false; // uses texture instead of algorithm
+									else {
+                    cube = voxel;
+	                  face_is_shaded = false; // uses texture instead of algorithm
+                  }
+
 
 									if( info != 0 )
 									{
@@ -654,7 +658,7 @@ Voxelarium.BasicMesher = function(  ) {
 									}
 
 
-                                    cubx = Sector_Display_x + voxelSize * ( Math.floor( Offset / cluster.sectorSizeY ) % cluster.sectorSizeX );
+                  cubx = Sector_Display_x + voxelSize * ( Math.floor( Offset / cluster.sectorSizeY ) % cluster.sectorSizeX );
 									cuby = Sector_Display_y + voxelSize * ( ( Offset ) % cluster.sectorSizeY );
 									cubz = Sector_Display_z + voxelSize * ( Math.floor( Offset / (cluster.sectorSizeX * cluster.sectorSizeY ) ) % cluster.sectorSizeZ );
 									//cubx = ( x * voxelSize + Sector_Display_x );
@@ -683,7 +687,7 @@ Voxelarium.BasicMesher = function(  ) {
 										if( face_is_shaded )
 											geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.LEFT], P3, P7, P0, P4, face, edge, power );
 										else
-											geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.LEFT], P3, P7, P0, P4, cube.TextureCoords );
+											geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.LEFT], P3, P7, P0, P4, cube.textureCoords );
 									}
 
 									// Right
@@ -693,7 +697,7 @@ Voxelarium.BasicMesher = function(  ) {
 										if( face_is_shaded )
 											geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.RIGHT], P1, P5, P2, P6, face, edge, power );
 										else
-											geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.RIGHT], P1, P5, P2, P6, cube.TextureCoords );
+											geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.RIGHT], P1, P5, P2, P6, cube.textureCoords );
 									}
 									//Front
 									if( ( info & Voxelarium.FACEDRAW_Operations.BEHIND ) != 0 )
@@ -702,7 +706,7 @@ Voxelarium.BasicMesher = function(  ) {
 										if( face_is_shaded )
 											geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.BEHIND], P0, P4, P1, P5, face, edge, power );
 										else
-											geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.BEHIND], P0, P4, P1, P5, cube.TextureCoords );
+											geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.BEHIND], P0, P4, P1, P5, cube.textureCoords );
 									}
 
 									//Back
@@ -712,7 +716,7 @@ Voxelarium.BasicMesher = function(  ) {
 										if( face_is_shaded )
 											geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.AHEAD], P2, P6, P3, P7, face, edge, power );
 										else
-											geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.AHEAD], P2, P6, P3, P7, cube.TextureCoords );
+											geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.AHEAD], P2, P6, P3, P7, cube.textureCoords );
 									}
 
 									// Top
@@ -740,10 +744,8 @@ Voxelarium.BasicMesher = function(  ) {
 							}
 						}
 					});
-					// if in the first pass, the sector has no transparent block, the second pass is cancelled.
-					//if( sector.Flag_Void_Transparent ) break;
 				}
-                geometry.markDirty();
+        geometry.markDirty();
 				sector.Flag_Render_Dirty = false;
 			}
 		}
