@@ -255,18 +255,11 @@ function initVoxelarium() {
 	var geometryShader;
 	var geometryShaderMono;
 
-
-	//geometryShader = Voxelarium.GeometryShader();
-	//geometryShaderMono = Voxelarium.GeometryShaderMono();
-
-
-
 	var geometryMaterial = Voxelarium.GeometryBuffer();
-	geometryMaterial.makeVoxCube(  );
+
 	geometryShader = Voxelarium.GeometryShader();
 	Voxelarium.TextureAtlas.init( 32, 64 );
 
-	//Voxelarium.Voxels.load( ()=>{
 		Voxelarium.db.init( ()=>{
 			geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
 			//mesh.material.needsUpdate = true;
