@@ -3,7 +3,7 @@ var http = require('http');
 var fs = require('fs');
 
 var port = process.env.OPENSHIFT_NODEJS_PORT || process.env.VCAP_APP_PORT || process.env.PORT || process.argv[2] || 24680;
-var ip = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
+var ip = process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0';
 
 var Gun = require('gun');
 var gun = Gun({
@@ -23,11 +23,11 @@ var server = http.createServer(function(req, res){
         var url = req.url;
         if( url.startsWith( "/three.js" ) )
         	url = ".." + url;
-        console.log( url );
+        //console.log( url );
 
 	var stream = fs.createReadStream(path.join(__dirname+"/..", url))
 	stream.on('error',function(){ // static files!
-        console.log( "Failed so...?" );
+	        console.log( "Failed so...?" );
 		if( url === "/" ) {
 			res.end(fs.readFileSync(path.join(__dirname+"/..", 'index.html'))); // or default to index
 		}
@@ -43,7 +43,7 @@ var server = http.createServer(function(req, res){
 		res.writeHead(200, {'Content-Type': 'text/css'});
 	else if( url.endsWith( ".png" ) ){
 		stream.on( 'data', function( img) {
-			//console.log( "Send back iamge")
+			//console.log( "Send back iamge", img)
 			//var img = stream.read()
 			//console.log( "read is", img );
 			res.writeHead(200, {'Content-Type': 'image/png'});

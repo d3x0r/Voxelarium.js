@@ -47,6 +47,8 @@ Voxelarium.GeometryShader = function() {
 
     varying  vec2 ex_Modulous;
 
+    varying vec4 fe_normal, light_dir, eye_vec, lookat;
+    //const float PI =  3.14159265;
 
     void main() {
 
@@ -67,7 +69,45 @@ Voxelarium.GeometryShader = function() {
     	#include <begin_vertex>
     	#include <morphtarget_vertex>
     	#include <skinning_vertex>
-    	#include <project_vertex>
+
+        #include <project_vertex>
+/*
+
+        {
+        	vec4 ambient, diffuse, specular;
+        	float NdotL, RdotV;
+
+        	//fe_normal = vec4(gl_NormalMatrix * gl_Normal, 0.0);
+
+        	vec4 vVertex = modelViewMatrix * vec4( transformed, 1.0 );
+
+        	//light_dir = gl_LightSource[0].position - vVertex;
+
+        	eye_vec = -vVertex;
+
+        	vec4 temp_pos = projectionMatrix * vVertex;
+
+        	float dist = length(eye_vec);
+        	lookat = eye_vec - temp_pos;
+        	vec4 dir = temp_pos - eye_vec;
+        	vec4 center = normalize(-eye_vec);
+        	vec4 proj = dot(temp_pos, normalize(-lookat)) * normalize(-lookat);
+
+        	vec4 c = temp_pos - proj;
+
+        	float magnitude = 1.0-acos(dot(normalize(-eye_vec), normalize(temp_pos)));
+
+        	c = length(c) * magnitude * normalize(c);
+
+        	vec4 dir2 = normalize(c-lookat);
+
+        	dir2 = (dir2 * dist);
+
+        	gl_Position.xyz = dir2.xyz;
+        	gl_Position.w = temp_pos.w;
+
+        }
+*/
     	#include <logdepthbuf_vertex>
 
     	#include <worldpos_vertex>
@@ -151,11 +191,14 @@ fragmentShader:`
 
         //if(2.0 > 1.0)
         {
-                if( ex_use_texture > 0.0 )
+                if( ex_use_texture > 0.5 )
                 {
                     vec2 tmp = ex_texCoord * 1.0;
                     //diffuseColor = ;
-                    diffuseColor = vec4( texture2D( map, tmp ).rgb, 1.0 );
+                    if( edge_only > 0.5 )
+                        diffuseColor = vec4(0.0);
+                    else
+                        diffuseColor = vec4( texture2D( map, tmp ).rgb, 1.0 );
                     //diffuseColor =vec4(ex_texCoord.x,ex_texCoord.y,0,1);// ex_Color;
                 }
                 else if( ex_flat_color > 0.5 )

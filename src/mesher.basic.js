@@ -687,7 +687,7 @@ Voxelarium.BasicMesher = function(  ) {
 										if( face_is_shaded )
 											geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.LEFT], P3, P7, P0, P4, face, edge, power );
 										else
-											geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.LEFT], P3, P7, P0, P4, cube.textureCoords );
+											geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.LEFT], P3, P7, P0, P4, voxel.textureCoords );
 									}
 
 									// Right
@@ -697,7 +697,7 @@ Voxelarium.BasicMesher = function(  ) {
 										if( face_is_shaded )
 											geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.RIGHT], P1, P5, P2, P6, face, edge, power );
 										else
-											geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.RIGHT], P1, P5, P2, P6, cube.textureCoords );
+											geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.RIGHT], P1, P5, P2, P6, voxel.textureCoords );
 									}
 									//Front
 									if( ( info & Voxelarium.FACEDRAW_Operations.BEHIND ) != 0 )
@@ -706,7 +706,7 @@ Voxelarium.BasicMesher = function(  ) {
 										if( face_is_shaded )
 											geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.BEHIND], P0, P4, P1, P5, face, edge, power );
 										else
-											geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.BEHIND], P0, P4, P1, P5, cube.textureCoords );
+											geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.BEHIND], P0, P4, P1, P5, voxel.textureCoords );
 									}
 
 									//Back
@@ -716,7 +716,7 @@ Voxelarium.BasicMesher = function(  ) {
 										if( face_is_shaded )
 											geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.AHEAD], P2, P6, P3, P7, face, edge, power );
 										else
-											geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.AHEAD], P2, P6, P3, P7, cube.textureCoords );
+											geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.AHEAD], P2, P6, P3, P7, voxel.textureCoords );
 									}
 
 									// Top
@@ -726,7 +726,7 @@ Voxelarium.BasicMesher = function(  ) {
 										if( face_is_shaded )
 											geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.ABOVE], P4, P7, P5, P6, face, edge, power );
 										else
-											geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.ABOVE], P4, P7, P5, P6, cube.TextureCoords );
+											geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.ABOVE], P4, P7, P5, P6, voxel.textureCoords );
 									}
 
 									// Bottom
@@ -736,7 +736,7 @@ Voxelarium.BasicMesher = function(  ) {
 										if( face_is_shaded )
 											geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.BELOW], P3, P0, P2, P1, face, edge, power );
 										else
-											geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.BELOW], P3, P0, P2, P1, cube.TextureCoords );
+											geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.BELOW], P3, P0, P2, P1, voxel.textureCoords );
 									}
 								}
 								//else
@@ -840,7 +840,7 @@ Voxelarium.BasicMesher = function(  ) {
 									var box;
 									if( prevcube !== cube )
 									{
-										box = cube.TextureCoords;
+										box = voxel.textureCoords;
 										if( ( cube.properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_SHADER ) != 0 )
 										{
 											face = cube.properties.FaceColor;
@@ -1062,7 +1062,7 @@ Voxelarium.BasicMesher = function(  ) {
 												if( face_is_shaded )
 													geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.LEFT], P3, P7, P0, P4, face, edge, power );
 												else
-													geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.LEFT], P3, P7, P0, P4, cube.TextureCoords );
+													geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.LEFT], P3, P7, P0, P4, voxel.textureCoords );
 											}
 											break;
 										case Voxelarium.RelativeVoxelOrds.RIGHT:
@@ -1074,7 +1074,7 @@ Voxelarium.BasicMesher = function(  ) {
 												if( face_is_shaded )
 													geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.RIGHT], P1, P5, P2, P6, face, edge, power );
 												else
-													geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.RIGHT], P1, P5, P2, P6, cube.TextureCoords );
+													geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.RIGHT], P1, P5, P2, P6, voxel.textureCoords );
 											}
 											break;
 										case Voxelarium.RelativeVoxelOrds.BEHIND:
@@ -1085,7 +1085,7 @@ Voxelarium.BasicMesher = function(  ) {
 												if( face_is_shaded )
 													geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.BEHIND], P0, P4, P1, P5, face, edge, power );
 												else
-													geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.BEHIND], P0, P4, P1, P5, cube.TextureCoords );
+													geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.BEHIND], P0, P4, P1, P5, voxel.textureCoords );
 											}
 											break;
 										case Voxelarium.RelativeVoxelOrds.AHEAD:
@@ -1096,7 +1096,7 @@ Voxelarium.BasicMesher = function(  ) {
 												if( face_is_shaded )
 													geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.AHEAD], P2, P6, P3, P7, face, edge, power );
 												else
-													geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.AHEAD], P2, P6, P3, P7, cube.TextureCoords );
+													geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.AHEAD], P2, P6, P3, P7, voxel.textureCoords );
 											}
 											break;
 										case Voxelarium.RelativeVoxelOrds.ABOVE:
@@ -1107,7 +1107,7 @@ Voxelarium.BasicMesher = function(  ) {
 												if( face_is_shaded )
 													geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.ABOVE], P4, P7, P5, P6, face, edge, power );
 												else
-													geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.ABOVE], P4, P7, P5, P6, cube.TextureCoords );
+													geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.ABOVE], P4, P7, P5, P6, voxel.textureCoords );
 											}
 											break;
 										case Voxelarium.RelativeVoxelOrds.BELOW:
@@ -1118,7 +1118,7 @@ Voxelarium.BasicMesher = function(  ) {
 												if( face_is_shaded )
 													geometry.AddQuad( normals[Voxelarium.RelativeVoxelOrds.BELOW], P3, P0, P2, P1, face, edge, power );
 												else
-													geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.BELOW], P3, P0, P2, P1, cube.TextureCoords );
+													geometry.AddQuadTexture( normals[Voxelarium.RelativeVoxelOrds.BELOW], P3, P0, P2, P1, voxel.textureCoords );
 											}
 											break;
 										}

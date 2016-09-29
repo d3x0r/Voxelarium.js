@@ -121,6 +121,8 @@ function loadAVoxel( n, cb ) {
 	{
 		try {
 			xhrObj.open('GET', `./src/voxels/voxel_${n}.js`);
+			//xhrObj.responseType = "text";
+			//xhrObj.response = "";
 			xhrObj.send(null);
 			xhrObj.onerror = (err)=>{
 				  //console.log( "require ", n );
@@ -140,7 +142,7 @@ function loadAVoxel( n, cb ) {
 					xhrObj.send(null);
 					xhrObj.onload = ()=>{
 						if( xhrObj.responseText.length > 0 ) {
-							( t.image = new Image() ).src = xhrObj.response;
+							( t.image = new Image() ).src = xhrObj.responseText;
 							t.textureData = xhrObj.response;
 							t.image.onload = ()=> {
 								 //console.log( "Wait until load to setup coords")
@@ -151,6 +153,7 @@ function loadAVoxel( n, cb ) {
 					}
 				}
 				else {
+					console.log( "All completed... out of loadables...")
 					cb();
 				}
 			}

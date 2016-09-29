@@ -30,6 +30,7 @@ Voxelarium.TextureAtlas = {
    {
        var coords = {
            uvs : new Array(8),
+           uv_array : null,
            coord : { position : { x : 0, y : 0 }, size : {x : 0,y:0 } }
        }
        if( this.y_ofs >= 32 )
@@ -57,6 +58,18 @@ Voxelarium.TextureAtlas = {
        coords.uvs[2 * 2 + 1] = (coords.uvs[0 * 2 + 1] - ( scalar ));
        coords.uvs[3 * 2 + 0] = coords.uvs[1 * 2 + 0];
        coords.uvs[3 * 2 + 1] = coords.uvs[2 * 2 + 1];
+
+       var in_uvs = coords.uvs;
+       coords.uv_array = [in_uvs[1*2+0]
+                   ,in_uvs[1*2+1]
+                   ,in_uvs[0*2+0]
+                   ,in_uvs[0*2+1]
+                   ,in_uvs[3*2+0]
+                   ,in_uvs[3*2+1]
+                   ,in_uvs[2*2+0]
+                   ,in_uvs[2*2+1]
+               ];
+
 
        this.context.drawImage( image, this.texture_size * this.x_ofs, this.texture_size * this.y_ofs, this.texture_size, this.texture_size )
 

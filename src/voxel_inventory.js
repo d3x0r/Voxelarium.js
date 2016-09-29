@@ -28,7 +28,7 @@ Voxelarium.Inventory = function( geometryShader,domElement ) {
         build_vertical : true,
         THREE_solid : new THREE.Object3D(),
          x_max : 15, y_max : 12,
-         x_inc : 0.8, y_inc : .8,
+         x_inc : 0.75, y_inc : 0.75,
          mouseRay : { n : THREE.Vector3Zero.clone(), o: new THREE.Vector3().delete() },
          last_intersects : null,
          deactivates : [],
@@ -93,18 +93,31 @@ Voxelarium.Inventory = function( geometryShader,domElement ) {
             if( !camera )return;
             if( !inventory.enabled) return;
             var o;
+			var inventoryO;
             var f;
 
-            ( o = this.THREE_solid.position ).copy( camera.position );
-            f = camera.matrix.forward
-            o.addScaledVector( f, 10 );
+            ( inventoryO = this.THREE_solid.position ).copy( camera.position );
+            //f = camera.matrix.forward
+
+			o = inventory.raycaster.ray.origin.clone();
+			f = inventory.raycaster.ray.direction;
+
+            o.addScaledVector( f, 11 );
+
+			var tmpdel = f.dot( camera.matrix.forward.delete() );
+			inventoryO.addScaledVector( camera.matrix.forward.delete(),  11 / tmpdel );
+
             var m = this.THREE_solid.matrix;
-            var away = camera.position.clone().addScaledVector( o, -2 )
+            var away = camera.position.clone().addScaledVector( o, 2 )
             m.lookAt( o, camera.position, camera.matrix.up )
             m.rotateOrtho( Math.PI, 0, 2 );
-            var d = camera.matrix.down;
-            o.addScaledVector( camera.matrix.down.delete(), (this.y_max-this.y_inc)/2 );
-            o.addScaledVector( this.THREE_solid.matrix.right.delete(), (this.x_max-this.x_inc)/2 );
+            //var d = camera.matrix.down;
+            inventoryO.addScaledVector( m.down.delete(), (this.y_max-this.y_inc)/2 );
+            inventoryO.addScaledVector( m.right.delete(), (this.x_max-this.x_inc)/2 );
+
+
+			//inventoryO.copy( o );
+
             this.THREE_solid.matrixWorldNeedsUpdate = true;
 
             inventory.last_intersects = inventory.raycaster.intersectObjects( inventory.THREE_solid.children );

@@ -6,8 +6,6 @@ THREE.NaturalControls = function ( object, domElement ) {
 
     this.object = object;
 	this.domElement = ( domElement !== undefined ) ? domElement : document;
-//console.log( domElement, document )
-	// API
 
 	this.enabled = true;
 

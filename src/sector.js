@@ -111,10 +111,13 @@ Voxelarium.Sector = function( cluster, x, y, z ) {
 				if( !val )
 					string += "\\0";
 				else {
-					var out = String.fromCodePoint( data.data[n] );
+					var out = String.fromCodePoint( val );
 					if( out === "\\" )
-						string += "\\\\";
-					string += String.fromCodePoint( data.data[n] );
+						string += "\\/";
+					else if( out === "/" )
+						string += "\\|";
+					else
+						string += out;
 				}
 			}
 
@@ -138,6 +141,18 @@ Voxelarium.Sector = function( cluster, x, y, z ) {
 				 };
 				 //console.log( "Buffer was", data.data );
 				 //console.log( "which became", string );
+				 {
+					 var test_out = [];
+					 console.log( "decoding string just encoded to see if it's valid.")
+					 decodeString( string, test_out );
+					 if( test_out.length === data.data.length ) {
+						 for( var n = 0; n < test_out.length; n++ ) {
+							 if( test_out[n] !== data.data[n] )
+							 	debugger;
+
+						 }
+					 }
+				 }
 			 this.cachedString = string;
 			return string;
 		},
@@ -146,13 +161,25 @@ Voxelarium.Sector = function( cluster, x, y, z ) {
 			console.log( "decode", string );
 			if( string === this.cachedString )
 				return; // already have this as the thing.
-			var v = v|| VoxelCompressor();
-			var bytes = 0;
 			this.cachedString = string;
+			decodeString( string, this.data.data )
+			this.Flag_Render_Dirty = true;
+			this.cluster.mesher.SectorUpdateFaceCulling( this, true )
+			//basicMesher.SectorUpdateFaceCulling_Partial( cluster, sector, Voxelarium.FACEDRAW_Operations.ALL, true )
+			this.cluster.mesher.MakeSectorRenderingData( this );
+
+			}
+
+
+
+    }
+
+function decodeString( string, into ){
+	var bytes = 0;
 			for( var n = 0; n < string.length; n++ ){
-				if( string[n] === '\\' )
+				if( string[n] === '\\' ) {
 					continue;
-				else bytes++;
+				} else bytes++;
 			}
 
 			var buffer = new ArrayBuffer(bytes);
@@ -161,8 +188,12 @@ Voxelarium.Sector = function( cluster, x, y, z ) {
 				if( string[n] === '\\' ) {
 					if( string[n+1] === '0' )
 						buffer[bytes++] = 0;
+					else if( string[n+1] === '/' )
+						buffer[bytes++] = '\\';
+					else if( string[n+1] === '|' )
+						buffer[bytes++] = '/';
 					else
-						buffer[bytes++] = string[n+1];
+						throw new Error( "Invalid encoding" );
 					n++;
 					continue;
 				}
@@ -171,16 +202,10 @@ Voxelarium.Sector = function( cluster, x, y, z ) {
 			}
 
 
-			var data = v.DecompressVoxelData( buffer, this.data.data );
+			var v = v|| VoxelCompressor();
+			var data = v.DecompressVoxelData( buffer, into );
 
-			this.Flag_Render_Dirty = true;
-			this.cluster.mesher.SectorUpdateFaceCulling( this, true )
-			//basicMesher.SectorUpdateFaceCulling_Partial( cluster, sector, Voxelarium.FACEDRAW_Operations.ALL, true )
-			this.cluster.mesher.MakeSectorRenderingData( this );
-
-			}
-
-    }
+		}
 
 
     return newSector;
@@ -420,8 +445,10 @@ function VoxelCompressor() {
 						//Log.log( "Read count {0}", count );
 						val = stream.read( bits );
 						vox = types[val];
-						if( !vox )
-							debugger;
+						if( !vox ) {
+							vox = types[0];
+							//debugger;
+						}
 						//console.log( "Set vox to ", vox )
 						for( n = 0; n < count; n++ )
 							result[outpos++] = vox;
@@ -499,6 +526,8 @@ function makeVoxelRef( cluster, sector, x, y, z )
 
 		result.offset = ( result.x * cluster.sectorSizeY )  + result.y + ( result.z * ( cluster.sectorSizeY * cluster.sectorSizeX ) );
 		  result.voxelType = sector.data.data[result.offset]
+		  if( !result.voxelType )
+		  	return null;
 		  result.voxelExtension = sector.data.otherInfos[result.offset];
     }
 	return result;

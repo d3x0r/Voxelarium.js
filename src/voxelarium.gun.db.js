@@ -57,15 +57,18 @@ function sectorUpdated( sector, stuff ) {
 }
 
 function addListener( sector ) {
-  var where = `sector.${sector.pos.x>>2}.${sector.pos.y>>2}.${sector.pos.z>>2}`
+  var where = getZonePath(sector);
   if( db.world.listeners.findIndex( (val)=>where===val ) < 0 ) {
     db.world.listeners.push( where );
     db.world.db.path( where ).on( (data)=>{ sectorUpdated(sector,data) }, { delta: true } )
     return false;
   }
 }
+function getZonePath( sector ) {
+  return `sector.${sector.pos.x>>2}.${sector.pos.y>>2}.${sector.pos.z>>2}`
+}
 function getPath( sector ) {
-  return `sector.${sector.pos.x>>2}.${sector.pos.y>>2}.${sector.pos.z>>2}.${sector.pos.x&3}${sector.pos.y&3}${sector.pos.z&3}`
+  return `${getZonePath(sector)}.${sector.pos.x&3}${sector.pos.y&3}${sector.pos.z&3}`
 }
 //db.player = db.globalDb.get( "player" );
 
@@ -132,13 +135,16 @@ loadVoxels = (cb, val)=>{
       if( !--count ) cb();
   });
 }
-function loadVoxels2(val) {
+function loadVoxels2(val,field) {
     console.log( "realod code and texture from database...")
     //val.map( "voxelTypes")
 }
 
 function initialVoxelTypeLoad(cb) {
-    Voxelarium.Voxels.load( ()=>{
+    console.log( "Loading initial voxels...")
+    Voxelarium.Voxels.load( cb );
+    /*
+            ()=>{
         var branch = db.world.voxelInfo;
         var code = {};
         var n = 0;
@@ -152,12 +158,13 @@ function initialVoxelTypeLoad(cb) {
         var code = branch.path( "code" );
         var texture = branch.path( "texture" );
         Voxelarium.Voxels.types.forEach( (type)=>{
-            code.path( type.ID ).put( type.codeData );
-            texture.path( type.ID ).put( type.textureData );
+        //    code.path( type.ID ).put( type.codeData );
+        //    texture.path( type.ID ).put( type.textureData );
         });
         */
         cb();
     });
+    */
 }
 
 function loadWorld( cb ) {
@@ -172,27 +179,54 @@ function loadWorld( cb ) {
 
 }
 
-function doDefaultInit() {
-    db.player.id = new Date().getTime();
-    db.player.world_id = 0;
-    db.player.local.path("id").put( db.player.id )
-    db.player.local.path("world_id").put( db.player.world_id )
+function doDefaultInit( data ) {
+    if( !db.player.id ) {
+        console.log( "do default init... pick a player ID and give him an initial world_id")
+        db.player.id = new Date().getTime();
+        db.player.world_id = 0;
+        console.log( "put local.id=player.id")
+        db.player.local.path("id").put( db.player.id )
+        console.log( "put local.world_id=player.world_id")
+        db.player.local.path("world_id").put( db.player.world_id )
+        console.log( "done putting world_id")
+    }else {
+        console.log( "skipped redundant init")
+    }
     // the val() in init will fire here; so global gets initialized in normal path...
 }
 
+function doDefaultInitTrigger() {
+    console.log( "put init=true")
+	db.player.local.path( "init" ).put( true );
+    console.log( "local put init has finished for inital Db Kick;" );
+}
+
+function doDefaultGlobalInitTrigger() {
+    console.log( " kick global?")
+    db.player.global.path( "init" ).put( true );
+    console.log( "global put init has finished for inital Db Kick")
+
+}
+
 var defaultTimeout;
+var defaultGlobalTimeout;
 db.init = function( cb ) {
-     defaultTimeout = setTimeout( doDefaultInit, 250 );
+    // defaultTimeout = setTimeout( doDefaultInitTrigger, 250 );
     db.player.local.path("id").not( doDefaultInit ).val( (data)=>{
-        clearTimeout( defaultTimeout );
+        console.log( "value is ", data)
+        //clearTimeout( defaultTimeout );
         db.player.id = data;
         db.player.global = db.globalDb.path( "player" ).path( data );
+        console.log( "going to request world_id...")
         db.player.local.path("world_id").val( (data)=> {
+            console.log( "received world_id")
           db.player.world_id = data;
           db.world.db = db.globalDb.path( "world" ).path( db.player.world_id );
-          setupEvents(cb);
+          db.player.global.path("position").on( playerPositionChange );
+          loadWorld( cb );
           //if( cb ) cb();
         } );
+        console.log( "requested world id - done with val callback")
     })
     //db.player.local.path("id").put( new Date().getTime() )
 

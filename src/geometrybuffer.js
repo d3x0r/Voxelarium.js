@@ -160,16 +160,17 @@ Voxelarium.GeometryBuffer = function () {
         this.position[u3 + 0 ] = v.x;
         this.position[u3 + 1 ] = v.y;
         this.position[u3 + 2 ] = v.z;
-
+        if( c ) {
         this.in_Color[u4 + 0 ] = c.x*255;
         this.in_Color[u4 + 1 ] = c.y*255;
         this.in_Color[u4 + 2 ] = c.z*255;
-        this.in_Color[u4 + 3 ] = c.w*255;
+        this.in_Color[u4 + 3 ] = c.w*255; }
 
+        if( fc ) {
         this.in_FaceColor[u4 + 0 ] = fc.x*255;
         this.in_FaceColor[u4 + 1 ] = fc.y*255;
         this.in_FaceColor[u4 + 2 ] = fc.z*255;
-        this.in_FaceColor[u4 + 3 ] = fc.w*255;
+        this.in_FaceColor[u4 + 3 ] = fc.w*255; }
 
         this.in_Normal[u3 + 0] = n?n.x:0;
         this.in_Normal[u3 + 1] = n?n.y:0;
@@ -198,17 +199,15 @@ Voxelarium.GeometryBuffer = function () {
          this.addPoint( P4, undefined, undefined, color, faceColor, norm, pow, false, false, false, [max,max] );
          this.addPoint( P3, undefined, undefined, color, faceColor, norm, pow, false, false, false, [min,max] );
      }
-     buffer.AddQuadTexture = function( norm, P1,P2,P3,P4,uvs ) {
-
-return;
+     buffer.AddQuadTexture = function( norm, P1,P2,P3,P4,textureCoords ) {
          const min = 0;
          const max = 1;
-         this.addPoint( P1, uvs, 0, white, white, norm, 0, 255, false, false, [min,min] );
-         this.addPoint( P2, uvs, 2, white, white, norm, 0, 255, false, false, [max,min] );
-         this.addPoint( P3, uvs, 4, white, white, norm, 0, 255, false, false, [min,max] );
-         this.addPoint( P2, uvs, 2, white, white, norm, 0, 255, false, false, [max,min] );
-         this.addPoint( P4, uvs, 6, white, white, norm, 0, 255, false, false, [max,max] );
-         this.addPoint( P3, uvs, 4, white, white, norm, 0, 255, false, false, [min,max] );
+         this.addPoint( P1, textureCoords.uv_array, 0, undefined, undefined, norm, undefined, 255, false, false, [min,min] );
+         this.addPoint( P2, textureCoords.uv_array, 2, undefined, undefined, norm, undefined, 255, false, false, [max,min] );
+         this.addPoint( P3, textureCoords.uv_array, 4, undefined, undefined, norm, undefined, 255, false, false, [min,max] );
+         this.addPoint( P2, textureCoords.uv_array, 2, undefined, undefined, norm, undefined, 255, false, false, [max,min] );
+         this.addPoint( P4, textureCoords.uv_array, 6, undefined, undefined, norm, undefined, 255, false, false, [max,max] );
+         this.addPoint( P3, textureCoords.uv_array, 4, undefined, undefined, norm, undefined, 255, false, false, [min,max] );
      }
      buffer.addSimpleQuad = function( quad, color, faceColor, norm, pow ) {
          var min = 0;
@@ -244,15 +243,7 @@ return;
         var quad;
         if( voxelType && voxelType.image ) {
             var in_uvs = voxelType.textureCoords.uvs;
-            var uvs = [in_uvs[1*2+0]
-                        ,in_uvs[1*2+1]
-                        ,in_uvs[0*2+0]
-                        ,in_uvs[0*2+1]
-                        ,in_uvs[3*2+0]
-                        ,in_uvs[3*2+1]
-                        ,in_uvs[2*2+0]
-                        ,in_uvs[2*2+1]
-                    ];
+            var uvs = voxelType.textureCoords.uv_array;
             buffer.addSimpleQuadTex( quad=[v1.clone().multiplyScalar(size),v2.clone().multiplyScalar(size),v3.clone().multiplyScalar(size),v4.clone().multiplyScalar(size)]
                 , uvs
                 , THREE.Vector3Forward
