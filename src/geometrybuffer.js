@@ -3,8 +3,9 @@ const attribs = ["position","in_Texture"
 ,"in_Color", "in_FaceColor", "in_Modulous"
 ,"in_Normal", "in_Pow", "in_flat_color", "in_use_texture", "in_decal_texture"
 ];
-const attrib_bytes = [4,4,1,1,4,1,1,1,1,1]
-const attrib_sizes = [3,2,4,4,2,3,1,1,1,1]
+const attrib_bytes =     [4,4,1,1,4,1,1,1,1,1]
+const attrib_sizes =     [3,2,4,4,2,3,1,1,1,1]
+const attrib_normalize = [false,false,true,true,0,0,0,0,1,0]
 
 Voxelarium.GeometryBuffer = function () {
     var buffer = {};
@@ -48,7 +49,7 @@ Voxelarium.GeometryBuffer = function () {
 */
 //buffer.geometry
     attribs.forEach( (att,index)=>{
-      buffer.geometry.addAttribute( att, new THREE.BufferAttribute( buffer[att], attrib_sizes[index] ))
+      buffer.geometry.addAttribute( att, new THREE.BufferAttribute( buffer[att], attrib_sizes[index], attrib_normalize[index] ))
     })
     if(0){
     buffer.geometry.addAttribute( 'position', new THREE.BufferAttribute( buffer.position, 3 ) );

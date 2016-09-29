@@ -215,8 +215,8 @@ fragmentShader:`
                     vec3 white;
                     a = 4.0*(0.25-a*a);
                     b = 4.0*(0.25-b*b);
-                    a = pow( a, ex_Pow );
-                    b = pow( b, ex_Pow2 );
+                    a = pow( abs(a), ex_Pow );
+                    b = pow( abs(b), ex_Pow2 );
 
                  //g = pow( ( max(a,b)),in_Pow);
                     //h = pow( ( a*b),in_Pow/4);
@@ -228,7 +228,7 @@ fragmentShader:`
                     if( edge_only > 0.5 )
                          diffuseColor = vec4( h* ( white - ex_FaceColor.rgb )+ (g* ex_Color.rgb), (g * ex_Color.a) ) ;
                     else
-                         diffuseColor = vec4( ex_FaceColor.a*(1.0-g)*ex_FaceColor.rgb + h* ( white - ex_FaceColor.rgb )+ (g* ex_Color.rgb), (1.0-g)*ex_FaceColor.a + (g * ex_Color.a) ) ;
+                         diffuseColor = vec4( ex_FaceColor.a*(1.0-g)*ex_FaceColor.rgb + h* ( white - ex_FaceColor.rgb ) + (g* ex_Color.rgb), (1.0-g)*ex_FaceColor.a + (g * ex_Color.a) ) ;
                     //diffuseColor = vec4( (1.0-g)*ex_FaceColor.rgb + h* ( white - ex_FaceColor.rgb )+ (g* ex_Color.rgb), (1.0-g)*ex_FaceColor.a + (g * ex_Color.a) ) ;
                 }
         }

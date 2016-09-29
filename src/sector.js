@@ -141,9 +141,10 @@ Voxelarium.Sector = function( cluster, x, y, z ) {
 				 };
 				 //console.log( "Buffer was", data.data );
 				 //console.log( "which became", string );
+
 				 {
 					 var test_out = [];
-					 console.log( "decoding string just encoded to see if it's valid.")
+					 console.log( "decoding string just encoded to see if it's valid;if failed, debugger; will trigger")
 					 decodeString( string, test_out );
 					 if( test_out.length === data.data.length ) {
 						 for( var n = 0; n < test_out.length; n++ ) {
@@ -379,18 +380,6 @@ function VoxelCompressor() {
 			{
 				var stream;
 				var DataBytes;
-				/*
-				if( DataBytes > 20 )
-				{
-					MemoryStream initial_stream = new MemoryStream( data );
-					initial_stream.Seek( 2, SeekOrigin.Begin );
-					byte[] uncompressed_data = new byte[DataBytes];
-					GZipStream gz_stream = new GZipStream( initial_stream, CompressionMode.Decompress );
-					gz_stream.Read( uncompressed_data, 0, DataBytes );
-					stream = new BitStream( uncompressed_data );
-				}
-				else
-				*/
 				{
 					stream = Voxelarium.BitStream( data );
 					stream.seek( 16 ); // seek by bit position
@@ -407,7 +396,12 @@ function VoxelCompressor() {
 				{
 					var val;
 					val = stream.read( 16 );
-					types.push( Voxelarium.Voxels.types[val] );
+					var assertVal;
+					assertVal = Voxelarium.Voxels.types[val];
+					if( assertVal )
+						types.push( assertVal );
+					else
+						types.push( Voxelarium.Voxels.Void );
 				}
 
 				var outpos = 0;
@@ -421,6 +415,7 @@ function VoxelCompressor() {
 					{
 						val = stream.read( bits );
 						vox = types[val];
+						if( !vox ) debugger;
 						result[outpos++] = vox;
 					}
 					else
@@ -447,7 +442,7 @@ function VoxelCompressor() {
 						vox = types[val];
 						if( !vox ) {
 							vox = types[0];
-							//debugger;
+							debugger;
 						}
 						//console.log( "Set vox to ", vox )
 						for( n = 0; n < count; n++ )

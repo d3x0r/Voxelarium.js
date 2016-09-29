@@ -119,8 +119,8 @@ function setupEvents( cb ) {
 }
 
 loadVoxels = (cb, val)=>{
-  var count = val.codeCount;
-  db.world.voxelInfo.path( "code" ).map( (data,field)=>{
+  var count = val.voxelTypeCount;
+  db.world.voxelInfo.path( "voxelTypes" ).map( (data,field)=>{
       eval(data.code);
       var t = Voxelarium.Voxels.types[field]
       if( data.texture ) {
@@ -140,43 +140,28 @@ function loadVoxels2(val,field) {
     //val.map( "voxelTypes")
 }
 
-function initialVoxelTypeLoad(cb) {
+function initialVoxelTypeLoad(branch,cb) {
     console.log( "Loading initial voxels...")
-    Voxelarium.Voxels.load( cb );
-    /*
-            ()=>{
-        var branch = db.world.voxelInfo;
-        var code = {};
+    Voxelarium.Voxels.load( ()=>{
+        var voxelTypes = {};
         var n = 0;
         Voxelarium.Voxels.types.forEach( (type)=>{
             if( !type.ID ) return;
             n++;
-            code[ type.ID ] = { code: type.codeData, texture : type.textureData};
+            voxelTypes[ type.ID ] = { code: type.codeData, texture : type.textureData};
         });
-        branch.put( { code : code, codeCount : n } );
-        /*
-        var code = branch.path( "code" );
-        var texture = branch.path( "texture" );
-        Voxelarium.Voxels.types.forEach( (type)=>{
-        //    code.path( type.ID ).put( type.codeData );
-        //    texture.path( type.ID ).put( type.textureData );
-        });
-        */
+        branch.put( { voxelTypes : voxelTypes, voxelTypeCount : n } );
         cb();
     });
-    */
 }
 
 function loadWorld( cb ) {
-//    ( db.world.voxelInfo = db.world.db.path( "voxelInfo" ) ).not( ()=>{initialVoxelTypeLoad(cb) }).val( loadVoxels );
     ( db.world.voxelInfo = db.world.db.path( "voxelInfo" ) )
-        .not( ()=>{
-            initialVoxelTypeLoad(cb)
+        .not( function(){
+            initialVoxelTypeLoad(this,cb)
          }).val( (val)=>{
             console.log( "also val callback...", this );
          setTimeout( ()=>{ loadVoxels(cb,val) } ) } );
-
-
 }
 
 function doDefaultInit( data ) {
