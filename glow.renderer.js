@@ -55,7 +55,7 @@ var finalshader = {
 			"float glowDepth = readDepth( tGlowDepth, vUv );",
 			//"float texelDepth = texture2D(tDiffuseDepth, vUv).x;",
             //"if( (texel.r+texel.g+texel.b)== 0.0 ) ",
-			"    gl_FragColor = (texel + vec4(0.5, 0.75, 1.0, 1.0) * glow * 3.0);", // Blend the two buffers together (I colorized and intensified the glow at the same time)
+			"    gl_FragColor = (texel + vec4(0.5, 0.75, 1.0, 1.0) * glow * 1.0);", // Blend the two buffers together (I colorized and intensified the glow at the same time)
 			//"    gl_FragColor +=  vec4(texelDepth, glowDepth, 0, 1.0);", // Blend the two buffers together (I colorized and intensified the glow at the same time)
 			//"else gl_FragColor = texel;",
 			//"gl_FragColor = texel;",

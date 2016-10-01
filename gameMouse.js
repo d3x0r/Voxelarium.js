@@ -236,6 +236,52 @@ function mouseEvent( x, y, b, down ) {
     scope.mouseEvents.push( ev );
 }
 
+var ongoingTouches = [];
+
+function copyTouch(touch) {
+  return { identifier: touch.identifier, pageX: touch.pageX, pageY: touch.pageY };
+}
+function ongoingTouchIndexById(idToFind) {
+  for (var i = 0; i < ongoingTouches.length; i++) {
+    var id = ongoingTouches[i].identifier;
+
+    if (id == idToFind) {
+      return i;
+    }
+  }
+  return -1;    // not found
+}
+function onTouchDown(event) {
+  event.preventDefault();
+  var touches = event.changedTouches;
+  for( var i = 0; i < touches.length; i++ ) {
+    console.log( `touch ${i}=${touches[i]}`);
+    ongoingTouches.push( copyTouch( touches[i] ) );
+
+  }
+}
+
+function onTouchUp(event) {
+  event.preventDefault();
+}
+
+function onTouchMove(event) {
+  event.preventDefault();
+  var touches = event.changedTouches;
+  for( var i = 0; i < touches.length; i++ ) {
+    var idx = ongoingTouchIndexById(touches[i].identifier);
+    if( idx >= 0 ) {
+      ongoingTouches.splice( idx, 1, copyTouch( touches[i] ) );
+    }
+  }
+}
+
+function onTouchCancel(event) {
+  event.preventDefault();
+}
+
+
+
   function onMouseDown(event) {
       if ( scope.enabled === false ) return;
       event.preventDefault();
@@ -270,8 +316,12 @@ function mouseEvent( x, y, b, down ) {
 
   this.disable = function() {
     scope.domElement.removeEventListener( 'contextmenu', ignore, false );
+    scope.domElement.removeEventListener( 'touchstart', onTouchDown, false );
+    scope.domElement.removeEventListener( 'touchend', onTouchUp, false );
+    scope.domElement.removeEventListener( 'touchcancel', onTouchCancel, false );
+    scope.domElement.removeEventListener( 'touchmove', onTouchMove, false );
     scope.domElement.removeEventListener( 'mousedown', onMouseDown, false );
-    scope.domElement.removeEventListener( 'mousedown', onMouseUp, false );
+    scope.domElement.removeEventListener( 'mouseup', onMouseUp, false );
     scope.domElement.removeEventListener( 'mousemove', onMouseMove, false );
     scope.domElement.removeEventListener( 'mousewheel', onMouseWheel, false );
     scope.domElement.removeEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
@@ -281,8 +331,12 @@ function mouseEvent( x, y, b, down ) {
 
   this.enable = function() {
     scope.domElement.addEventListener( 'contextmenu', ignore, false );
+    scope.domElement.addEventListener( 'touchstart', onTouchDown, false );
+    scope.domElement.addEventListener( 'touchend', onTouchUp, false );
+    scope.domElement.addEventListener( 'touchcancel', onTouchCancel, false );
+    scope.domElement.addEventListener( 'touchmove', onTouchMove, false );
     scope.domElement.addEventListener( 'mousedown', onMouseDown, false );
-    scope.domElement.addEventListener( 'mousedown', onMouseUp, false );
+    scope.domElement.addEventListener( 'mouseup', onMouseUp, false );
     scope.domElement.addEventListener( 'mousemove', onMouseMove, false );
     scope.domElement.addEventListener( 'mousewheel', onMouseWheel, false ); // firefox
     scope.domElement.addEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox

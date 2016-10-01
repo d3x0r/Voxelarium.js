@@ -16,6 +16,9 @@ var gun = Gun({
 });
 
 var server = http.createServer(function(req, res){
+	//console.log( req );
+        console.log( req.url );
+
 	if(gun.wsp.server(req, res)){
         	console.log( "websock request?" );
 		return; // filters gun requests!
@@ -23,7 +26,7 @@ var server = http.createServer(function(req, res){
         var url = req.url;
         if( url.startsWith( "/three.js" ) )
         	url = ".." + url;
-        //console.log( url );
+        console.log( url );
 
 	var stream = fs.createReadStream(path.join(__dirname+"/..", url))
 	stream.on('error',function(){ // static files!
@@ -37,9 +40,10 @@ var server = http.createServer(function(req, res){
 		}
 	});
 
-	if( url.endsWith( ".js" ) )
+	if( url.endsWith( ".js" ) ) {
+           console.log( "it's app/javascript... do ppipe..." );
 		res.writeHead(200, {'Content-Type': 'application/javascript'});
-	else if( url.endsWith( ".css" ) )
+	} else if( url.endsWith( ".css" ) )
 		res.writeHead(200, {'Content-Type': 'text/css'});
 	else if( url.endsWith( ".png" ) ){
 		stream.on( 'data', function( img) {

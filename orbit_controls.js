@@ -405,11 +405,149 @@ THREE.OrbitControls = function ( object, clusterLookAt, domElement ) {
 
 	}
 
+	var ongoingTouches = [];
+
+	function copyTouch(touch) {
+	  return { identifier: touch.identifier, pageX: touch.pageX, pageY: touch.pageY };
+	}
+	function ongoingTouchIndexById(idToFind) {
+	  for (var i = 0; i < ongoingTouches.length; i++) {
+	    var id = ongoingTouches[i].identifier;
+
+	    if (id == idToFind) {
+	      return i;
+	    }
+	  }
+	  return -1;    // not found
+	}
+	function onTouchDown(event) {
+	  event.preventDefault();
+	  var touches = event.changedTouches;
+	  for( var i = 0; i < touches.length; i++ ) {
+
+			if ( scope.enabled === false ) return;
+			if ( scope.userRotate === false ) return;
+
+			event.preventDefault();
+
+			if ( state === STATE.NONE )
+			{
+				if ( event.button === 0 )
+					state = STATE.ROTATE;
+				if ( event.button === 1 )
+					state = STATE.ZOOM;
+				if ( event.button === 2 )
+					state = STATE.PAN;
+			}
+
+
+			if ( state === STATE.ROTATE ) {
+				rotateStart.set( touches[0].pageX, touches[0].pageY );
+			} else if ( state === STATE.ZOOM ) {
+				//state = STATE.ZOOM;
+				zoomStart.set( touches[0].pageX, touches[0].pageY );
+			} else if ( state === STATE.PAN ) {
+				//state = STATE.PAN;
+			}
+
+
+	    console.log( `touch ${i}=${touches[i]}`);
+	    ongoingTouches.push( copyTouch( touches[i] ) );
+
+	  }
+	}
+
+	function onTouchUp(event) {
+	  event.preventDefault();
+		var touches = event.changedTouches;
+	  for( var i = 0; i < touches.length; i++ ) {
+	    var idx = ongoingTouchIndexById(touches[i].identifier);
+	    if( idx >= 0 ) {
+				ongoingTouches.splice(idx, 1);  // remove it; we're done
+			}
+		}
+	}
+
+	function onTouchMove(event) {
+	  event.preventDefault();
+	  var touches = event.changedTouches;
+	  for( var i = 0; i < touches.length; i++ ) {
+	    var idx = ongoingTouchIndexById(touches[i].identifier);
+			console.log( `got touch ${idx}` );
+	    if( idx >= 0 ) {
+
+				if ( scope.enabled === false ) return;
+
+				if ( state === STATE.ROTATE ) {
+
+					rotateEnd.set( touches[i].pageX, touches[i].pageY );
+					rotateDelta.subVectors( rotateEnd, rotateStart );
+
+					scope.rotateLeft( 2 * Math.PI * rotateDelta.x / PIXELS_PER_ROUND * scope.userRotateSpeed );
+					scope.rotateUp( 2 * Math.PI * rotateDelta.y / PIXELS_PER_ROUND * scope.userRotateSpeed );
+
+					rotateStart.copy( rotateEnd );
+
+				} else if ( state === STATE.ZOOM ) {
+
+					zoomEnd.set( event.clientX, event.clientY );
+					zoomDelta.subVectors( zoomEnd, zoomStart );
+
+					if ( zoomDelta.y > 0 ) {
+
+						scope.zoomIn();
+
+					} else {
+
+						scope.zoomOut();
+
+					}
+
+					zoomStart.copy( zoomEnd );
+
+				} else if ( state === STATE.PAN ) {
+
+					var movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
+					var movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
+
+					scope.pan( new THREE.Vector3( - movementX, movementY, 0 ) );
+
+				}
+
+
+
+				ongoingTouches[idx].pageX = touches[i].pageX;
+				ongoingTouches[idx].pageY = touches[i].pageY;
+	      //ongoingTouches.splice( idx, 1, copyTouch( touches[i] ) );
+	    }
+	  }
+	}
+
+	function onTouchCancel(event) {
+	  event.preventDefault();
+		  console.log("touchcancel.");
+		  var touches = event.changedTouches;
+
+		  for (var i = 0; i < touches.length; i++) {
+				var idx = ongoingTouchIndexById(touches[i].identifier);
+		    if( idx >= 0 ) {
+		    	ongoingTouches.splice(i, 1);  // remove it; we're done
+				}
+		  }
+		}
+
+
+
+
     function ignore(event) {
         event.preventDefault();
     }
     this.disable = function() {
     	scope.domElement.removeEventListener( 'contextmenu', ignore, false );
+			scope.domElement.removeEventListener( 'touchstart', onTouchDown, false );
+	    scope.domElement.removeEventListener( 'touchend', onTouchUp, false );
+	    scope.domElement.removeEventListener( 'touchcancel', onTouchCancel, false );
+	    scope.domElement.removeEventListener( 'touchmove', onTouchMove, false );
     	scope.domElement.removeEventListener( 'mousedown', onMouseDown, false );
     	scope.domElement.removeEventListener( 'mousewheel', onMouseWheel, false );
     	scope.domElement.removeEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
@@ -419,6 +557,10 @@ THREE.OrbitControls = function ( object, clusterLookAt, domElement ) {
 
     this.enable = function() {
     	scope.domElement.addEventListener( 'contextmenu', ignore, false );
+			scope.domElement.addEventListener( 'touchstart', onTouchDown, false );
+	    scope.domElement.addEventListener( 'touchend', onTouchUp, false );
+	    scope.domElement.addEventListener( 'touchcancel', onTouchCancel, false );
+	    scope.domElement.addEventListener( 'touchmove', onTouchMove, false );
     	scope.domElement.addEventListener( 'mousedown', onMouseDown, false );
     	scope.domElement.addEventListener( 'mousewheel', onMouseWheel, false );
     	scope.domElement.addEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox

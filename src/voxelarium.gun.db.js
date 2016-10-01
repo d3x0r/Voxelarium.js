@@ -1,5 +1,6 @@
 
-var Gun = require( "gun" );
+//var Gun = require( "gun" );
+var Gun = require( "../node_modules/gun/gun.js" );
 
 var db = {};
 
@@ -50,7 +51,10 @@ function sectorUpdated( sector, stuff ) {
         if( val = stuff[key] ) {
           var sector = db.world.cluster.getSector( base_x + x, base_y + y, base_z + z, true )
           if( sector )
-            sector.decode( val )
+            if( sector.cachedString !== val ) {
+              console.log( "new sector string - need decode.")
+              sector.decode( val )
+            }
         }
       }
 
@@ -120,7 +124,11 @@ function setupEvents( cb ) {
 
 loadVoxels = (cb, val)=>{
   var count = val.voxelTypeCount;
+  console.log( "have " , count )
   db.world.voxelInfo.path( "voxelTypes" ).map( (data,field)=>{
+      var t = Voxelarium.Voxels.types[field];
+      if( t ) return;
+
       eval(data.code);
       var t = Voxelarium.Voxels.types[field]
       if( data.texture ) {
@@ -135,10 +143,7 @@ loadVoxels = (cb, val)=>{
       if( !--count ) cb();
   });
 }
-function loadVoxels2(val,field) {
-    console.log( "realod code and texture from database...")
-    //val.map( "voxelTypes")
-}
+
 
 function initialVoxelTypeLoad(branch,cb) {
     console.log( "Loading initial voxels...")
@@ -160,8 +165,10 @@ function loadWorld( cb ) {
         .not( function(){
             initialVoxelTypeLoad(this,cb)
          }).val( (val)=>{
-            console.log( "also val callback...", this );
-         setTimeout( ()=>{ loadVoxels(cb,val) } ) } );
+           setTimeout(
+               ()=>{ loadVoxels(cb,val) }
+             )
+        } );
 }
 
 function doDefaultInit( data ) {
@@ -193,6 +200,10 @@ function doDefaultGlobalInitTrigger() {
 
 }
 
+function playerConnect( val, field ) {
+  console.log( "player has connected", val, field );
+}
+
 var defaultTimeout;
 var defaultGlobalTimeout;
 db.init = function( cb ) {
@@ -201,20 +212,20 @@ db.init = function( cb ) {
         console.log( "value is ", data)
         //clearTimeout( defaultTimeout );
         db.player.id = data;
+        db.globalDb.path( "player" ).map( playerConnect );
         db.player.global = db.globalDb.path( "player" ).path( data );
         console.log( "going to request world_id...")
         db.player.local.path("world_id").val( (data)=> {
             console.log( "received world_id")
           db.player.world_id = data;
           db.world.db = db.globalDb.path( "world" ).path( db.player.world_id );
+          db.player.global.map( playerConnect );
           db.player.global.path("position").on( playerPositionChange );
           loadWorld( cb );
-          //if( cb ) cb();
         } );
         console.log( "requested world id - done with val callback")
     })
     //db.player.local.path("id").put( new Date().getTime() )
-
 }
 
 db.animate = function() {
@@ -265,8 +276,9 @@ function storeSector( sector ) {
       db.world.cluster = sector.cluster;
     addListener( sector );
     //console.log( "put sector update " )
-      this.db.path(getPath(sector)).put( sector.stringify() );
-      //console.log( "put-ed sector update " )
+    var string;
+      this.db.path(getPath(sector)).put( string = sector.stringify() );
+      console.log( "put-ed sector update ", string )
 }
 
 function loadSector( sector ) {
