@@ -34,7 +34,7 @@ selector.meshGlow = new THREE.LineSegments( selector.geometry, selector.material
 
 Voxelarium.selector.update = function() {
     var color = new THREE.Color( 0.8, 0, 0 );
-    var unit = 20;
+    var unit = currentRef?currentRef.cluster.voxelUnitSize:10;
     var x = 0
     var y = 0
     var z = 0

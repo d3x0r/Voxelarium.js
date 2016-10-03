@@ -11,7 +11,9 @@ function InventoryItem ( voxelType ) {
     var item = {
         voxelType : voxelType,  // voxel type
         THREE_solid : null,
-        geometry : Voxelarium.GeometryBuffer(),
+        geometry : Voxelarium.Settings.use_basic_material
+					? Voxelarium.GeometryBasicBuffer()
+					: Voxelarium.GeometryBuffer() ,
 
     }
     item.geometry.makeVoxCube( 0.25, voxelType );

@@ -55,7 +55,7 @@ var finalshader = {
 			"float glowDepth = readDepth( tGlowDepth, vUv );",
 			//"float texelDepth = texture2D(tDiffuseDepth, vUv).x;",
             //"if( (texel.r+texel.g+texel.b)== 0.0 ) ",
-			"    gl_FragColor = (texel + vec4(0.5, 0.75, 1.0, 1.0) * glow * 1.0);", // Blend the two buffers together (I colorized and intensified the glow at the same time)
+			"    gl_FragColor = (texel + vec4(0.5, 0.75, 1.0, 3.0) * glow * 1.0);", // Blend the two buffers together (I colorized and intensified the glow at the same time)
 			//"    gl_FragColor +=  vec4(texelDepth, glowDepth, 0, 1.0);", // Blend the two buffers together (I colorized and intensified the glow at the same time)
 			//"else gl_FragColor = texel;",
 			//"gl_FragColor = texel;",
@@ -67,11 +67,15 @@ var finalshader = {
 var preGlow;
 var preFlat;
 var overlay;
-
+var scene;
 //exports.makeComposers =
 glow.makeComposers =
-function makeComposers( sceneFlat, preFlatSetup, sceneGlow, preGlowSetup, sceneOver ) {
+function makeComposers( effect, sceneFlat, preFlatSetup, sceneGlow, preGlowSetup, sceneOver ) {
+  scene = sceneFlat;
 	renderer.autoClear = false;
+
+  if( !Voxelarium.Settings.use_basic_material ) {
+
     overlay = sceneOver;
     preGlow = preGlowSetup;
     preFlat = preFlatSetup;
@@ -81,11 +85,11 @@ function makeComposers( sceneFlat, preFlatSetup, sceneGlow, preGlowSetup, sceneO
 			//, format: THREE.RGBFormat
 			, stencilBufer: false };
 	if( !renderTargetGlow ){
-		renderTargetGlow = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight/*, renderTargetParameters*/ );
-		renderTargetGlow.texture.minFilter = THREE.LinearFilter;
-		renderTargetGlow.texture.magFilter = THREE.LinearFilter;
-		renderTargetGlow.texture.stencilBufer = false;
-		renderTargetGlow.depthTexture = new THREE.DepthTexture( );
+	  renderTargetGlow = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight/*, renderTargetParameters*/ );
+	  renderTargetGlow.texture.minFilter = THREE.LinearFilter;
+	  renderTargetGlow.texture.magFilter = THREE.LinearFilter;
+	  renderTargetGlow.texture.stencilBufer = false;
+	  renderTargetGlow.depthTexture = new THREE.DepthTexture( );
 		//renderTargetGlow.depthTexture.type = isWebGL2 ? THREE.FloatType : THREE.UnsignedShortType;
 	}
 	// Prepare the blur shader passes
@@ -106,7 +110,7 @@ function makeComposers( sceneFlat, preFlatSetup, sceneGlow, preGlowSetup, sceneO
 	var renderModelGlow = new THREE.RenderPass( sceneGlow, camera);
 
 	// Create the glow composer
-	glowcomposer = new THREE.EffectComposer( renderer, renderTargetGlow );
+	glowcomposer = new THREE.EffectComposer( effect, renderTargetGlow );
 
 	// Add all the glow passes
 	glowcomposer.addPass( renderModelGlow );
@@ -158,12 +162,13 @@ function makeComposers( sceneFlat, preFlatSetup, sceneGlow, preGlowSetup, sceneO
     //renderModel3.renderToScreen = true;
 
 	// Create the composer
-	finalcomposer = new THREE.EffectComposer( renderer, renderTarget );
+	finalcomposer = new THREE.EffectComposer( effect, renderTarget );
 
 	// Add all passes
 	finalcomposer.addPass( renderModel );
 	finalcomposer.addPass( renderModel2 );
 	finalcomposer.addPass( finalPass );
+}
     //finalcomposer.addPass( renderModel3 );
 }
 
@@ -171,6 +176,7 @@ function makeComposers( sceneFlat, preFlatSetup, sceneGlow, preGlowSetup, sceneO
 
 //exports.render =
 glow.render = function glowRender() {
+  if( !Voxelarium.Settings.use_basic_material ) {
     preGlow();
     glowcomposer.render();
 
@@ -186,5 +192,14 @@ glow.render = function glowRender() {
 
     finalcomposer.render();
 	if( overlay )
-	     renderer.render( overlay, camera );
+	     effect.render( overlay, camera );
+  }
+  else {
+    effect.render( scene, camera );
+    if( overlay )
+  	     effect.render( overlay, camera );
+
+  }
+  effect.submitFrame();
+
 }

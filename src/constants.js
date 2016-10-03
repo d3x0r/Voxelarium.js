@@ -245,3 +245,4 @@ function ZBlocPosN( x, y, z ) {
           , new ZBlocPosN( 0, 0, -1 )
           , new ZBlocPosN( 0, 1, 0 )
           , new ZBlocPosN( 0, -1, 0 ) ];
+

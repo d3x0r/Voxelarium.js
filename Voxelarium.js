@@ -1,8 +1,25 @@
 
-var Voxelarium = { VERSION : "0.0.1" }
+var Voxelarium = { VERSION : "0.0.1",
+  Settings : {
+     VR : true,
+      use_basic_material : true,
+      use_vive : true,
+  }
+};
+
+Object.freeze( Voxelarium.Settings );
+Object.freeze( Voxelarium.Settings.use_basic_material );
 
 if( !THREE )
 	var THREE = require( "../three.js/build/three.js")
+
+var Stats = require( './three.js/js/stats.min.js' );
+require( './three.js/js/controls/VRControls.js' );
+require( './three.js/js/effects/VREffect.js' );
+
+require( './three.js/js/vr/ViveController.js' );
+require( './three.js/js/vr/PaintViveController.js' );
+require( './three.js/js/vr/WebVR.js' );
 
 Voxelarium.clock = new THREE.Clock()
 
@@ -35,8 +52,9 @@ require( "./src/three.js.post/ShaderPass.js")
 require( "./src/three.js.post/TexturePass.js")
 
 Voxelarium.camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 1, 10000 );
-console.log( Voxelarium.camera.projectionMatrix.toArray() )
+//console.log( Voxelarium.camera.projectionMatrix.toArray() )
 Voxelarium.db = null;
+
 require( "./src/voxelarium.gun.db.js" )
 
 //--- fonts ---
@@ -51,6 +69,7 @@ require( "./src/sector.js")
 require( "./src/cluster.js")
 require( "./src/world.js")
 
+require( "./src/geometrybasicbuffer.js")
 require( "./src/geometrybuffer.js")
 require( "./src/geometrymaterial.js")
 require( "./src/geometrybuffer.mono.js")

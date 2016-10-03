@@ -85,11 +85,9 @@ var status_line;
 		camera.position.z = 1500;
 		camera.matrixWorldNeedsUpdate = true;
 
-		 var geometryMaterial = Voxelarium.GeometryBuffer();
-		 geometryMaterial.makeVoxCube(  400 );
-		 geometryShader = Voxelarium.GeometryShader();
+		 geometryShader = new THREE.MeshBasicMaterial();
+		 	//Voxelarium.GeometryShader();
 		 geometryShaderMono = Voxelarium.GeometryShaderMono();
-		 scene2.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
 
 
 		 // for phong hello world test....
@@ -196,10 +194,17 @@ function initVoxelarium() {
 
 	Voxelarium.TextureAtlas.init( 32, 64 );
 
-	Voxelarium.Voxels.load( ()=>{
+  Voxelarium.db.init( ()=>{
+//	Voxelarium.Voxels.load( ()=>{
+   geometryShader.map = Voxelarium.TextureAtlas.texture;
+	 geometryShader.needsUpdate = true;
 
-	var basicMesher = Voxelarium.BasicMesher(  );
+	 var geometryMaterial = Voxelarium.GeometryBasicBuffer();
+			//Voxelarium.GeometryBuffer();
+	 geometryMaterial.makeVoxCube(  400, Voxelarium.Voxels.BlackRockType );
+	 scene2.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
 
+  var basicMesher = Voxelarium.BasicMesher(  );
 
 	var words1 = voxelUniverse.createTextCluster( "Voxelarium", Voxelarium.Voxels.BlackRockType, basicMesher, Voxelarium.Fonts.TI99 );
 	clusters.push( words1 );
@@ -207,7 +212,8 @@ function initVoxelarium() {
 	words1.SectorList.forEach( (sector)=>{
 		basicMesher.MakeSectorRenderingData( sector );
 		scene2.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShaderMono ) )
-		sector.THREE_solid.matrix.Translate( -800, +offset, 0 );
+		//sector.THREE_solid.matrix.Translate( -800, +offset, 0 );
+		sector.THREE_solid.position.add( new THREE.Vector3(-800, +offset, 0 ));
 	})
 
 	var words1 = voxelUniverse.createTextCluster( "Blackvoxel", Voxelarium.Voxels.BlackRockType, basicMesher, Voxelarium.Fonts.TI99 );
@@ -215,7 +221,7 @@ function initVoxelarium() {
 	words1.SectorList.forEach( (sector)=>{
 		basicMesher.MakeSectorRenderingData( sector );
 		scene2.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShaderMono ) )
-		sector.THREE_solid.matrix.Translate( -800, -1*8*20+offset, 0 );
+		sector.THREE_solid.position.add( new THREE.Vector3( -800, -1*8*20+offset, 0 ));
 	})
 
 	var words1 = voxelUniverse.createTextCluster( "Play Game", Voxelarium.Voxels.BlackRockType, basicMesher, Voxelarium.Fonts.TI99 );
@@ -225,7 +231,7 @@ function initVoxelarium() {
 		scene2.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShaderMono ) )
 		sector.solid_geometry.geometry.uniforms.in_FaceColor = new THREE.Vector4( 0.4, 0.8, 1, 1 );
 		sector.solid_geometry.geometry.uniforms.edge_only = 0;
-		sector.THREE_solid.matrix.Translate( -800, -2*8*20+offset, 0 );
+		sector.THREE_solid.position.add( new THREE.Vector3( -800, -2*8*20+offset, 0 ));
 	})
 	var detailsize = 5;
 	renderVoxelWords( "Inventory", -800, -n*8*detailsize -3*8*20 -0*8*detailsize +offset, detailsize );
@@ -242,7 +248,8 @@ function initVoxelarium() {
 			scene2.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShaderMono ) )
 			sector.solid_geometry.geometry.uniforms.in_FaceColor = new THREE.Vector4( 0.4, 0.8, 1, 1 );
 			sector.solid_geometry.geometry.uniforms.edge_only = 0;
-			sector.THREE_solid.matrix.Translate( xofs, offset, 0 );
+			//sector.THREE_solid.matrix.Translate( xofs, offset, 0 );
+			sector.THREE_solid.position.add( new THREE.Vector3(xofs, offset, 0) );
 		})
 
 	}

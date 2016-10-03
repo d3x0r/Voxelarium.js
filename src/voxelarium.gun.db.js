@@ -108,7 +108,7 @@ function playerPositionChange( data ) {
         if( a*a+b*b+c*c > 0.001 )
         {
             db.player.positionUpdate = true; // skip next animate update
-            Voxelarium.camera.matrix.origin.copy( o );
+            Voxelarium.camera.position.copy( o );
             Voxelarium.camera.matrixWorldNeedsUpdate = true;
         }
     }

@@ -10,7 +10,9 @@ Voxelarium.World = function() {
             var cluster = Voxelarium.Cluster(32,32,32);
             cluster.mesher = mesher;
             cluster.voxelUnitSize = voxelUnitSize || 20;
-            cluster.getGeometryBuffer = Voxelarium.GeometryBuffer;
+            cluster.getGeometryBuffer = Voxelarium.Settings.use_basic_material
+                ? Voxelarium.GeometryBasicBuffer
+                : Voxelarium.GeometryBuffer;
             this.clusters.push( cluster );
             return cluster;
         },

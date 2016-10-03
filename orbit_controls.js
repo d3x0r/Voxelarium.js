@@ -171,11 +171,13 @@ THREE.OrbitControls = function ( object, clusterLookAt, domElement ) {
 		}
 
 		if( this.mode == 2 ) {
-			this.object.matrix.rotateRelative( -phiDelta, thetaDelta, 0 );
-			this.object.matrix.rotateRelative( 0, 0, -this.object.matrix.roll )
-			var tmp = this.center.clone().addScaledVector( this.object.matrix.backward, offset.length() *(scale) );
-			this.object.matrix.origin.copy( tmp );
-			this.object.matrixWorldNeedsUpdate = true;
+			if( phiDelta || thetaDelta ) {
+				this.object.matrix.rotateRelative( -phiDelta, thetaDelta, 0 );
+				this.object.matrix.rotateRelative( 0, 0, -this.object.matrix.roll )
+				var tmp = this.center.clone().addScaledVector( this.object.matrix.backward, offset.length() *(scale) );
+				this.object.matrix.origin.copy( tmp );
+				this.object.matrixWorldNeedsUpdate = true;
+			}
 		} else {
 			theta += thetaDelta;
 			phi += phiDelta;
@@ -566,6 +568,7 @@ THREE.OrbitControls = function ( object, clusterLookAt, domElement ) {
     	scope.domElement.addEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
     	window.addEventListener( 'keydown', onKeyDown, false );
     	window.addEventListener( 'keyup', onKeyUp, false );
+			Voxelarium.camera.matrixAutoUpdate = false;
     }
     this.enable();
 

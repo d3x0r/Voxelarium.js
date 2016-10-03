@@ -17,16 +17,24 @@ var gun = Gun({
 
 var server = http.createServer(function(req, res){
 	//console.log( req );
-        console.log( req.url );
+      //  console.log( req.url );
 
 	if(gun.wsp.server(req, res)){
         	console.log( "websock request?" );
 		return; // filters gun requests!
 	}
         var url = req.url;
-        if( url.startsWith( "/three.js" ) )
-        	url = ".." + url;
-        console.log( url );
+
+				// NTS HACK! SHOULD BE ITS OWN ISOLATED MODULE! //
+//	var reply = {headers: {'Content-Type': tran.json, rid: req.headers.id, id: gun.wsp.msg()}};
+	//	//		if(req && req.url && req.url.pathname && req.url.pathname.indexOf('gun.nts') >= 0){
+	//				return cb({headers: reply.headers, body: {time: Gun.time.is() }});
+	//			}
+				// NTS END! SHOULD HAVE BEEN ITS OWN MODULE //
+				// ALL HACK! SHOULD BE ITS OWN MODULE OR CORE? //
+        //if( url.startsWith( "/three.js" ) )
+        //	url = ".." + url;
+        //console.log( url );
 
 	var stream = fs.createReadStream(path.join(__dirname+"/..", url))
 	stream.on('error',function(){ // static files!
@@ -41,7 +49,7 @@ var server = http.createServer(function(req, res){
 	});
 
 	if( url.endsWith( ".js" ) ) {
-           console.log( "it's app/javascript... do ppipe..." );
+    //console.log( "it's app/javascript... do ppipe..." );
 		res.writeHead(200, {'Content-Type': 'application/javascript'});
 	} else if( url.endsWith( ".css" ) )
 		res.writeHead(200, {'Content-Type': 'text/css'});

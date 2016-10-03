@@ -1,16 +1,33 @@
 
-const attribs = ["position","uv"
-,"in_Color", "in_FaceColor", "in_Modulous"
-,"normal", "in_Pow", "in_flat_color", "in_use_texture", "in_decal_texture"
-];
-const attrib_bytes =     [4,4,1,1,1,4,4,1,1,1]
-const attrib_sizes =     [3,2,4,4,2,3,1,1,1,1]
-const attrib_normalize = [false,false,true,true,0,0,0,0,1,0]
-const attrib_buftype = [Float32Array,Float32Array
-    ,Uint8Array,Uint8Array,Uint8Array
-    ,Float32Array,Float32Array,Uint8Array,Uint8Array, Uint8Array]
 
-Voxelarium.GeometryBuffer = function () {
+const attribs = [ { name:"position",
+                    bytes:4,
+                    size:3,
+                    normalize:false,
+                    buftype:Float32Array },
+                  { name:"uv",
+                    bytes:4,
+                    size:2,
+                    normalize:false,
+                    buftype:Float32Array },
+                  { name:"color",
+                    bytes:1,
+                    size:4,
+                    normalize:true,
+                    buftype:Uint8Array },
+                  { name:"normal",
+                    bytes:4,
+                    size:3,
+                    normalize:false,
+                    buftype:Float32Array },
+
+//, "in_FaceColor", "in_Modulous"
+//, "in_Pow"
+//, "in_flat_color", "in_use_texture", "in_decal_texture"
+];
+
+
+Voxelarium.GeometryBasicBuffer = function () {
     var buffer = {};
      buffer.geometry = new THREE.BufferGeometry();
 
@@ -22,14 +39,16 @@ Voxelarium.GeometryBuffer = function () {
     // vertices because each vertex needs to appear once per triangle.
     buffer.position = new Float32Array( [] );
     buffer.uv = new Float32Array( [] );
-    buffer.in_Color = new Uint8Array( [] );
-    buffer.in_FaceColor = new Uint8Array( [] );
+    buffer.color = new Uint8Array( [] );
     buffer.normal = new Float32Array( [] );
-    buffer.in_Pow = new Float32Array( [] );
+    /*
+    buffer.in_FaceColor = new Uint8Array( [] );
+    buffer.in_Pow = new Uint8Array( [] );
     buffer.in_use_texture = new Uint8Array( [] );
     buffer.in_flat_color = new Uint8Array( [] );
     buffer.in_decal_texture = new Uint8Array( [] );
     buffer.in_Modulous = new Int8Array( [] );
+    */
     buffer.available = 0;
     buffer.used = 0;
 
@@ -37,8 +56,8 @@ Voxelarium.GeometryBuffer = function () {
         this.used = 0;
     }
 
-    attribs.forEach( (att,index)=>{
-      buffer.geometry.addAttribute( att, new THREE.BufferAttribute( buffer[att], attrib_sizes[index], attrib_normalize[index] ))
+    attribs.forEach( (att)=>{
+      buffer.geometry.addAttribute( att.name, new THREE.BufferAttribute( buffer[att.name], att.size, att.normalize ))
     })
 
 
@@ -46,20 +65,20 @@ Voxelarium.GeometryBuffer = function () {
          var newbuf;
          this.available = ( this.available + 1 ) * 2;
 
-          attribs.forEach( (att,index)=>{
-            newbuf =   new attrib_buftype[index]( new ArrayBuffer( this.available * ( attrib_bytes[index] * attrib_sizes[index] ) ) );
-            newbuf.set( buffer[att] );
-            buffer[att] = newbuf;
+          attribs.forEach( (attrib)=>{
+            newbuf =   new attrib.buftype( new ArrayBuffer( this.available * ( attrib.bytes * attrib.size ) ) );
+            newbuf.set( buffer[attrib.name] );
+            buffer[attrib.name] = newbuf;
           })
      };
 
      buffer.markDirty = function () {
 
-         attribs.forEach( (att)=>{
-             var attrib = this.geometry.getAttribute(att);
-             attrib.needsUpdate = true;
-             attrib.array = buffer[att];
-             attrib.count = buffer.used;
+         attribs.forEach( (attrib)=>{
+             var attribu = this.geometry.getAttribute(attrib.name);
+             attribu.needsUpdate = true;
+             attribu.array = buffer[attrib.name];
+             attribu.count = this.used;
          })
          //console.log( "dirty", this.geometry.attributes );
      }
@@ -82,20 +101,27 @@ Voxelarium.GeometryBuffer = function () {
         this.position[u3 + 1 ] = v.y;
         this.position[u3 + 2 ] = v.z;
         if( c ) {
-        this.in_Color[u4 + 0 ] = c.x*255;
-        this.in_Color[u4 + 1 ] = c.y*255;
-        this.in_Color[u4 + 2 ] = c.z*255;
-        this.in_Color[u4 + 3 ] = c.w*255; }
+        this.color[u4 + 0 ] = c.x*255;
+        this.color[u4 + 1 ] = c.y*255;
+        this.color[u4 + 2 ] = c.z*255;
+        this.color[u4 + 3 ] = c.w*255; }
+        else {
+          this.color[u4 + 0 ] = 255;
+          this.color[u4 + 1 ] = 255;
+          this.color[u4 + 2 ] = 255;
+          this.color[u4 + 3 ] = 255;
+        }
 
+        this.normal[u3 + 0] = n?n.x:0;
+        this.normal[u3 + 1] = n?n.y:0;
+        this.normal[u3 + 2] = n?n.z:1;
+
+        /*
         if( fc ) {
         this.in_FaceColor[u4 + 0 ] = fc.x*255;
         this.in_FaceColor[u4 + 1 ] = fc.y*255;
         this.in_FaceColor[u4 + 2 ] = fc.z*255;
         this.in_FaceColor[u4 + 3 ] = fc.w*255; }
-
-        this.normal[u3 + 0] = n?n.x:0;
-        this.normal[u3 + 1] = n?n.y:0;
-        this.normal[u3 + 2] = n?n.z:1;
 
         this.in_Pow[ this.used ] = p;
         this.in_use_texture[ this.used ] = ut;
@@ -103,7 +129,7 @@ Voxelarium.GeometryBuffer = function () {
         this.in_decal_texture[this.used] = dt;
         this.in_Modulous[this.used * 2 + 0] = mod[0];
         this.in_Modulous[this.used * 2 + 1] = mod[1];
-
+*/
         this.used++;
     };
 
@@ -123,12 +149,12 @@ Voxelarium.GeometryBuffer = function () {
      buffer.AddQuadTexture = function( norm, P1,P2,P3,P4,textureCoords ) {
          const min = 0;
          const max = 1;
-         this.addPoint( P1, textureCoords.uv_array, 0, undefined, undefined, norm, undefined, 255, false, false, [min,min] );
-         this.addPoint( P2, textureCoords.uv_array, 2, undefined, undefined, norm, undefined, 255, false, false, [max,min] );
-         this.addPoint( P3, textureCoords.uv_array, 4, undefined, undefined, norm, undefined, 255, false, false, [min,max] );
-         this.addPoint( P2, textureCoords.uv_array, 2, undefined, undefined, norm, undefined, 255, false, false, [max,min] );
-         this.addPoint( P4, textureCoords.uv_array, 6, undefined, undefined, norm, undefined, 255, false, false, [max,max] );
-         this.addPoint( P3, textureCoords.uv_array, 4, undefined, undefined, norm, undefined, 255, false, false, [min,max] );
+         this.addPoint( P1, textureCoords.uv_array, 0, white, undefined, norm, undefined, 255, false, false, [min,min] );
+         this.addPoint( P2, textureCoords.uv_array, 2, white, undefined, norm, undefined, 255, false, false, [max,min] );
+         this.addPoint( P3, textureCoords.uv_array, 4, white, undefined, norm, undefined, 255, false, false, [min,max] );
+         this.addPoint( P2, textureCoords.uv_array, 2, white, undefined, norm, undefined, 255, false, false, [max,min] );
+         this.addPoint( P4, textureCoords.uv_array, 6, white, undefined, norm, undefined, 255, false, false, [max,max] );
+         this.addPoint( P3, textureCoords.uv_array, 4, white, undefined, norm, undefined, 255, false, false, [min,max] );
      }
      buffer.addSimpleQuad = function( quad, color, faceColor, norm, pow ) {
          var min = 0;
@@ -140,7 +166,7 @@ Voxelarium.GeometryBuffer = function () {
          this.addPoint( quad[3], undefined, undefined, color, faceColor, norm, pow, false, false, false, [max,max] );
          this.addPoint( quad[2], undefined, undefined, color, faceColor, norm, pow, false, false, false, [min,max] );
      }
-     const white = new THREE.Vector4( 0.5, 0, 0, 1 );
+     const white = new THREE.Vector4( 0.5, 0.5, 0.5, 1 );
      buffer.addSimpleQuadTex = function( quad, uvs, norm, pow ) {
          var min = 0;
          var max = 1.0;
@@ -169,33 +195,33 @@ Voxelarium.GeometryBuffer = function () {
                 , uvs
                 , THREE.Vector3Forward
                 , 200 )
-                quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
+                //quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
 
             buffer.addSimpleQuadTex( quad = [v6.clone().multiplyScalar(size),v5.clone().multiplyScalar(size),v8.clone().multiplyScalar(size),v7.clone().multiplyScalar(size)]
                 , voxelType.textureCoords.uvs
                 , THREE.Vector3Backward
                 , 200 )
-                quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
+                //quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
             buffer.addSimpleQuadTex( quad = [v5.clone().multiplyScalar(size),v6.clone().multiplyScalar(size),v1.clone().multiplyScalar(size),v2.clone().multiplyScalar(size)]
                     , voxelType.textureCoords.uvs
                     , THREE.Vector3Up
                     , 200 )
-                    quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
+                  //  quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
             buffer.addSimpleQuadTex( quad = [v3.clone().multiplyScalar(size),v4.clone().multiplyScalar(size),v7.clone().multiplyScalar(size),v8.clone().multiplyScalar(size)]
                     , voxelType.textureCoords.uvs
                     , THREE.Vector3Down
                     , 200 )
-                    quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
+                    //quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
             buffer.addSimpleQuadTex( quad = [v5.clone().multiplyScalar(size),v1.clone().multiplyScalar(size),v7.clone().multiplyScalar(size),v3.clone().multiplyScalar(size)]
                     , voxelType.textureCoords.uvs
                     , THREE.Vector3Right
                     , 200 )
-                    quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
+                    //quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
             buffer.addSimpleQuadTex( quad = [v2.clone().multiplyScalar(size),v6.clone().multiplyScalar(size),v4.clone().multiplyScalar(size),v8.clone().multiplyScalar(size)]
                     , voxelType.textureCoords.uvs
                     , THREE.Vector3Left
                     , 200 )
-                    quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
+                    //quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
 
         }else {
         buffer.addSimpleQuad( quad=[v1.clone().multiplyScalar(size),v2.clone().multiplyScalar(size),v3.clone().multiplyScalar(size),v4.clone().multiplyScalar(size)]
@@ -203,37 +229,37 @@ Voxelarium.GeometryBuffer = function () {
             , voxelType && voxelType.properties.FaceColor || new THREE.Vector4( 0, 0, 0, 0.5 )
             , THREE.Vector3Forward
             , 200 )
-            quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
+            //quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
         buffer.addSimpleQuad( quad = [v6.clone().multiplyScalar(size),v5.clone().multiplyScalar(size),v8.clone().multiplyScalar(size),v7.clone().multiplyScalar(size)]
             , voxelType && voxelType.properties.EdgeColor || new THREE.Vector4( 0.2, 1, 0, 1.0 )
             , voxelType && voxelType.properties.FaceColor || new THREE.Vector4( 0, 0, 0, 0.5 )
             , THREE.Vector3Backward
             , 200 )
-            quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
+            //quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
         buffer.addSimpleQuad( quad = [v5.clone().multiplyScalar(size),v6.clone().multiplyScalar(size),v1.clone().multiplyScalar(size),v2.clone().multiplyScalar(size)]
                 , voxelType && voxelType.properties.EdgeColor || new THREE.Vector4( 1, 0.0, 0, 1.0 )
                 , voxelType && voxelType.properties.FaceColor || new THREE.Vector4( 0, 0, 0, 0.5 )
                 , THREE.Vector3Up
                 , 200 )
-                quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
+          //      quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
         buffer.addSimpleQuad( quad = [v3.clone().multiplyScalar(size),v4.clone().multiplyScalar(size),v7.clone().multiplyScalar(size),v8.clone().multiplyScalar(size)]
                 , voxelType && voxelType.properties.EdgeColor || new THREE.Vector4( 0, 1, 1, 1.0 )
                 , voxelType && voxelType.properties.FaceColor || new THREE.Vector4( 0, 0, 0, 0.5 )
                 , THREE.Vector3Down
                 , 200 )
-                quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
+            //    quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
         buffer.addSimpleQuad( quad = [v5.clone().multiplyScalar(size),v1.clone().multiplyScalar(size),v7.clone().multiplyScalar(size),v3.clone().multiplyScalar(size)]
                 , voxelType && voxelType.properties.EdgeColor || new THREE.Vector4( 1, 0.0, 1, 1.0 )
                 , voxelType && voxelType.properties.FaceColor || new THREE.Vector4( 0, 0, 0, 0.5 )
                 , THREE.Vector3Right
                 , 200 )
-                quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
+            //    quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
         buffer.addSimpleQuad( quad = [v2.clone().multiplyScalar(size),v6.clone().multiplyScalar(size),v4.clone().multiplyScalar(size),v8.clone().multiplyScalar(size)]
                 , voxelType && voxelType.properties.EdgeColor || new THREE.Vector4( 1, 1, 0, 1.0 )
                 , voxelType && voxelType.properties.FaceColor || new THREE.Vector4( 0, 0, 0, 0.5 )
                 , THREE.Vector3Left
                 , 200 )
-                quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
+          //      quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
         }
         this.markDirty(  );
      }

@@ -108,7 +108,7 @@ Voxelarium.GeometryBufferMono = function () {
          this.geometry.attributes.in_Modulous.needsUpdate = true;
      }
 
-     buffer.addPoint = function( v, t, n, ut, flat, dt, mod ) {
+     buffer.addPoint = function( v, n, ut, flat, dt, mod ) {
          if( this.used >= this.available )
             this.expand();
             const u3 = this.used * 3;
@@ -137,12 +137,33 @@ Voxelarium.GeometryBufferMono = function () {
 
          const min = 0;
          const max = 1;
-         this.addPoint( P1, undefined, norm, false, false, false, [min,min] );
-         this.addPoint( P2, undefined, norm, false, false, false, [max,min] );
-         this.addPoint( P3, undefined, norm, false, false, false, [min,max] );
-         this.addPoint( P2, undefined, norm, false, false, false, [max,min] );
-         this.addPoint( P4, undefined, norm, false, false, false, [max,max] );
-         this.addPoint( P3, undefined, norm, false, false, false, [min,max] );
+         this.addPoint( P1, norm, false, false, false, [min,min] );
+         this.addPoint( P2,  norm, false, false, false, [max,min] );
+         this.addPoint( P3,  norm, false, false, false, [min,max] );
+         this.addPoint( P2,  norm, false, false, false, [max,min] );
+         this.addPoint( P4,  norm, false, false, false, [max,max] );
+         this.addPoint( P3,  norm, false, false, false, [min,max] );
+     }
+     buffer.AddQuadTexture = function( norm, P1,P2,P3,P4,textureCoords ) {
+         const min = 0;
+         const max = 1;
+         this.addPoint( P1, norm, false, false, false, [min,min] );
+         this.addPoint( P2,  norm, false, false, false, [max,min] );
+         this.addPoint( P3,  norm, false, false, false, [min,max] );
+         this.addPoint( P2,  norm, false, false, false, [max,min] );
+         this.addPoint( P4,  norm, false, false, false, [max,max] );
+         this.addPoint( P3,  norm, false, false, false, [min,max] );
+     }
+     const white = new THREE.Vector4( 0.5, 0.5, 0, 1 );
+     buffer.addSimpleQuadTex = function( quad, uvs, norm, pow ) {
+         var min = 0;
+         var max = 1.0;
+         this.addPoint( P1, norm, false, false, false, [min,min] );
+         this.addPoint( P2,  norm, false, false, false, [max,min] );
+         this.addPoint( P3,  norm, false, false, false, [min,max] );
+         this.addPoint( P2,  norm, false, false, false, [max,min] );
+         this.addPoint( P4,  norm, false, false, false, [max,max] );
+         this.addPoint( P3,  norm, false, false, false, [min,max] );
      }
      buffer.addSimpleQuad = function( quad, norm ) {
          var min = -2;

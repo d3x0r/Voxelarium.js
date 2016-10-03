@@ -633,14 +633,17 @@ Voxelarium.BasicMesher = function(  ) {
 								{
 									var box = voxel.TextureCoords;
 									var face_is_shaded;
-									if( ( voxel.properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_SHADER ) != 0 )
+
+									if( !Voxelarium.Settings.use_basic_material &&
+                      ( voxel.properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_SHADER ) != 0 )
 									{
 										face = voxel.properties.FaceColor;
 										edge = voxel.properties.EdgeColor;
 										power = voxel.properties.EdgePower;
 										face_is_shaded = true;
 									}
-									else {
+									else 
+                   {
                     cube = voxel;
 	                  face_is_shaded = false; // uses texture instead of algorithm
                   }

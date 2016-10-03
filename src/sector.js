@@ -145,6 +145,9 @@ Voxelarium.Sector = function( cluster, x, y, z ) {
 				 {
 					 var test_out = [];
 					 console.log( "decoding string just encoded to see if it's valid;if failed, debugger; will trigger")
+					 var xfer = JSON.parse(JSON.stringify(string));
+					 if( xfer !== string )
+					 	debugger;
 					 decodeString( string, test_out );
 					 if( test_out.length === data.data.length ) {
 						 for( var n = 0; n < test_out.length; n++ ) {

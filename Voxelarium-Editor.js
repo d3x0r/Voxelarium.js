@@ -1,7 +1,6 @@
 "use strict";
 
 
-require( "./src/voxelarium.gun.db.js" )
 
 //var words1 = voxelUniverse.createTextCluster( "Hello World" );
 //var glow = require( './glow.renderer.js' );
@@ -23,6 +22,10 @@ var controls;
 	var frame_target = [];
 	var slow_animate = false;
 	var frame = 0;
+
+var vrDisplay= window;
+var effect = null;
+var controller1=null, controller2=null;
 
 	var tests = [];
 	var clusters = [];
@@ -46,6 +49,7 @@ var screen = { width:window.innerWidth, height:window.innerHeight };
 
 	var counter= 0;
 
+	var stats = new Stats();
 
 
 
@@ -80,52 +84,6 @@ function setControls3() {
 	controls.enable();
 }
 
-function myPerspective( m, fovy, aspect, zNear, zFar ) {
-
-	var sine, cotangent, deltaZ;
-	var radians=(fovy/2.0*Math.PI/180.0);
-
-	m.elements[1] = 0;
-	m.elements[2] = 0;
-	m.elements[3] = 0;
-
-	m.elements[4] = 0;
-	m.elements[6] = 0;
-	m.elements[7] = 0;
-
-	m.elements[8] = 0;
-	m.elements[9] = 0;
-
-	m.elements[12] = 0;
-	m.elements[13] = 0;
-
-	deltaZ=zFar-zNear;
-	sine=Math.sin(radians);
-	if ((deltaZ===0.0) || (sine===0.0) || (aspect===0.0) )
-	{
-		return;
-	}
-	cotangent=Math.cos(radians)/sine;
-
-	m.elements[0+0] = cotangent / aspect;
-	 m.elements[4+1] = cotangent;
-//		#if defined( _D3D_DRIVER ) || defined( _D3D10_DRIVER )
-//		    m[2][2] = (zFar + zNear) / deltaZ;
-//		    m[2][3] = 1.0f;
-//		    m[3][2] = -1.0f * zNear * zFar / deltaZ;
-//		#else
-	m.elements[8+2] = -(zFar + zNear) / deltaZ;
-	m.elements[8+3] = -1.0;
-	 m.elements[12+2] = -2.0 * zNear * zFar / deltaZ;
-//		#endif
-	 m.elements[12+3] = 0;
-	 m.origin.x = m.elements[12]
-	 m.origin.y = m.elements[13]
-	 m.origin.z = m.elements[14]
-//#ifdef ALLOW_SETTING_GL1_MATRIX
-//		 glMultMatrixf(&m[0][0]);
-//	#endif
-}
 
 var status_line;
 	function init() {
@@ -149,16 +107,62 @@ var status_line;
 		camera = Voxelarium.camera;
 		//Voxelarium.camera = camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
 
-		//myPerspective( camera.projectionMatrix, 90, window.innerWidth / window.innerHeight, 1, 10000 );
-
-		camera.matrixAutoUpdate = false;
-		camera.position.z = 800;
-		camera.matrixWorldNeedsUpdate = true;
-
-
-
 		renderer = new THREE.WebGLRenderer();
 		renderer.setSize( window.innerWidth, window.innerHeight );
+
+		stats = new Stats();
+		stats.showPanel( 1 ); // 0: fps, 1: ms, 2: mb, 3+: custom
+		document.body.appendChild( stats.dom );
+
+		//myPerspective( camera.projectionMatrix, 90, window.innerWidth / window.innerHeight, 1, 10000 );
+		if( !Voxelarium.Settings.VR ) {
+			camera.matrixAutoUpdate = false;
+			camera.position.z = 800;
+			camera.matrixWorldNeedsUpdate = true;
+    }
+		else {
+			camera.position.y = 1;
+			camera.position.z = 1;
+
+			navigator.getVRDisplays().then(function(displays) {
+			  if (displays.length > 0) {
+			    vrDisplay = displays[0];
+			  }
+			});
+
+			controls = new THREE.VRControls( camera );
+			controls.standing = true;
+
+			// controllers
+
+			controller1 = new THREE.PaintViveController( 0 );
+			controller1.standingMatrix = controls.getStandingMatrix();
+			controller1.userData.points = [ new THREE.Vector3(), new THREE.Vector3() ];
+			controller1.userData.matrices = [ new THREE.Matrix4(), new THREE.Matrix4() ];
+			scene.add( controller1 );
+
+			controller2 = new THREE.PaintViveController( 1 );
+			controller2.standingMatrix = controls.getStandingMatrix();
+			controller2.userData.points = [ new THREE.Vector3(), new THREE.Vector3() ];
+			controller2.userData.matrices = [ new THREE.Matrix4(), new THREE.Matrix4() ];
+			scene.add( controller2 );
+
+
+			effect = new THREE.VREffect( renderer );
+			 effect.autoSubmitFrame = false;
+			effect.setSize( window.innerWidth, window.innerHeight );
+		}
+		if ( WEBVR.isAvailable() === true ) {
+
+			document.body.appendChild( WEBVR.getButton( effect ) );
+
+		} else {
+			document.body.appendChild( WEBVR.getMessage() );
+
+		}
+
+		document.body.appendChild( renderer.domElement );
+
 
 		if ( !renderer.extensions.get('WEBGL_depth_texture') ) {
 		          supportsExtension = false;
@@ -166,7 +170,8 @@ var status_line;
 		          return;
 		        }
 
-				glow.makeComposers( scene
+
+				glow.makeComposers( effect, scene
 					, ()=>{
 						clusters.forEach( (cluster)=>{ cluster.SectorList.forEach( (sector)=>{
 							sector.solid_geometry.geometry.uniforms.edge_only = 0;
@@ -180,25 +185,22 @@ var status_line;
 					}
 					, scene3
 				);
+		if( !Voxelarium.Settings.use_vive ) {
+			controlNatural = new THREE.NaturalControls( camera, renderer.domElement );
+			controlNatural.disable();
 
+			/* auto enables; make sure to disable before enabling something else... */
+			controlOrbit = new THREE.OrbitControls( camera, renderer.domElement );
+			controlOrbit.disable();
 
-		document.body.appendChild( renderer.domElement );
+			controlGame = new THREE.GameMouse( camera, renderer.domElement );
+			controlGame.enable();
 
-		controlNatural = new THREE.NaturalControls( camera, renderer.domElement );
-		controlNatural.disable();
+			scene.add( controlGame.casting.mesh );
 
-		/* auto enables; make sure to disable before enabling something else... */
-		controlOrbit = new THREE.OrbitControls( camera, renderer.domElement );
-		controlOrbit.disable();
-
-		controlGame = new THREE.GameMouse( camera, renderer.domElement );
-		controlGame.enable();
-
-		scene.add( controlGame.casting.mesh );
-
-		camera.matrixAutoUpdate = false;
-		controls = controlGame;
-
+			camera.matrixAutoUpdate = false;
+			controls = controlGame;
+		}
 		initVoxelarium();
 
 		//
@@ -210,9 +212,16 @@ function slowanim() {
 }
 
 function render() {
-	renderer.clear();
-
-	glow.render();
+	//renderer.clear();
+	if( Voxelarium.Settings.use_basic_material ) {
+	  effect.render( scene, camera );
+	  effect.render( scene2, camera );
+	  effect.render( scene3, camera );
+		 effect.submitFrame();
+  }
+	else {
+		glow.render( effect );
+	}
 }
 //render();
 
@@ -237,14 +246,18 @@ function animate() {
 
 		if( slow_animate )
 			requestAnimationFrame( slowanim );
-		else
-			requestAnimationFrame( animate );
+		else {
+				if( Voxelarium.Settings.VR )
+					vrDisplay.requestAnimationFrame( animate )
+				else
+					requestAnimationFrame( animate );
+		}
 		//var unit = Math.PI/2; //worst case visible
 
 		inventory.animate( camera, delta );
-
-	render();
-
+		stats.end();
+		render();
+		stats.begin();
 }
 
 
@@ -253,46 +266,40 @@ function initVoxelarium() {
 	var basicMesher = Voxelarium.BasicMesher(  );
 	var voxelUniverse = Voxelarium.World();
 	var geometryShader;
-	var geometryShaderMono;
 
-	var geometryMaterial = Voxelarium.GeometryBuffer();
+	var geometryMaterial = Voxelarium.Settings.use_basic_material
+			? Voxelarium.GeometryBasicBuffer()
+			: Voxelarium.GeometryBuffer();
 
-	geometryShader = Voxelarium.GeometryShader();
+	geometryShader = Voxelarium.Settings.use_basic_material
+			? new THREE.MeshBasicMaterial()
+	    : Voxelarium.GeometryShader();
+
 	Voxelarium.TextureAtlas.init( 32, 64 );
 
 		Voxelarium.db.init( ()=>{
-			geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
+			//geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
+			geometryShader.vertexColors = THREE.VertexColors;
+			geometryShader.map = Voxelarium.TextureAtlas.texture;
+			geometryShader.needsUpdate = true;
+			//document.body.appendChild( Voxelarium.TextureAtlas.canvas );
 			//mesh.material.needsUpdate = true;
-
-		/*
-			var material1 = new THREE.MeshBasicMaterial( {map: Voxelarium.TextureAtlas.texture, side:THREE.DoubleSide } );
-		    material1.transparent = true;
-
-			var mesh1 = new THREE.Mesh(
-		        new THREE.PlaneGeometry(Voxelarium.TextureAtlas.canvas.width, Voxelarium.TextureAtlas.canvas.height),
-		        material1
-		      );
-
-			mesh1.position.set(0,50,0);
-
-			scene.add( mesh1 );
-		*/
-
-
 
 
 			//geometryShaderMono = Voxelarium.GeometryShaderMono();
 			//scene2.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
 
-			var cluster = voxelUniverse.createCluster( basicMesher, 20 );
+			var cluster = voxelUniverse.createCluster( basicMesher, 1 );
 			cluster.THREE_solid = new THREE.Object3D();
 			scene2.add( cluster.THREE_solid );
 			clusters.push( cluster );
 			cluster.pivot.add( THREE.Vector3Pool.new( cluster.voxelUnitSize * ( cluster.sectorSizeX/2 )
 					, -1 * cluster.voxelUnitSize * ( cluster.sectorSizeY/2 )
 					, cluster.voxelUnitSize * ( cluster.sectorSizeZ/2 ) ).delete() );
-			controlOrbit.center = cluster.pivot;
-			controlGame.clusters = clusters;
+			if( controlOrbit )
+				controlOrbit.center = cluster.pivot;
+			if( controlGame )
+				controlGame.clusters = clusters;
 			//var sector = Voxelarium.Sector(cluster,0,-1,0);
 			var sector = cluster.createSector( 0, -1, 0 );
 			sector.MakeSector(Voxelarium.Voxels.types[1]);
@@ -316,11 +323,15 @@ function initVoxelarium() {
 			scene2.add( Voxelarium.selector.meshGlow );
 			scene3.add( Voxelarium.selector.mesh );
 
-			var inventory_geometryShader =  Voxelarium.GeometryShader();
+			var inventory_geometryShader = Voxelarium.Settings.use_basic_material
+					? new THREE.MeshBasicMaterial()
+					: Voxelarium.GeometryShader();
+
 			inventory_geometryShader.depthTest = false;
 			inventory_geometryShader.depthWrite = false;
 			inventory_geometryShader.transparent = false;
-			inventory_geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
+			inventory_geometryShader.map = Voxelarium.TextureAtlas.texture;
+			//inventory_geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
 
 			 inventory = Voxelarium.Inventory(inventory_geometryShader,renderer.domElement);
 			inventory.THREE_solid.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
@@ -332,6 +343,7 @@ function initVoxelarium() {
 
 			window.addEventListener( 'keydown', master_onKeyDown, false );
 			window.addEventListener( 'keyup', master_onKeyUp, false );
+			stats.begin();
 
 			animate();
 		});
@@ -346,8 +358,8 @@ function master_onKeyDown( event ) {
 	switch ( event.keyCode ) {
 		case keys.I:
 
-			controls.disable();
-			inventory.activate( ()=>{ controls.enable() });
+			//controls.disable();
+			inventory.activate(/* ()=>{ controls.enable() } */);
 			break;
 	}
 
