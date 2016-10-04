@@ -107,12 +107,6 @@ var status_line;
 		camera = Voxelarium.camera;
 		//Voxelarium.camera = camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
 
-		renderer = new THREE.WebGLRenderer();
-		renderer.setSize( window.innerWidth, window.innerHeight );
-
-		stats = new Stats();
-		stats.showPanel( 1 ); // 0: fps, 1: ms, 2: mb, 3+: custom
-		document.body.appendChild( stats.dom );
 
 		//myPerspective( camera.projectionMatrix, 90, window.innerWidth / window.innerHeight, 1, 10000 );
 		if( !Voxelarium.Settings.VR ) {
@@ -121,8 +115,6 @@ var status_line;
 			camera.matrixWorldNeedsUpdate = true;
     }
 		else {
-			camera.position.y = 1;
-			camera.position.z = 1;
 
 			navigator.getVRDisplays().then(function(displays) {
 			  if (displays.length > 0) {
@@ -149,7 +141,7 @@ var status_line;
 
 
 			effect = new THREE.VREffect( renderer );
-			 effect.autoSubmitFrame = false;
+			effect.autoSubmitFrame = false;
 			effect.setSize( window.innerWidth, window.innerHeight );
 		}
 		if ( WEBVR.isAvailable() === true ) {
@@ -282,7 +274,7 @@ function initVoxelarium() {
 			geometryShader.vertexColors = THREE.VertexColors;
 			geometryShader.map = Voxelarium.TextureAtlas.texture;
 			geometryShader.needsUpdate = true;
-			//document.body.appendChild( Voxelarium.TextureAtlas.canvas );
+			document.body.appendChild( Voxelarium.TextureAtlas.canvas );
 			//mesh.material.needsUpdate = true;
 
 
@@ -371,4 +363,31 @@ function master_onKeyUp( event ) {
 	}
 }
 
-init();
+
+
+if( Voxelarium.Settings.AltSpace ) {
+	var sim = altspace.utilities.Simulation();
+	var inCodePen = altspace.utilities.codePen.inCodePen;
+		altspace.utilities.sync.connect({
+					appId: 'Voxelarium.js',
+				authorId: inCodePen ? altspace.utilities.codePen.getAuthorId() : 'd3x0r',
+				instanceId: inCodePen ? altspace.utilities.codePen.getPenId() : null
+		}).then(function(connection) {
+				instanceRef = connection.instance;
+
+				if (altspace.inClient) {
+						altspace.getEnclosure().then(function (enclosure) {
+
+								//gameObjects.position.y -= enclosure.innerHeight / 2;
+						});
+				} else {
+						sim.camera.position.z = CONFIG.boardSize;
+						sim.camera.position.y = CONFIG.boardSize + 100;
+						sim.camera.lookAt(sim.scene.position);
+				}
+
+     } );
+}
+else {
+	init();
+}

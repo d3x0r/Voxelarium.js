@@ -11,10 +11,10 @@ const attribs = [ { name:"position",
                     normalize:false,
                     buftype:Float32Array },
                   { name:"color",
-                    bytes:1,
+                    bytes:4,
                     size:4,
-                    normalize:true,
-                    buftype:Uint8Array },
+                    normalize:false,
+                    buftype:Float32Array },
                   { name:"normal",
                     bytes:4,
                     size:3,
@@ -39,7 +39,7 @@ Voxelarium.GeometryBasicBuffer = function () {
     // vertices because each vertex needs to appear once per triangle.
     buffer.position = new Float32Array( [] );
     buffer.uv = new Float32Array( [] );
-    buffer.color = new Uint8Array( [] );
+    buffer.color = new Float32Array( [] );
     buffer.normal = new Float32Array( [] );
     /*
     buffer.in_FaceColor = new Uint8Array( [] );
@@ -73,7 +73,7 @@ Voxelarium.GeometryBasicBuffer = function () {
      };
 
      buffer.markDirty = function () {
-
+        this.geometry.drawRange.count = this.used;
          attribs.forEach( (attrib)=>{
              var attribu = this.geometry.getAttribute(attrib.name);
              attribu.needsUpdate = true;
@@ -100,17 +100,11 @@ Voxelarium.GeometryBasicBuffer = function () {
         this.position[u3 + 0 ] = v.x;
         this.position[u3 + 1 ] = v.y;
         this.position[u3 + 2 ] = v.z;
-        if( c ) {
-        this.color[u4 + 0 ] = c.x*255;
-        this.color[u4 + 1 ] = c.y*255;
-        this.color[u4 + 2 ] = c.z*255;
-        this.color[u4 + 3 ] = c.w*255; }
-        else {
-          this.color[u4 + 0 ] = 255;
-          this.color[u4 + 1 ] = 255;
-          this.color[u4 + 2 ] = 255;
-          this.color[u4 + 3 ] = 255;
-        }
+
+          this.color[u4 + 0 ] = 1;
+          this.color[u4 + 1 ] = 1;
+          this.color[u4 + 2 ] = 1;
+          this.color[u4 + 3 ] = 1;
 
         this.normal[u3 + 0] = n?n.x:0;
         this.normal[u3 + 1] = n?n.y:0;

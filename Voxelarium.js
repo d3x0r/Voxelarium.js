@@ -2,16 +2,21 @@
 var Voxelarium = { VERSION : "0.0.1",
   Settings : {
      VR : true,
+     AltSpace : true,
       use_basic_material : true,
       use_vive : true,
   }
 };
 
 Object.freeze( Voxelarium.Settings );
-Object.freeze( Voxelarium.Settings.use_basic_material );
 
-if( !THREE )
-	var THREE = require( "../three.js/build/three.js")
+if( !THREE ) {
+	var THREE = require( "three.js.74/build/three.js")
+	require( "three.js/personalFill.js")
+}
+
+if( Voxelarium.Settings.AltSpace )
+   var altspace = require( "AltSpaceVR/dist/altspace.js" );
 
 var Stats = require( './three.js/js/stats.min.js' );
 require( './three.js/js/controls/VRControls.js' );
