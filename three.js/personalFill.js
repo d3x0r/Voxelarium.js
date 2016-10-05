@@ -1,4 +1,6 @@
 
+if( !THREE.REVISION.includes( "d3x0r" ) ) {
+
 if( Number(THREE.REVISION) === 74 ) {
 }
 
@@ -492,3 +494,4 @@ THREE.Matrix4.prototype.rotateOrtho = function( angle, axis1, axis2 ) {
 	THREE.Matrix4.prototype.__defineGetter__( "yaw", function(){
 		return this.getYaw( THREE.Vector3Right );
 	} );
+}

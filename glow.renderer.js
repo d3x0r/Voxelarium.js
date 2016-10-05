@@ -1,6 +1,17 @@
 
 
-var glow = {};
+var glow = {
+
+ glowcomposer : null,
+ scenecomposer : null,
+ finalcomposer : null,
+
+ renderTargetGlow : null,
+	renderTarget : null,
+        render : null,
+    };
+exports = glow;
+
 
 var glowcomposer;
 var scenecomposer;
@@ -70,8 +81,9 @@ var overlay;
 var scene;
 //exports.makeComposers =
 glow.makeComposers =
-function makeComposers( effect, sceneFlat, preFlatSetup, sceneGlow, preGlowSetup, sceneOver ) {
+function makeComposers( renderer, sceneFlat, preFlatSetup, sceneGlow, preGlowSetup, sceneOver ) {
   scene = sceneFlat;
+  glow.renderer = renderer;
 	renderer.autoClear = false;
 
   if( !Voxelarium.Settings.use_basic_material ) {
@@ -110,7 +122,7 @@ function makeComposers( effect, sceneFlat, preFlatSetup, sceneGlow, preGlowSetup
 	var renderModelGlow = new THREE.RenderPass( sceneGlow, camera);
 
 	// Create the glow composer
-	glowcomposer = new THREE.EffectComposer( effect, renderTargetGlow );
+	glowcomposer = new THREE.EffectComposer( renderer, renderTargetGlow );
 
 	// Add all the glow passes
 	glowcomposer.addPass( renderModelGlow );
@@ -162,7 +174,7 @@ function makeComposers( effect, sceneFlat, preFlatSetup, sceneGlow, preGlowSetup
     //renderModel3.renderToScreen = true;
 
 	// Create the composer
-	finalcomposer = new THREE.EffectComposer( effect, renderTarget );
+	finalcomposer = new THREE.EffectComposer( renderer, renderTarget );
 
 	// Add all passes
 	finalcomposer.addPass( renderModel );
@@ -192,14 +204,15 @@ glow.render = function glowRender() {
 
     finalcomposer.render();
 	if( overlay )
-	     effect.render( overlay, camera );
+	     glow.renderer.render( overlay, camera );
   }
   else {
-    effect.render( scene, camera );
+    glow.renderer.render( scene, camera );
     if( overlay )
-  	     effect.render( overlay, camera );
+  	     glow.renderer.render( overlay, camera );
 
   }
-  effect.submitFrame();
+  if( Voxelarium.Settings.VR )
+	  effect.submitFrame();
 
 }

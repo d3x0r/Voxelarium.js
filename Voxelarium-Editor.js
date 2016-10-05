@@ -130,7 +130,7 @@ var status_line;
 					        }
 
 									if( !Voxelarium.Settings.use_basic_material ){
-													glow.makeComposers( effect, scene
+													glow.makeComposers( renderer, scene
 														, ()=>{
 															clusters.forEach( (cluster)=>{ cluster.SectorList.forEach( (sector)=>{
 																sector.solid_geometry.geometry.uniforms.edge_only = 0;
@@ -180,6 +180,25 @@ var status_line;
 				effect = new THREE.VREffect( renderer );
 				effect.autoSubmitFrame = false;
 				effect.setSize( window.innerWidth, window.innerHeight );
+                                
+
+									if( !Voxelarium.Settings.use_basic_material ){
+													glow.makeComposers( effect, scene
+														, ()=>{
+															clusters.forEach( (cluster)=>{ cluster.SectorList.forEach( (sector)=>{
+																sector.solid_geometry.geometry.uniforms.edge_only = 0;
+															})})
+														}
+														, scene2
+														, ()=>{
+															clusters.forEach( (cluster)=>{ cluster.SectorList.forEach( (sector)=>{
+																sector.solid_geometry.geometry.uniforms.edge_only = 1;
+															})})
+														}
+														, scene3
+													);
+											 }
+                                
 				if ( WEBVR.isAvailable() === true ) {
 
 					document.body.appendChild( WEBVR.getButton( effect ) );
