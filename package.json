@@ -3,5 +3,18 @@
   "version" : "5633.33412.0",
   "main"    : "main.js",
 
-"dependencies" : { "gun" : "github:amark/gun#0.5" }
+   "scripts": {
+    "build": "rollup -c",
+    "build-uglify": "rollup -c --language-in=ECMASCRIPT6_STRICT && uglifyjs build/three.js -cm --preamble \"\/\/ threejs.org\/license\" > build/three.min.js",
+    "build-closure": "rollup -c  && java -jar utils/build/compiler/closure-compiler-v20160713.jar --warning_level=VERBOSE --jscomp_off=globalThis --jscomp_off=checkTypes --externs utils/build/externs.js --language_in=ECMASCRIPT6_STRICT --language_out=ES5 --js build/three.js --js_output_file build/three.min.js",
+    "dev": "rollup -c -w",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+
+	"dependencies" : { "gun" : "github:amark/gun#0.5"
+		,"rollup": "^0.34.8"
+		,"rollup-plugin-replace":"^1"
+		,"rollup-watch": "^2.5.0"
+		,"uglify-js": "^2.6.0"
+	}
 }

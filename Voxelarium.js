@@ -1,5 +1,10 @@
 
-var Voxelarium = { VERSION : "0.0.1",
+if( typeof Voxelarium === "undefined" ){
+    this.Voxelarium = {};
+//	var Voxelarium;
+}
+
+Voxelarium = { VERSION : "0.0.1",
   Settings : {
      VR : true,
      AltSpace : true,
@@ -8,17 +13,22 @@ var Voxelarium = { VERSION : "0.0.1",
   }
 };
 
+if( updateVoxelariumSettings ){
+  console.log( "preset");
+  updateVoxelariumSettings();
+}
+console.log( "too late now." );
 Object.freeze( Voxelarium.Settings );
 
-if( !THREE ) {
-	var THREE = require( "three.js.74/build/three.js")
-	require( "three.js/personalFill.js")
+if(  THREE === null ) {
+//	THREE = require( "./three.js.74/build/three.js")
 }
+	require( "./three.js/personalFill.js")
 
-if( Voxelarium.Settings.AltSpace )
-   var altspace = require( "AltSpaceVR/dist/altspace.js" );
+//if( Voxelarium.Settings.AltSpace )
+//   var altspace = require( "./AltSpaceVR/dist/altspace.js" );
 
-var Stats = require( './three.js/js/stats.min.js' );
+Voxelarium.Stats = (!Voxelarium.Settings.VR)?require( './three.js/js/stats.min.js' ):function(){};
 require( './three.js/js/controls/VRControls.js' );
 require( './three.js/js/effects/VREffect.js' );
 
@@ -58,8 +68,6 @@ require( "./src/three.js.post/TexturePass.js")
 
 Voxelarium.camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 1, 10000 );
 //console.log( Voxelarium.camera.projectionMatrix.toArray() )
-Voxelarium.db = null;
-
 require( "./src/voxelarium.gun.db.js" )
 
 //--- fonts ---

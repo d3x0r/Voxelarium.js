@@ -1,0 +1,72 @@
+<html>
+<head></head>
+<body>
+<button id="mode1">Mode 1</button>
+<button id="mode2">Mode 2</button>
+<button id="mode3">Mode 3</button>
+
+<button id="controls1">Controls 1</button>
+<button id="controls2">Controls 2</button>
+<button id="controls3">Controls 3</button>
+<button onclick="localStorage.clear()">Clear Local Storage</button>
+
+<a href="index.html">Front Page</a>
+
+</body>
+
+
+<SCRIPT SRC="three.js.74/build/three.js" ></script>
+
+<SCRIPT>
+function updateVoxelariumSettings() {
+        Voxelarium.Settings.AltSpace = false;
+	Voxelarium.Settings.VR = false;
+	Voxelarium.Settings.use_basic_material = true;
+}
+</SCRIPT>
+<script src="require.js"></script>
+<script src="Voxelarium.js">
+ script src="V.js"
+</script>
+
+<!--<script src="https://d3x0r.org:444/javascript/three.js/three.min.js"></script>-->
+<!--<script src="../three.js/three.min.js"></script>-->
+<!--<script src="V.js"></script>-->
+
+<!-- standard controls...  --->
+<script src="glow.renderer.js"></script>
+<script src="orbit_controls.js"></script>
+<script src="NaturalCamera.js"></script>
+<script src="gameMouse.js"></script>
+
+<!--<script src="cubeTest.js"></script>-->
+<script type="text/javascript">
+function get_js_version ()
+{
+    this.jsv = {
+            versions: [
+                "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "1.9", "2.0"
+            ],
+            version: ""
+        };
+
+    var d = document;
+
+    for (i = 0; i < jsv.versions.length; i++) {
+        var g = d.createElement('script'),
+            s = d.getElementsByTagName('script')[0];
+
+            g.setAttribute("language", "JavaScript" + jsv.versions[i]);
+            g.text = "this.jsv.version='" + jsv.versions[i] + "';";
+            s.parentNode.insertBefore(g, s);
+    }
+
+    return jsv.version;
+}
+
+document.write('JavaScript Version: ' + get_js_version());
+</script>
+
+<script src="Voxelarium-Editor.js"></script>
+
+</html>

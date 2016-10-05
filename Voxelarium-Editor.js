@@ -49,7 +49,7 @@ var screen = { width:window.innerWidth, height:window.innerHeight };
 
 	var counter= 0;
 
-	var stats = new Stats();
+	var stats = new Voxelarium.Stats();
 
 
 
@@ -91,18 +91,21 @@ var status_line;
 		document.getElementById( "controls2").onclick = setControls2;
 		document.getElementById( "controls3").onclick = setControls3;
 
-		scene = new THREE.Scene();
-		scene2 = new THREE.Scene();
-		scene3 = new THREE.Scene();
+		if( !scene ) {
+			scene = new THREE.Scene();
+			scene2 = new THREE.Scene();
+			scene3 = new THREE.Scene();
+		}
+		if( !Voxelarium.Settings.AltSpace ) {
 
-		scene.matrixAutoUpdate = false;
-		scene2.matrixAutoUpdate = false;
-		scene3.matrixAutoUpdate = false;
-
+			scene.matrixAutoUpdate = false;
+			scene2.matrixAutoUpdate = false;
+			scene3.matrixAutoUpdate = false;
+		}
 		// for phong hello world test....
 	//	light = new THREE.PointLight( 0xffFFFF, 1, 10000 );
 	//	light.position.set( 0, 0, 1000 );
-//		scene.add( light );
+  //		scene.add( light );
 
 		camera = Voxelarium.camera;
 		//Voxelarium.camera = camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
@@ -110,74 +113,88 @@ var status_line;
 
 		//myPerspective( camera.projectionMatrix, 90, window.innerWidth / window.innerHeight, 1, 10000 );
 		if( !Voxelarium.Settings.VR ) {
+
+			renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			window.addEventListener( "resize", ()=>{ renderer.setSize( window.innerWidth, window.innerHeight ) } );
+			document.body.appendChild( renderer.domElement );
+
 			camera.matrixAutoUpdate = false;
 			camera.position.z = 800;
 			camera.matrixWorldNeedsUpdate = true;
-    }
+
+					if ( !renderer.extensions.get('WEBGL_depth_texture') ) {
+					          supportsExtension = false;
+					          document.querySelector('#error').style.display = 'block';
+					          return;
+					        }
+
+									if( !Voxelarium.Settings.use_basic_material ){
+													glow.makeComposers( effect, scene
+														, ()=>{
+															clusters.forEach( (cluster)=>{ cluster.SectorList.forEach( (sector)=>{
+																sector.solid_geometry.geometry.uniforms.edge_only = 0;
+															})})
+														}
+														, scene2
+														, ()=>{
+															clusters.forEach( (cluster)=>{ cluster.SectorList.forEach( (sector)=>{
+																sector.solid_geometry.geometry.uniforms.edge_only = 1;
+															})})
+														}
+														, scene3
+													);
+											 }
+		}
 		else {
 
-			navigator.getVRDisplays().then(function(displays) {
-			  if (displays.length > 0) {
-			    vrDisplay = displays[0];
-			  }
-			});
+			if( !Voxelarium.Settings.AltSpace ) {
+				navigator.getVRDisplays().then(function(displays) {
+				  if (displays.length > 0) {
+				    vrDisplay = displays[0];
+				  }
+				});
 
-			controls = new THREE.VRControls( camera );
-			controls.standing = true;
+				renderer = new THREE.WebGLRenderer();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				document.body.appendChild( renderer.domElement );
 
-			// controllers
+				controls = new THREE.VRControls( camera );
+				controls.standing = true;
 
-			controller1 = new THREE.PaintViveController( 0 );
-			controller1.standingMatrix = controls.getStandingMatrix();
-			controller1.userData.points = [ new THREE.Vector3(), new THREE.Vector3() ];
-			controller1.userData.matrices = [ new THREE.Matrix4(), new THREE.Matrix4() ];
-			scene.add( controller1 );
+				// controllers
 
-			controller2 = new THREE.PaintViveController( 1 );
-			controller2.standingMatrix = controls.getStandingMatrix();
-			controller2.userData.points = [ new THREE.Vector3(), new THREE.Vector3() ];
-			controller2.userData.matrices = [ new THREE.Matrix4(), new THREE.Matrix4() ];
-			scene.add( controller2 );
+				controller1 = new THREE.PaintViveController( 0 );
+				controller1.standingMatrix = controls.getStandingMatrix();
+				controller1.userData.points = [ new THREE.Vector3(), new THREE.Vector3() ];
+				controller1.userData.matrices = [ new THREE.Matrix4(), new THREE.Matrix4() ];
+				scene.add( controller1 );
+
+				controller2 = new THREE.PaintViveController( 1 );
+				controller2.standingMatrix = controls.getStandingMatrix();
+				controller2.userData.points = [ new THREE.Vector3(), new THREE.Vector3() ];
+				controller2.userData.matrices = [ new THREE.Matrix4(), new THREE.Matrix4() ];
+				scene.add( controller2 );
 
 
-			effect = new THREE.VREffect( renderer );
-			effect.autoSubmitFrame = false;
-			effect.setSize( window.innerWidth, window.innerHeight );
+				effect = new THREE.VREffect( renderer );
+				effect.autoSubmitFrame = false;
+				effect.setSize( window.innerWidth, window.innerHeight );
+				if ( WEBVR.isAvailable() === true ) {
+
+					document.body.appendChild( WEBVR.getButton( effect ) );
+
+				} else {
+					document.body.appendChild( WEBVR.getMessage() );
+
+				}
+			} else { // is AltSpace
+
+			}
 		}
-		if ( WEBVR.isAvailable() === true ) {
-
-			document.body.appendChild( WEBVR.getButton( effect ) );
-
-		} else {
-			document.body.appendChild( WEBVR.getMessage() );
-
-		}
-
-		document.body.appendChild( renderer.domElement );
 
 
-		if ( !renderer.extensions.get('WEBGL_depth_texture') ) {
-		          supportsExtension = false;
-		          document.querySelector('#error').style.display = 'block';
-		          return;
-		        }
-
-
-				glow.makeComposers( effect, scene
-					, ()=>{
-						clusters.forEach( (cluster)=>{ cluster.SectorList.forEach( (sector)=>{
-							sector.solid_geometry.geometry.uniforms.edge_only = 0;
-						})})
-					}
-					, scene2
-					, ()=>{
-						clusters.forEach( (cluster)=>{ cluster.SectorList.forEach( (sector)=>{
-							sector.solid_geometry.geometry.uniforms.edge_only = 1;
-						})})
-					}
-					, scene3
-				);
-		if( !Voxelarium.Settings.use_vive ) {
+		if( !Voxelarium.Settings.VR ) {
 			controlNatural = new THREE.NaturalControls( camera, renderer.domElement );
 			controlNatural.disable();
 
@@ -204,14 +221,28 @@ function slowanim() {
 }
 
 function render() {
+	if( Voxelarium.Settings.ALtSpace )
+		return;
 	//renderer.clear();
-	if( Voxelarium.Settings.use_basic_material ) {
-	  effect.render( scene, camera );
-	  effect.render( scene2, camera );
-	  effect.render( scene3, camera );
-		 effect.submitFrame();
-  }
+	if( Voxelarium.Settings.VR ) {
+          if( Voxelarium.Settings.use_basic_material ) {
+		  effect.render( scene, camera );
+		  effect.render( scene2, camera );
+		  effect.render( scene3, camera );
+		  effect.submitFrame();
+		}
+		else
+		glow.render( effect );
+
+	}
 	else {
+          if( Voxelarium.Settings.use_basic_material ) {
+		  renderer.render( scene, camera );
+		  renderer.render( scene2, camera );
+		  renderer.render( scene3, camera );
+
+	}
+	else
 		glow.render( effect );
 	}
 }
@@ -247,9 +278,9 @@ function animate() {
 		//var unit = Math.PI/2; //worst case visible
 
 		inventory.animate( camera, delta );
-		stats.end();
+		//stats.end();
 		render();
-		stats.begin();
+		//stats.begin();
 }
 
 
@@ -274,7 +305,7 @@ function initVoxelarium() {
 			geometryShader.vertexColors = THREE.VertexColors;
 			geometryShader.map = Voxelarium.TextureAtlas.texture;
 			geometryShader.needsUpdate = true;
-			document.body.appendChild( Voxelarium.TextureAtlas.canvas );
+			//document.body.appendChild( Voxelarium.TextureAtlas.canvas );
 			//mesh.material.needsUpdate = true;
 
 
@@ -293,7 +324,7 @@ function initVoxelarium() {
 			if( controlGame )
 				controlGame.clusters = clusters;
 			//var sector = Voxelarium.Sector(cluster,0,-1,0);
-			var sector = cluster.createSector( 0, -1, 0 );
+			var sector = cluster.createSector( 0, 0, 0 );
 			sector.MakeSector(Voxelarium.Voxels.types[1]);
 
 			//var s = sector.stringify();
@@ -325,7 +356,7 @@ function initVoxelarium() {
 			inventory_geometryShader.map = Voxelarium.TextureAtlas.texture;
 			//inventory_geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
 
-			 inventory = Voxelarium.Inventory(inventory_geometryShader,renderer.domElement);
+			 inventory = Voxelarium.Inventory(inventory_geometryShader,renderer&&renderer.domElement);
 			inventory.THREE_solid.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
 			scene3.add( inventory.THREE_solid );
 			//scene3.add( inventory.selector.THREE_solid );
@@ -335,9 +366,9 @@ function initVoxelarium() {
 
 			window.addEventListener( 'keydown', master_onKeyDown, false );
 			window.addEventListener( 'keyup', master_onKeyUp, false );
-			stats.begin();
-
-			animate();
+			//stats.begin();
+			if( !Voxelarium.Settings.AltSpace )
+				animate();
 		});
 	//});
 
@@ -366,6 +397,8 @@ function master_onKeyUp( event ) {
 
 
 if( Voxelarium.Settings.AltSpace ) {
+	var instanceRef;
+	var sceneSync;
 	var sim = altspace.utilities.Simulation();
 	var inCodePen = altspace.utilities.codePen.inCodePen;
 		altspace.utilities.sync.connect({
@@ -375,17 +408,57 @@ if( Voxelarium.Settings.AltSpace ) {
 		}).then(function(connection) {
 				instanceRef = connection.instance;
 
+				sceneSync = altspace.utilities.behaviors.SceneSync(instanceRef, {
+					instantiators: {
+						'Piece': function(initData){
+
+							gameObjects.add(object3d);
+							return object3d;
+						}
+					},
+					ready: function(firstInstance){
+							console.log( "got 'ready' which is add scenes?")
+						if (firstInstance){
+							console.log( "is first once?")
+							//arrangePieces();
+						}
+						//gameObjects.add(board);
+						//sim.scene.add(scene);
+						//sim.scene.add(scene2);
+						//sim.scene.add(scene3);
+						//for(var i=0; i < whitePieces.length; i++){
+							if (firstInstance) {
+								//var white = sceneSync.instantiate('Piece', { index: i, color: 'white' });
+								//var black = sceneSync.instantiate('Piece', { index: i, color: 'black' });
+							}
+						//}
+					}
+				});
+				sim.scene.addBehavior(sceneSync);
+
+
 				if (altspace.inClient) {
+					console.log( "In an enclosure.... so I have to add to it?");
 						altspace.getEnclosure().then(function (enclosure) {
 
 								//gameObjects.position.y -= enclosure.innerHeight / 2;
 						});
 				} else {
-						sim.camera.position.z = CONFIG.boardSize;
-						sim.camera.position.y = CONFIG.boardSize + 100;
+						Voxelarium.camera = sim.camera;
+						sim.camera.position.z = 50;
+						sim.camera.position.y = 10;
 						sim.camera.lookAt(sim.scene.position);
+						console.log( 'seting scene to ', sim.scene )
+						scene = sim.scene;
+						scene2 = sim.scene;
+						scene3 = sim.scene;
 				}
-
+				init();
+				if (altspace.inClient) {
+					sim.scene.add( scene);
+					sim.scene.add( scene2);
+					sim.scene.add( scene3);
+				}
      } );
 }
 else {

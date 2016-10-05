@@ -1,4 +1,12 @@
 
+if( Number(THREE.REVISION) >= 76 ) {
+	var count_is_getter = false;
+  Object.freeze( count_is_getter );
+}
+else {
+	var count_is_getter = true;
+  Object.freeze( count_is_getter );
+}
 
 const attribs = [ { name:"position",
                     bytes:4,
@@ -78,7 +86,8 @@ Voxelarium.GeometryBasicBuffer = function () {
              var attribu = this.geometry.getAttribute(attrib.name);
              attribu.needsUpdate = true;
              attribu.array = buffer[attrib.name];
-             attribu.count = this.used;
+             if( !count_is_getter )
+                attribu.count = this.used;
          })
          //console.log( "dirty", this.geometry.attributes );
      }

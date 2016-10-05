@@ -2,7 +2,8 @@
 Voxelarium.Voxels = {
 	types : [],
 	add : function( type, properties,reaction ) {
-        	this.types.push( this[type] = {
+        	//this.types.push(
+						this[type] = {
 						 ID : this.types.length
                 		, name : type
                 		, properties : properties
@@ -14,7 +15,8 @@ Voxelarium.Voxels = {
 				, texture : null
 				, codeData : null
 				, textureData : null
-			} );
+			}
+		  //);
 			if( typeof properties.DrawInfo === "undefined" )
 				properties.DrawInfo = Voxelarium.ZVOXEL_DRAWINFO_DRAWFULLVOXELOPACITY;
 			return this[type];
@@ -73,7 +75,7 @@ Documentation_PageNum = 0;
 
 }
 
-
+Voxelarium.Voxels.types.push(
 Voxelarium.Voxels.add( "Void", {
       Is_PlayerCanPassThrough : true,
       Draw_TransparentRendering : false,
@@ -102,7 +104,7 @@ Voxelarium.Voxels.add( "Void", {
       BvProp_MoveableByTreadmill : false,
       BvProp_EgmyT1Resistant : false,
       LiquidDensity : 0.0,
-} );
+} ) );
 
 Voxelarium.Voxels.getIndex = function( type ) {
 	var types = Voxelarium.Voxels.types;
@@ -132,21 +134,32 @@ function loadAVoxel( n, cb ) {
 			};
 			xhrObj.onload = ()=>{
 				if( !xhrObj.status || xhrObj.status === 200 ) {
-					eval(xhrObj.responseText);
+					//console.log( "load ", n)
+					Voxelarium.Voxels.types.push( eval(xhrObj.responseText) );
 					var t = Voxelarium.Voxels.types[n];
 
 					t.codeData = xhrObj.responseText;
 					xhrObj.open('GET', `./src/voxels/images/voxel_${n}.png`);
-					xhrObj.onerror = (err )=>{console.log( "error:", err);
-				   loadAVoxel( n+1, cb );}
+					xhrObj.onerror = (err)=>{
+						 console.log( "error:", err);
+				     loadAVoxel( n+1, cb );
+				  }
 					xhrObj.send(null);
 					xhrObj.onload = ()=>{
 						if( xhrObj.responseText.length > 0 ) {
 							( t.image = new Image() ).src = xhrObj.responseText;
 							t.textureData = xhrObj.response;
-							t.image.onload = ()=> {
-								 //console.log( "Wait until load to setup coords")
-							   t.textureCoords = Voxelarium.TextureAtlas.add( t.image )
+							t.image.onerror = (err)=>{ console.log( "image load error?", err)}
+							//console.log( t );
+							if( true || !t.image.width )
+							{
+								t.image.onload = ()=> {
+									 //console.log( "Waited until load to setup coords", t)
+								   t.textureCoords = Voxelarium.TextureAtlas.add( t.image )
+							  }
+							} else {
+								//console.log( "don't have to delay load?")
+							  //t.textureCoords = Voxelarium.TextureAtlas.add( t.image )
 						  }
 						}
 						loadAVoxel( n+1, cb );

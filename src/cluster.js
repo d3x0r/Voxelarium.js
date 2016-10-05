@@ -161,7 +161,7 @@ function InitStatics( x,y,z)
 					ofTableZ : new Array( z+2 )
 				}
 				//tables.tableX.forEach( (elem)=>{elem=0})
-				console.log( "tableX init is ", tables.tableX)
+				//console.log( "tableX init is ", tables.tableX)
 				tables.tableX[0] = 1;
 				tables.tableX[x + 1] = 2;
 				tables.tableZ[0] = 3;

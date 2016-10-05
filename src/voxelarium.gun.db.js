@@ -3,8 +3,9 @@
 var Gun = require( "../node_modules/gun/gun.js" );
 
 var db = {};
-
 Voxelarium.db = db;
+
+//Voxelarium.db = db;
 
 //global = Gun({prefix: 'global/', peers: ['https://localhost:8080/gun']})
 //local = Gun({prefix: 'local/'}).
@@ -122,23 +123,33 @@ function setupEvents( cb ) {
     loadWorld( cb );
 }
 
-loadVoxels = (cb, val)=>{
+function loadVoxels(cb, val){
   var count = val.voxelTypeCount;
   console.log( "have " , count )
   db.world.voxelInfo.path( "voxelTypes" ).map( (data,field)=>{
-      var t = Voxelarium.Voxels.types[field];
+      var t = Voxelarium.Voxels.types[Number(field)];
       if( t ) return;
+      console.log( "reloading ", field, data.ID)
+        Voxelarium.Voxels.types[data.ID] = eval( data.code );
 
-      eval(data.code);
-      var t = Voxelarium.Voxels.types[field]
+      //var t = Voxelarium.Voxels.types[Number(field)]
       if( data.texture ) {
         count++;
+        /*
         ( t.image = new Image() ).src = t.textureData = data.texture;
+        t.image.onload = ()=>{ ((t)=> {
+           //console.log( "Wait until load to setup coords")
+           t.textureCoords = Voxelarium.TextureAtlas.add( t.image )
+           if( !--count ) cb();
+        })(t) }
+        */
+
           t.image.onload = ()=> {
              //console.log( "Wait until load to setup coords")
              t.textureCoords = Voxelarium.TextureAtlas.add( t.image )
              if( !--count ) cb();
           }
+
       }
       if( !--count ) cb();
   });
@@ -153,7 +164,7 @@ function initialVoxelTypeLoad(branch,cb) {
         Voxelarium.Voxels.types.forEach( (type)=>{
             if( !type.ID ) return;
             n++;
-            voxelTypes[ type.ID ] = { code: type.codeData, texture : type.textureData};
+            voxelTypes[ type.ID ] = { ID:type.ID, code: type.codeData, texture : type.textureData};
         });
         branch.put( { voxelTypes : voxelTypes, voxelTypeCount : n } );
         cb();
@@ -163,8 +174,10 @@ function initialVoxelTypeLoad(branch,cb) {
 function loadWorld( cb ) {
     ( db.world.voxelInfo = db.world.db.path( "voxelInfo" ) )
         .not( function(){
-            initialVoxelTypeLoad(this,cb)
+          console.log( "No VoxelInfo; load default");
+            initialVoxelTypeLoad(db.world.voxelInfo,cb)
          }).val( (val)=>{
+            console.log( "skip a beat and load the voxels....")
            setTimeout(
                ()=>{ loadVoxels(cb,val) }
              )
@@ -189,7 +202,7 @@ function doDefaultInit( data ) {
 
 function doDefaultInitTrigger() {
     console.log( "put init=true")
-	db.player.local.path( "init" ).put( true );
+	  db.player.local.path( "init" ).put( true );
     console.log( "local put init has finished for inital Db Kick;" );
 }
 
@@ -219,7 +232,7 @@ db.init = function( cb ) {
             console.log( "received world_id")
           db.player.world_id = data;
           db.world.db = db.globalDb.path( "world" ).path( db.player.world_id );
-          db.player.global.map( playerConnect );
+          db.player.global.map().val( playerConnect );
           db.player.global.path("position").on( playerPositionChange );
           loadWorld( cb );
         } );

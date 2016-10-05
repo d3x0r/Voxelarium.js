@@ -13,4 +13,4 @@ Voxelarium.Voxels.add( "BlackRockType", {
 		EdgePower : 400,
 		DrawInfo : Voxelarium.ZVOXEL_DRAWINFO_SHADER | Voxelarium.ZVOXEL_DRAWINFO_DRAWFULLVOXELOPACITY
 	},
-	( self, tick )=>false );
+	function( self, tick ){return false} );

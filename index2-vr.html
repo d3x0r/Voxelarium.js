@@ -1,0 +1,35 @@
+<html>
+<head></head>
+<body>
+<button id="mode1">Mode 1</button>
+<button id="mode2">Mode 2</button>
+<button id="mode3">Mode 3</button>
+
+<button id="controls1">Controls 1</button>
+<button id="controls2">Controls 2</button>
+<button id="controls3">Controls 3</button>
+<button onclick="localStorage.clear()">Clear Local Storage</button>
+
+<a href="index.html">Front Page</a>
+
+</body>
+
+
+<SCRIPT SRC="three.js.74/build/three.js" ></script>
+<SCRIPT SRC="AltSpaceVR/dist/altspace.js" ></script>
+
+<SCRIPT>
+function updateVoxelariumSettings() {
+        Voxelarium.Settings.AltSpace = true;
+	Voxelarium.Settings.VR = true;
+	Voxelarium.Settings.use_basic_material = true;
+}
+</SCRIPT>
+<!--script src="require.js"></script>
+<script src="Voxelarium.js"-->
+<script src="V5.js"></script>
+
+
+<script src="Voxelarium-Editor5.js"></script>
+
+</html>

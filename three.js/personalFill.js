@@ -1,5 +1,4 @@
 
-
 if( Number(THREE.REVISION) === 74 ) {
 }
 
@@ -103,7 +102,11 @@ THREE.Matrix4x = function() {
 	Object.defineProperty(this, "elements", { writable:false } );
 
 
-        this.motion = {
+}
+
+THREE.Matrix4.prototype.__defineGetter__( "motion", function(){
+	if( !this._motion ){
+        this._motion = {
         	tick : 0,
         	speed : new THREE.Vector3(),
                 acceleration : new THREE.Vector3(),
@@ -190,67 +193,9 @@ THREE.Matrix4x = function() {
 							delta_accel.scale( 1 / t );
 					   }
 					  */
-				  }
-
-        };
-}
-
-THREE.Matrix4.prototype.__defineGetter__( "origin", function(){
-	if( !this._origin ){
-		var self = this;
-		this._origin = new THREE.Vector3();
-		Object.defineProperty(this, "_origin", { writable:false } );
-		Object.defineProperty( this._origin, "x", {
-			get : function(){
-				return self.elements[12];
-			},
-			set : function(v){
-				self.elements[12] = v;
-			}
-		})
-		Object.defineProperty( this._origin, "y", {
-			get : ()=>{
-				return self.elements[13];
-			},
-			set : (v)=>{
-				self.elements[13] = v;
-			}
-		})
-		Object.defineProperty( this._origin, "z", {
-			get : ()=>{
-				return self.elements[14];
-			},
-			set : (v)=>{
-				self.elements[14] = v;
-			}
-		})
-	}
-	return this._origin;
-} );
+				  },
 
 
-
-			Object.defineProperty( THREE.Matrix4, "motion", {
-				tick : 0,
-				speed : new THREE.Vector3(),
-							acceleration : new THREE.Vector3(),
-							rotation : new THREE.Vector3(),
-							torque : new THREE.Vector3(),
-							mass : 1.0,
-							move : function( m, delta ) {
-				this.speed.addScaledVector( this.acceleration, delta );
-				var del = this.speed.clone().multiplyScalar( delta );
-
-				m.origin.addScaledVector( m.forward, del.z );
-				m.origin.addScaledVector( m.up, del.y );
-				m.origin.addScaledVector( m.left, del.x );
-
-				this.rotation.addScaledVector( this.torque, delta );
-				var this_move = this.rotation.clone().multiplyScalar( delta )
-				m.rotateRelative( this_move.x, this_move.y, this_move.z );
-				this_move.delete();
-				del.delete();
-			},
 			rotate : function( m, delta ) {
 				var iterations = 1;
 
@@ -319,7 +264,45 @@ THREE.Matrix4.prototype.__defineGetter__( "origin", function(){
 					*/
 				}
 
-			} );
+	        };
+	}
+	return this._motion;
+} );
+
+THREE.Matrix4.prototype.__defineGetter__( "origin", function(){
+	if( !this._origin ){
+		var self = this;
+		this._origin = new THREE.Vector3();
+		Object.defineProperty(this, "_origin", { writable:false } );
+		Object.defineProperty( this._origin, "x", {
+			get : function(){
+				return self.elements[12];
+			},
+			set : function(v){
+				self.elements[12] = v;
+			}
+		})
+		Object.defineProperty( this._origin, "y", {
+			get : ()=>{
+				return self.elements[13];
+			},
+			set : (v)=>{
+				self.elements[13] = v;
+			}
+		})
+		Object.defineProperty( this._origin, "z", {
+			get : ()=>{
+				return self.elements[14];
+			},
+			set : (v)=>{
+				self.elements[14] = v;
+			}
+		})
+	}
+	return this._origin;
+} );
+
+
 
 
 THREE.Matrix4.prototype.rotateOrtho = function( angle, axis1, axis2 ) {
@@ -412,6 +395,7 @@ THREE.Matrix4.prototype.rotateOrtho = function( angle, axis1, axis2 ) {
 	};
 	THREE.Matrix4.prototype.rotateRelative = function( x, y, z ){
 		//console.trace( "rotate starts as ", this )
+		if( typeof this.tick === "undefined" ) this.tick = 0;
 		switch( this.tick++ ) {
 			case 0:
 				this.rotateOrtho( x, 1, 2 );
@@ -446,23 +430,23 @@ THREE.Matrix4.prototype.rotateOrtho = function( angle, axis1, axis2 ) {
 				break;
 		}
 	};
-	THREE.Matrix4.prototype.__defineGetter__( "left", ()=>{
-        	return new THREE.Vector3( this.elements[0], this.elements[1], this.elements[2] );
+	THREE.Matrix4.prototype.__defineGetter__( "left", function(){
+        	return THREE.Vector3Pool.new( this.elements[0], this.elements[1], this.elements[2] );
         } );
-	THREE.Matrix4.prototype.__defineGetter__( "right", ()=>{
-			return new THREE.Vector3( -this.elements[0], -this.elements[1], -this.elements[2] );
+	THREE.Matrix4.prototype.__defineGetter__( "right", function(){
+		return THREE.Vector3Pool.new( -this.elements[0], -this.elements[1], -this.elements[2] );
 	} );
-	THREE.Matrix4.prototype.__defineGetter__( "up", ()=>{
-        	return new THREE.Vector3( this.elements[4], this.elements[5], this.elements[6] );
+	THREE.Matrix4.prototype.__defineGetter__( "up", function(){
+        	return THREE.Vector3Pool.new( this.elements[4], this.elements[5], this.elements[6] );
         } );
-	THREE.Matrix4.prototype.__defineGetter__( "down", ()=>{
-			return new THREE.Vector3( -this.elements[4], -this.elements[5], -this.elements[6] );
+	THREE.Matrix4.prototype.__defineGetter__( "down", function(){
+		return THREE.Vector3Pool.new( -this.elements[4], -this.elements[5], -this.elements[6] );
         } );
-	THREE.Matrix4.prototype.__defineGetter__( "forward", ()=>{
-        	return new THREE.Vector3( -this.elements[8], -this.elements[9], -this.elements[10] );
+	THREE.Matrix4.prototype.__defineGetter__( "forward", function(){
+        	return THREE.Vector3Pool.new( -this.elements[8], -this.elements[9], -this.elements[10] );
         } );
-	THREE.Matrix4.prototype.__defineGetter__( "backward", ()=>{
-			return new THREE.Vector3( this.elements[8], this.elements[9], this.elements[10] );
+	THREE.Matrix4.prototype.__defineGetter__( "backward", function(){
+		return THREE.Vector3Pool.new( this.elements[8], this.elements[9], this.elements[10] );
         } );
 	THREE.Matrix4.prototype.move = function (tick) {
         	if( this.motion )
@@ -477,13 +461,13 @@ THREE.Matrix4.prototype.rotateOrtho = function( angle, axis1, axis2 ) {
 	THREE.Matrix4.prototype.moveDown = function ( n ) { this.origin.addScaledVector( this.down, n ); };
 	THREE.Matrix4.prototype.moveRight = function ( n ) { this.origin.addScaledVector( this.right, n ); };
 
-	THREE.Matrix4.prototype.__defineGetter__( "inv_left", ()=>{
+	THREE.Matrix4.prototype.__defineGetter__( "inv_left", function(){
         	return Vector3Pool.new( this.elements[0], this.elements[4], this.elements[8] );
         } );
-	THREE.Matrix4.prototype.__defineGetter__( "inv_up", ()=>{
+	THREE.Matrix4.prototype.__defineGetter__( "inv_up", function(){
         	return Vector3Pool.new( this.elements[1], this.elements[5], this.elements[9] );
         } );
-	THREE.Matrix4.prototype.__defineGetter__( "inv_forward", ()=>{
+	THREE.Matrix4.prototype.__defineGetter__( "inv_forward", function(){
         	return Vector3Pool.new( this.elements[2], this.elements[6], this.elements[10] );
         } );
 
@@ -499,12 +483,12 @@ THREE.Matrix4.prototype.rotateOrtho = function( angle, axis1, axis2 ) {
 		//if( !relativeRight ) relativeRight = THREE.Vector3Right;
 		return Math.asin( this.forward.dot( relativeRight ) );
 	};
-	THREE.Matrix4.prototype.__defineGetter__( "roll", ()=>{
-		return this.getRoll( Vector3Up );
+	THREE.Matrix4.prototype.__defineGetter__( "roll", function(){
+		return this.getRoll( THREE.Vector3Up );
 	} );
-	THREE.Matrix4.prototype.__defineGetter__( "pitch", ()=>{
-		return this.getPitch( Vector3Forward );
+	THREE.Matrix4.prototype.__defineGetter__( "pitch", function(){
+		return this.getPitch( THREE.Vector3Forward );
 	} );
-	THREE.Matrix4.prototype.__defineGetter__( "yaw", ()=>{
-		return this.getYaw( Vector3Right );
+	THREE.Matrix4.prototype.__defineGetter__( "yaw", function(){
+		return this.getYaw( THREE.Vector3Right );
 	} );
