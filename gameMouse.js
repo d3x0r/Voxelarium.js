@@ -387,7 +387,7 @@ function  rayCast(cluster, o, forward )
     Offset_h.y = Delta_h.y * cluster.voxelUnitSize;
     Offset_h.z = Delta_h.z * cluster.voxelUnitSize;
     Offset_h.w = Delta_h.w * cluster.voxelUnitSize;
-    Norm_h.x = Offset_h.x / (cluster.voxelUnitSize/2);
+    Norm_h.x = Offset_h.x/2;// / (cluster.voxelUnitSize/2);
     Norm_h.y = 0 / (cluster.voxelUnitSize/2);
     Norm_h.z = 0 / (cluster.voxelUnitSize/2);
   }
@@ -409,7 +409,7 @@ function  rayCast(cluster, o, forward )
     Offset_h.y = Delta_h.y * cluster.voxelUnitSize;
     Offset_h.z = Delta_h.z * cluster.voxelUnitSize;
     Offset_h.w = Delta_h.w * cluster.voxelUnitSize;
-    Norm_h.x = Offset_h.x / (cluster.voxelUnitSize/2);
+    Norm_h.x = Offset_h.x/2;// / (cluster.voxelUnitSize/2);
     Norm_h.y = 0 / (cluster.voxelUnitSize/2);
     Norm_h.z = 0 / (cluster.voxelUnitSize/2);
   }
@@ -433,7 +433,7 @@ function  rayCast(cluster, o, forward )
     Offset_v.z = Delta_v.z * cluster.voxelUnitSize;
     Offset_v.w = Delta_v.w * cluster.voxelUnitSize;
     Norm_v.x = 0 / (cluster.voxelUnitSize/2);
-    Norm_v.y = Offset_v.y / (cluster.voxelUnitSize/2);
+    Norm_v.y = Offset_v.y/2;// / (cluster.voxelUnitSize/2);
     Norm_v.z = 0 / (cluster.voxelUnitSize/2);
   }
   else if (Norm.y <= -0.01)
@@ -456,7 +456,7 @@ function  rayCast(cluster, o, forward )
     Offset_v.z = Delta_v.z * cluster.voxelUnitSize;
     Offset_v.w = Delta_v.w * cluster.voxelUnitSize;
     Norm_v.x = 0 / (cluster.voxelUnitSize/2);
-    Norm_v.y = Offset_v.y / (cluster.voxelUnitSize/2);
+    Norm_v.y = Offset_v.y/2;// / (cluster.voxelUnitSize/2);
     Norm_v.z = 0 / (cluster.voxelUnitSize/2);
   }
 
@@ -479,7 +479,7 @@ function  rayCast(cluster, o, forward )
     Offset_s.w = Delta_s.w * cluster.voxelUnitSize;
     Norm_s.x = 0 / (cluster.voxelUnitSize/2);
     Norm_s.y = 0 / (cluster.voxelUnitSize/2);
-    Norm_s.z = Offset_s.z / (cluster.voxelUnitSize/2);
+    Norm_s.z = Offset_s.z/2;// / (cluster.voxelUnitSize/2);
   }
   else if (Norm.z <= -0.01)
   {
@@ -501,7 +501,7 @@ function  rayCast(cluster, o, forward )
 
     Norm_s.x = 0 / (cluster.voxelUnitSize/2);
     Norm_s.y = 0 / (cluster.voxelUnitSize/2);
-    Norm_s.z = Offset_s.z / (cluster.voxelUnitSize/2);
+    Norm_s.z = Offset_s.z/2;// / (cluster.voxelUnitSize/2);
   }
 
 
@@ -532,7 +532,7 @@ function  rayCast(cluster, o, forward )
         NewCube_z = Math.floor((Collision_h.z + Norm_h.z) / cluster.voxelUnitSize);
         if( ( ref = cluster.getVoxelRef( false, NewCube_x, NewCube_y, NewCube_z) ) && ref.sector && !ref.voxelType.properties.Is_PlayerCanPassThrough)
         {
-            //console.log( `x check ${NewCube_x}  ${NewCube_y}  ${NewCube_z}   ${MinW}  ${Collision_h.w}`)
+            console.log( `x check ${NewCube_x}  ${NewCube_y}  ${NewCube_z}    ${ActualCube_x} ${ActualCube_y} ${ActualCube_z}  ${MinW}  ${Collision_h.w}`)
             Out = { PredPointedVoxel : new THREE.Vector3( ActualCube_x, ActualCube_y, ActualCube_z ),
                     PointedVoxel : new THREE.Vector3( NewCube_x, NewCube_y, NewCube_z ),
                     ref : ref
