@@ -85,8 +85,12 @@ Voxelarium.GeometryBasicBuffer = function () {
          attribs.forEach( (attrib)=>{
              var attribu = this.geometry.getAttribute(attrib.name);
              attribu.needsUpdate = true;
-             attribu.array = buffer[attrib.name];
-             if( !count_is_getter )
+						 if( Voxelarium.Settings.AltSpace ) {
+
+             	attribu.array = buffer[attrib.name].subarray( 0, this.used * attrib.size );
+						}else
+						 	attribu.array = buffer[attrib.name];
+						 if( !count_is_getter )
                 attribu.count = this.used;
          })
          //console.log( "dirty", this.geometry.attributes );

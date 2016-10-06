@@ -152,7 +152,7 @@ var status_line;
 													);
 											 }
 		}
-		else { 
+		else {
                        // is VR...
 			if( !Voxelarium.Settings.AltSpace ) {
 				navigator.getVRDisplays().then(function(displays) {
@@ -376,9 +376,10 @@ function animate() {
 			Voxelarium.db.player.positionUpdate = false;
 		}
 
-		handleController( controller1 );
-		handleController( controller2 );
-
+		if( Voxelarium.Settings.VR ) {
+			handleController( controller1 );
+			handleController( controller2 );
+		}
 
 		Voxelarium.selector.update();
 
@@ -565,14 +566,15 @@ if( Voxelarium.Settings.AltSpace ) {
 						altspace.getEnclosure().then(function (enclosure) {
 								var scale =  enclosure.pixelsPerMeter;// * 0.0254;
 						        sim.scene.scale.set( scale, scale,scale );
-								//gameObjects.position.y -= enclosure.innerHeight / 2;
+								sim.scene.position.y -= enclosure.innerHeight / 2;
 						});
 				} else {
 						Voxelarium.camera = sim.camera;
-						sim.camera.position.z = 50;
-						sim.camera.position.y = 10;
+						sim.camera.position.z = 1;
+						sim.camera.position.y = 0;
 						sim.camera.lookAt(sim.scene.position);
 						console.log( 'seting scene to ', sim.scene )
+						//sim.scene.position.y = -enclosure.innerHeight / 2
 						scene = sim.scene;
 						scene2 = sim.scene;
 						scene3 = sim.scene;
