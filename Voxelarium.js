@@ -40,13 +40,13 @@ Voxelarium.clock = new THREE.Clock()
 
 
 if( !Voxelarium.Settings.VR ) {
-  require( "orbit_controls.js" )
-  require( "NaturalCamera.js" )
-  require( "gameMouse.js" )
+  require( "./orbit_controls.js" )
+  require( "./NaturalCamera.js" )
+  require( "./gameMouse.js" )
 }
 
 if( !Voxelarium.Settings.use_basic_material )
-	var glow = require( "./glow.renderer.js" );
+	require( "./glow.renderer.js" );
 
 require( "./src/three.js.example/Projector.js" )
 require( "./src/three.js.post/shaders/CopyShader.js")

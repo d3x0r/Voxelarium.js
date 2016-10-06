@@ -129,7 +129,7 @@ function loadVoxels(cb, val){
   db.world.voxelInfo.path( "voxelTypes" ).map( (data,field)=>{
       var t = Voxelarium.Voxels.types[Number(field)];
       if( t ) return;
-      //console.log( "reloading ", field, data.ID)
+      console.log( "reloading ", field, data.ID)
       t = Voxelarium.Voxels.types[data.ID] = eval( data.code );
 
       if( data.texture ) {
@@ -139,7 +139,8 @@ function loadVoxels(cb, val){
           t.image.onload = ()=> {
              //console.log( "Wait until load to setup coords")
              t.textureCoords = Voxelarium.TextureAtlas.add( t.image )
-             if( !--count ) cb();
+             console.log( "pending ", count );
+             if( !--count ) { console.log( "ZERO!" ); cb(); }
           }
 
       }

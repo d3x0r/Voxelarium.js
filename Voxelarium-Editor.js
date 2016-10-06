@@ -115,6 +115,7 @@ var status_line;
 		if( !Voxelarium.Settings.VR ) {
 
 			renderer = new THREE.WebGLRenderer();
+                        renderer.autoClear = false;
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			window.addEventListener( "resize", ()=>{ renderer.setSize( window.innerWidth, window.innerHeight ) } );
 			document.body.appendChild( renderer.domElement );
@@ -242,7 +243,6 @@ function slowanim() {
 function render() {
 	if( Voxelarium.Settings.ALtSpace )
 		return;
-	//renderer.clear();
 	if( Voxelarium.Settings.VR ) {
           if( Voxelarium.Settings.use_basic_material ) {
 		  effect.render( scene, camera );
@@ -251,19 +251,20 @@ function render() {
 		  effect.submitFrame();
 		}
 		else
-		glow.render( effect );
+	            glow.render( effect );
 
 	}
 	else {
           if( Voxelarium.Settings.use_basic_material ) {
+	      renderer.clear();
 		  renderer.render( scene, camera );
 		  renderer.render( scene2, camera );
 		  renderer.render( scene3, camera );
 
-	}
-	else
-		glow.render( effect );
-	}
+  	  }
+          else
+          	glow.render( effect );
+        }
 }
 //render();
 
@@ -324,7 +325,7 @@ function initVoxelarium() {
 			geometryShader.vertexColors = THREE.VertexColors;
 			geometryShader.map = Voxelarium.TextureAtlas.texture;
 			geometryShader.needsUpdate = true;
-			//document.body.appendChild( Voxelarium.TextureAtlas.canvas );
+			document.body.appendChild( Voxelarium.TextureAtlas.canvas );
 			//mesh.material.needsUpdate = true;
 
 

@@ -532,7 +532,7 @@ function  rayCast(cluster, o, forward )
         NewCube_z = Math.floor((Collision_h.z + Norm_h.z) / cluster.voxelUnitSize);
         if( ( ref = cluster.getVoxelRef( false, NewCube_x, NewCube_y, NewCube_z) ) && ref.sector && !ref.voxelType.properties.Is_PlayerCanPassThrough)
         {
-            console.log( `x check ${NewCube_x}  ${NewCube_y}  ${NewCube_z}    ${ActualCube_x} ${ActualCube_y} ${ActualCube_z}  ${MinW}  ${Collision_h.w}`)
+            //console.log( `x check ${NewCube_x}  ${NewCube_y}  ${NewCube_z}    ${ActualCube_x} ${ActualCube_y} ${ActualCube_z}  ${MinW}  ${Collision_h.w}`)
             Out = { PredPointedVoxel : new THREE.Vector3( ActualCube_x, ActualCube_y, ActualCube_z ),
                     PointedVoxel : new THREE.Vector3( NewCube_x, NewCube_y, NewCube_z ),
                     ref : ref

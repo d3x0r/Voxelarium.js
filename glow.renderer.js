@@ -1,6 +1,6 @@
 
 
-var glow = {
+glow = {
 
  glowcomposer : null,
  scenecomposer : null,
@@ -10,7 +10,6 @@ var glow = {
 	renderTarget : null,
         render : null,
     };
-exports = glow;
 
 
 var glowcomposer;
@@ -79,7 +78,7 @@ var preGlow;
 var preFlat;
 var overlay;
 var scene;
-//exports.makeComposers =
+
 glow.makeComposers =
 function makeComposers( renderer, sceneFlat, preFlatSetup, sceneGlow, preGlowSetup, sceneOver ) {
   scene = sceneFlat;
