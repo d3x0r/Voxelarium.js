@@ -207,7 +207,6 @@ glow.render = function glowRender() {
   }
   else {
     glow.renderer.render( scene, camera );
-    glow.renderer.render( scene2, camera );
     if( overlay )
   	     glow.renderer.render( overlay, camera );
 

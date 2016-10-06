@@ -35,6 +35,7 @@ if( !Voxelarium.Settings.AltSpace && Voxelarium.Settings.VR ) {
   require( './three.js/js/vr/ViveController.js' );
   require( './three.js/js/vr/PaintViveController.js' );
   require( './three.js/js/vr/WebVR.js' );
+  require( './three.js/js/loaders/OBJLoader.js' );
 }
 
 Voxelarium.clock = new THREE.Clock()
@@ -75,7 +76,7 @@ require( "./src/three.js.post/ShaderPass.js")
 //require( "./src/three.js.post/TAARenderPass.js")
 require( "./src/three.js.post/TexturePass.js")
 
-Voxelarium.camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 1, 10000 );
+Voxelarium.camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 0.001, 10000 );
 //console.log( Voxelarium.camera.projectionMatrix.toArray() )
 require( "./src/voxelarium.gun.db.js" )
 

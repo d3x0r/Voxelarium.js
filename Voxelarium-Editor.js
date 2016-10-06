@@ -26,6 +26,8 @@ var controls;
 var vrDisplay= window;
 var effect = null;
 var controller1=null, controller2=null;
+var headLight = null;
+
 
 	var tests = [];
 	var clusters = [];
@@ -150,8 +152,8 @@ var status_line;
 													);
 											 }
 		}
-		else {
-
+		else { 
+                       // is VR...
 			if( !Voxelarium.Settings.AltSpace ) {
 				navigator.getVRDisplays().then(function(displays) {
 				  if (displays.length > 0) {
@@ -167,6 +169,18 @@ var status_line;
 				renderer.shadowMap.enabled = true;
 				renderer.gammaInput = true;
 				renderer.gammaOutput = true;
+
+				scene.add( new THREE.HemisphereLight( 0x888877, 0x777788 ) );
+
+				headLight = new THREE.DirectionalLight( 0xffffff );
+				headLight.position.set( 0, 6, 0 );
+				headLight.castShadow = true;
+				headLight.shadow.camera.top = 2;
+				headLight.shadow.camera.bottom = -2;
+				headLight.shadow.camera.right = 2;
+				headLight.shadow.camera.left = -2;
+				headLight.shadow.mapSize.set( 4096, 4096 );
+				scene.add( light );
 
 				document.body.appendChild( renderer.domElement );
 
@@ -187,6 +201,34 @@ var status_line;
 				controller2.userData.matrices = [ new THREE.Matrix4(), new THREE.Matrix4() ];
 				scene.add( controller2 );
 
+				var loader = new THREE.OBJLoader();
+				loader.setPath( 'models/obj/vive-controller/' );
+				loader.load( 'vr_controller_vive_1_5.obj', function ( object ) {
+
+					var loader = new THREE.TextureLoader();
+					loader.setPath( 'models/obj/vive-controller/' );
+
+					var controller = object.children[ 0 ];
+					controller.material.map = loader.load( 'onepointfive_texture.png' );
+					controller.material.specularMap = loader.load( 'onepointfive_spec.png' );
+					controller.castShadow = true;
+					controller.receiveShadow = true;
+
+					// var pivot = new THREE.Group();
+					// var pivot = new THREE.Mesh( new THREE.BoxGeometry( 0.01, 0.01, 0.01 ) );
+					var pivot = new THREE.Mesh( new THREE.IcosahedronGeometry( 0.002, 2 ) );
+					pivot.name = 'pivot';
+					pivot.position.y = -0.016;
+					pivot.position.z = -0.043;
+					pivot.rotation.x = Math.PI / 5.5;
+					controller.add( pivot );
+
+					controller1.add( controller.clone() );
+
+					pivot.material = pivot.material.clone();
+					controller2.add( controller.clone() );
+
+				} );
 
 				effect = new THREE.VREffect( renderer );
 				effect.autoSubmitFrame = false;
@@ -251,10 +293,47 @@ function slowanim() {
 	setTimeout( animate, 256 );
 }
 
+function handleController( controller ) {
+
+	controller.update();
+
+	var pivot = controller.getObjectByName( 'pivot' );
+
+	if ( pivot ) {
+
+		pivot.material.color.copy( controller.getColor() );
+
+		var matrix = pivot.matrixWorld;
+
+		var point1 = controller.userData.points[ 0 ];
+		var point2 = controller.userData.points[ 1 ];
+
+		var matrix1 = controller.userData.matrices[ 0 ];
+		var matrix2 = controller.userData.matrices[ 1 ];
+
+		point1.setFromMatrixPosition( matrix );
+		matrix1.lookAt( point2, point1, THREE.Vector3Up );
+
+		if ( controller.getButtonState( 'trigger' ) ) {
+
+      // this is the old drawing code...
+			//stroke( controller, point1, point2, matrix1, matrix2 );
+
+		}
+
+		point2.copy( point1 );
+		matrix2.copy( matrix1 );
+
+	}
+
+}
+
+
 function render() {
 	if( Voxelarium.Settings.ALtSpace )
 		return;
 	if( Voxelarium.Settings.VR ) {
+
 		//effect.clear();
     if( Voxelarium.Settings.use_basic_material ) {
 		  effect.render( scene, camera );
@@ -296,6 +375,10 @@ function animate() {
 			// this writes it...
 			Voxelarium.db.player.positionUpdate = false;
 		}
+
+		handleController( controller1 );
+		handleController( controller2 );
+
 
 		Voxelarium.selector.update();
 
@@ -347,7 +430,7 @@ function initVoxelarium() {
 			//geometryShaderMono = Voxelarium.GeometryShaderMono();
 			//scene2.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
 
-			var cluster = voxelUniverse.createCluster( basicMesher, 1 );
+			var cluster = voxelUniverse.createCluster( basicMesher, 0.0254 );
 			cluster.THREE_solid = new THREE.Object3D();
 			scene2.add( cluster.THREE_solid );
 			clusters.push( cluster );
@@ -480,7 +563,7 @@ if( Voxelarium.Settings.AltSpace ) {
 				if (altspace.inClient) {
 					console.log( "In an enclosure.... so I have to add to it?");
 						altspace.getEnclosure().then(function (enclosure) {
-								var scale =  enclosure.pixelsPerMeter * 0.0254;
+								var scale =  enclosure.pixelsPerMeter;// * 0.0254;
 						        sim.scene.scale.set( scale, scale,scale );
 								//gameObjects.position.y -= enclosure.innerHeight / 2;
 						});
