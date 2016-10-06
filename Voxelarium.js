@@ -13,11 +13,10 @@ Voxelarium = { VERSION : "0.0.1",
   }
 };
 
-if( updateVoxelariumSettings ){
-  console.log( "preset");
+if( typeof updateVoxelariumSettings === 'function' ){
   updateVoxelariumSettings();
 }
-console.log( "too late now." );
+
 Object.freeze( Voxelarium.Settings );
 
 if(  THREE === null ) {
@@ -29,12 +28,14 @@ if(  THREE === null ) {
 //   var altspace = require( "./AltSpaceVR/dist/altspace.js" );
 
 Voxelarium.Stats = (!Voxelarium.Settings.VR)?require( './three.js/js/stats.min.js' ):function(){};
-require( './three.js/js/controls/VRControls.js' );
-require( './three.js/js/effects/VREffect.js' );
+if( !Voxelarium.Settings.AltSpace && Voxelarium.Settings.VR ) {
+  require( './three.js/js/controls/VRControls.js' );
+  require( './three.js/js/effects/VREffect.js' );
 
-require( './three.js/js/vr/ViveController.js' );
-require( './three.js/js/vr/PaintViveController.js' );
-require( './three.js/js/vr/WebVR.js' );
+  require( './three.js/js/vr/ViveController.js' );
+  require( './three.js/js/vr/PaintViveController.js' );
+  require( './three.js/js/vr/WebVR.js' );
+}
 
 Voxelarium.clock = new THREE.Clock()
 

@@ -98,7 +98,7 @@ Voxelarium.Inventory = function( geometryShader,domElement ) {
 			var inventoryO;
             var f;
 
-            ( inventoryO = this.THREE_solid.position ).copy( camera.position );
+            ( inventoryO = this.THREE_solid.matrix.origin/*position*/  ).copy( camera.matrix.origin );
             //f = camera.matrix.forward
 
 			o = inventory.raycaster.ray.origin.clone();
@@ -110,8 +110,8 @@ Voxelarium.Inventory = function( geometryShader,domElement ) {
 			inventoryO.addScaledVector( camera.matrix.forward.delete(),  11 / tmpdel );
 
             var m = this.THREE_solid.matrix;
-            var away = camera.position.clone().addScaledVector( o, 2 )
-            m.lookAt( o, camera.position, camera.matrix.up )
+            var away = camera.matrix.origin.clone().addScaledVector( o, 2 )
+            m.lookAt( o, camera.matrix.origin, camera.matrix.up )
             m.rotateOrtho( Math.PI, 0, 2 );
             //var d = camera.matrix.down;
             inventoryO.addScaledVector( m.down.delete(), (this.y_max-this.y_inc)/2 );
@@ -217,7 +217,7 @@ Voxelarium.Inventory = function( geometryShader,domElement ) {
 
             return;
         }
-        var origin = currentRef.object.position;
+        var origin = currentRef.object.matrix.origin;
         //console.log( `inventory at ${origin.x} ${origin.y} ${origin.z}`)
         for( var n = 0; n < 1; n++ ) {
             x = origin.x  - unit/2 - 0.1

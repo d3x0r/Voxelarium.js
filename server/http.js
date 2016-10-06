@@ -39,7 +39,7 @@ var server = http.createServer(function(req, res){
 
 	var stream = fs.createReadStream(path.join(__dirname+"/..", rurl))
 	stream.on('error',function(){ // static files!
-	        console.log( "Failed so...?" );
+	        console.log( "Failed so...?", rurl );
 		if( rurl === "/" ) {
 			res.end(fs.readFileSync(path.join(__dirname+"/..", 'index.html'))); // or default to index
 		}

@@ -162,7 +162,9 @@ Voxelarium.GeometryBuffer = function () {
         var v7 = new THREE.Vector3(1,-1,-1);
         var v8 = new THREE.Vector3(-1,-1,-1);
         var quad;
-        if( voxelType && voxelType.image ) {
+        if( voxelType && voxelType.image
+				   && (( voxelType.properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_SHADER ) == 0 )
+           ) {
             var in_uvs = voxelType.textureCoords.uvs;
             var uvs = voxelType.textureCoords.uv_array;
             buffer.addSimpleQuadTex( quad=[v1.clone().multiplyScalar(size),v2.clone().multiplyScalar(size),v3.clone().multiplyScalar(size),v4.clone().multiplyScalar(size)]

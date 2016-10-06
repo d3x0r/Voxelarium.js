@@ -87,9 +87,12 @@ function setControls3() {
 
 var status_line;
 	function init() {
-		document.getElementById( "controls1").onclick = setControls1;
-		document.getElementById( "controls2").onclick = setControls2;
-		document.getElementById( "controls3").onclick = setControls3;
+	var x = document.getElementById( "controls1");
+	if(x)	x.onclick = setControls1;
+	var x = document.getElementById( "controls2");
+	if(x)		x.onclick = setControls2;
+	var x = document.getElementById( "controls3");
+	if(x)		x.onclick = setControls3;
 
 		if( !scene ) {
 			scene = new THREE.Scene();
@@ -156,8 +159,15 @@ var status_line;
 				  }
 				});
 
-				renderer = new THREE.WebGLRenderer();
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.sortObjects = false;
+				renderer.autoClear = false;
+				renderer.shadowMap.enabled = true;
+				renderer.gammaInput = true;
+				renderer.gammaOutput = true;
+
 				document.body.appendChild( renderer.domElement );
 
 				controls = new THREE.VRControls( camera );
@@ -180,8 +190,9 @@ var status_line;
 
 				effect = new THREE.VREffect( renderer );
 				effect.autoSubmitFrame = false;
+				effect.autoClear = false;
 				effect.setSize( window.innerWidth, window.innerHeight );
-                                
+
 
 									if( !Voxelarium.Settings.use_basic_material ){
 													glow.makeComposers( effect, scene
@@ -199,7 +210,7 @@ var status_line;
 														, scene3
 													);
 											 }
-                                
+
 				if ( WEBVR.isAvailable() === true ) {
 
 					document.body.appendChild( WEBVR.getButton( effect ) );
@@ -244,27 +255,28 @@ function render() {
 	if( Voxelarium.Settings.ALtSpace )
 		return;
 	if( Voxelarium.Settings.VR ) {
-          if( Voxelarium.Settings.use_basic_material ) {
+		//effect.clear();
+    if( Voxelarium.Settings.use_basic_material ) {
 		  effect.render( scene, camera );
 		  effect.render( scene2, camera );
 		  effect.render( scene3, camera );
 		  effect.submitFrame();
 		}
 		else
-	            glow.render( effect );
+	    glow.render( effect );
 
 	}
 	else {
-          if( Voxelarium.Settings.use_basic_material ) {
+    if( Voxelarium.Settings.use_basic_material ) {
 	      renderer.clear();
 		  renderer.render( scene, camera );
 		  renderer.render( scene2, camera );
 		  renderer.render( scene3, camera );
 
   	  }
-          else
+      else
           	glow.render( effect );
-        }
+  }
 }
 //render();
 
@@ -323,9 +335,12 @@ function initVoxelarium() {
 		Voxelarium.db.init( ()=>{
 			//geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
 			geometryShader.vertexColors = THREE.VertexColors;
-			geometryShader.map = Voxelarium.TextureAtlas.texture;
-			geometryShader.needsUpdate = true;
-			document.body.appendChild( Voxelarium.TextureAtlas.canvas );
+			if( geometryShader.uniforms )
+				geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
+			else
+				geometryShader.map = Voxelarium.TextureAtlas.texture;
+			//geometryShader.needsUpdate = true;
+			//document.body.appendChild( Voxelarium.TextureAtlas.canvas );
 			//mesh.material.needsUpdate = true;
 
 
@@ -366,6 +381,7 @@ function initVoxelarium() {
 			scene2.add( Voxelarium.selector.meshGlow );
 			scene3.add( Voxelarium.selector.mesh );
 
+
 			var inventory_geometryShader = Voxelarium.Settings.use_basic_material
 					? new THREE.MeshBasicMaterial()
 					: Voxelarium.GeometryShader();
@@ -373,11 +389,15 @@ function initVoxelarium() {
 			inventory_geometryShader.depthTest = false;
 			inventory_geometryShader.depthWrite = false;
 			inventory_geometryShader.transparent = false;
+			inventory_geometryShader.vertexColors = THREE.VertexColors;
 			inventory_geometryShader.map = Voxelarium.TextureAtlas.texture;
+			if( inventory_geometryShader.uniforms )
+				inventory_geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
+			inventory_geometryShader.needsUpdate = true;
 			//inventory_geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
 
 			 inventory = Voxelarium.Inventory(inventory_geometryShader,renderer&&renderer.domElement);
-			inventory.THREE_solid.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
+			//inventory.THREE_solid.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
 			scene3.add( inventory.THREE_solid );
 			//scene3.add( inventory.selector.THREE_solid );
 			//sector.THREE_solid.matrix.Translate( -16*20, 16*20, -16*20 );
@@ -460,7 +480,8 @@ if( Voxelarium.Settings.AltSpace ) {
 				if (altspace.inClient) {
 					console.log( "In an enclosure.... so I have to add to it?");
 						altspace.getEnclosure().then(function (enclosure) {
-
+								var scale =  enclosure.pixelsPerMeter * 0.0254;
+						        sim.scene.scale.set( scale, scale,scale );
 								//gameObjects.position.y -= enclosure.innerHeight / 2;
 						});
 				} else {

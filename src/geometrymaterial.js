@@ -22,10 +22,8 @@ Voxelarium.GeometryShader = function() {
     #include <logdepthbuf_pars_vertex>
     #include <clipping_planes_pars_vertex>
 
-    attribute vec2 in_Texture;
     attribute  vec4 in_Color;
     attribute  vec4 in_FaceColor;
-    attribute vec3 in_Normal;
     attribute  float in_Pow;
 
     attribute  float in_use_texture;
@@ -116,11 +114,11 @@ Voxelarium.GeometryShader = function() {
 
 
 {
-        ex_texCoord = in_Texture;
+        ex_texCoord = uv;
         ex_Color = in_Color;
         ex_FaceColor = in_FaceColor;
 
-        //normal = normalMatrix * in_Normal;
+        //normal = normalMatrix * normal;
 
         //dottmp = dot( normal, vec3( 0.0, 1.0, 0.0 ) );
         //dottmpright = dot( normal, vec3( 1.0, 0.0, 0.0 ) );
@@ -193,12 +191,11 @@ fragmentShader:`
         {
                 if( ex_use_texture > 0.5 )
                 {
-                    vec2 tmp = ex_texCoord * 1.0;
-                    //diffuseColor = ;
                     if( edge_only > 0.5 )
-                        diffuseColor = vec4(0.0);
+                        diffuseColor = vec4(1.0);
                     else
-                        diffuseColor = vec4( texture2D( map, tmp ).rgb, 1.0 );
+                        diffuseColor = vec4( texture2D( map, ex_texCoord ).rgb, 1.0 );
+                      //  diffuseColor = vec4( ex_texCoord, texture2D( map, ex_texCoord ).r, 1.0 );
                     //diffuseColor =vec4(ex_texCoord.x,ex_texCoord.y,0,1);// ex_Color;
                 }
                 else if( ex_flat_color > 0.5 )
