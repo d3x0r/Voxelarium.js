@@ -10,7 +10,7 @@ THREE.ViveController = function ( id ) {
 	var scope = this;
 	var gamepad;
 
-	var axes = [ 0, 0 ];
+	scope.axes = [ 0, 0, 0 ];
 	var thumbpadIsPressed = false;
 	var triggerIsPressed = false;
 	var gripsArePressed = false;
@@ -78,11 +78,15 @@ THREE.ViveController = function ( id ) {
 
 			//  Thumbpad and Buttons.
 
-			if ( axes[ 0 ] !== gamepad.axes[ 0 ] || axes[ 1 ] !== gamepad.axes[ 1 ] ) {
+			if ( scope.axes[ 0 ] !== gamepad.axes[ 0 ]
+				|| scope.axes[ 1 ] !== gamepad.axes[ 1 ]
+				|| scope.axes[ 2 ] !== gamepad.buttons[1].value
+			  ) {
 
-				axes[ 0 ] = gamepad.axes[ 0 ]; //  X axis: -1 = Left, +1 = Right.
-				axes[ 1 ] = gamepad.axes[ 1 ]; //  Y axis: -1 = Bottom, +1 = Top.
-				scope.dispatchEvent( { type: 'axischanged', axes: axes } );
+				scope.axes[ 0 ] = gamepad.axes[ 0 ]; //  X axis: -1 = Left, +1 = Right.
+				scope.axes[ 1 ] = gamepad.axes[ 1 ]; //  Y axis: -1 = Bottom, +1 = Top.
+				scope.axes[ 2 ] = gamepad.buttons[1].value;
+				scope.dispatchEvent( { type: 'axischanged', axes: scope.axes } );
 
 			}
 

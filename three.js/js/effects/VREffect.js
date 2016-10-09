@@ -76,7 +76,7 @@ THREE.VREffect = function ( renderer, onError ) {
 
 	};
 
-  this.getSize = function() {
+	this.getSize = function() {
 		return renderer.getSize();
 	}
 	this.setSize = function ( width, height, updateStyle ) {
