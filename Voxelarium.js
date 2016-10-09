@@ -33,7 +33,8 @@ if( !Voxelarium.Settings.AltSpace && Voxelarium.Settings.VR ) {
   require( './three.js/js/effects/VREffect.js' );
 
   require( './three.js/js/vr/ViveController.js' );
-  require( './three.js/js/vr/PaintViveController.js' );
+  //require( './three.js/js/vr/PaintViveController.js' );
+  require( './src/VoxelariumViveController.js' );
   require( './three.js/js/vr/WebVR.js' );
   require( './three.js/js/loaders/OBJLoader.js' );
 }
@@ -50,34 +51,23 @@ if( !Voxelarium.Settings.VR ) {
 if( !Voxelarium.Settings.use_basic_material )
 	require( "./glow.renderer.js" );
 
-require( "./src/three.js.example/Projector.js" )
+require( "./three.js/js/renderers/Projector.js" )
 require( "./src/three.js.post/shaders/CopyShader.js")
 require( "./src/three.js.post/shaders/HorizontalBlurShader.js")
 require( "./src/three.js.post/shaders/VerticalBlurShader.js")
-//require( "./src/three.js.post/shaders/ConvolutionShader.js")
-//require( "./src/three.js.post/shaders/DotScreenShader.js")
-//require( "./src/three.js.post/shaders/FilmShader.js")
 require( "./src/three.js.post/EffectComposer.js")
 require( "./src/three.js.post/BloomPass.js")
 
 
-//require( "./src/three.js.post/AdaptiveToneMappingPass.js")
-//require( "./src/three.js.post/BokehPass.js")
 require( "./src/three.js.post/ClearPass.js")
-//require( "./src/three.js.post/DotScreenPass.js")
-//require( "./src/three.js.post/FilmPass.js")
-//require( "./src/three.js.post/GlitchPass.js")
-//require( "./src/three.js.post/ManualMSAARenderPass.js")
 require( "./src/three.js.post/MaskPass.js")
 require( "./src/three.js.post/RenderPass.js")
-//require( "./src/three.js.post/SavePass.js")
 require( "./src/three.js.post/ShaderPass.js")
-//require( "./src/three.js.post/SMAAPass.js")
-//require( "./src/three.js.post/TAARenderPass.js")
 require( "./src/three.js.post/TexturePass.js")
 
+
 Voxelarium.camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 0.001, 10000 );
-//console.log( Voxelarium.camera.projectionMatrix.toArray() )
+
 require( "./src/voxelarium.gun.db.js" )
 
 //--- fonts ---
@@ -108,5 +98,6 @@ require( "./src/voxels.js" )  // must be after atlas
 
 
 require( "./src/voxel_inventory.js")  // must be after voxels
+
 //Object.freeze( Voxelarium );
 //Voxelarium.freeze();

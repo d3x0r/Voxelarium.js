@@ -83,7 +83,7 @@ glow.makeComposers =
 function makeComposers( renderer, sceneFlat, preFlatSetup, sceneGlow, preGlowSetup, sceneOver ) {
   scene = sceneFlat;
   glow.renderer = renderer;
-	renderer.autoClear = false;
+  renderer.autoClear = false;
 
   if( !Voxelarium.Settings.use_basic_material ) {
 
@@ -96,6 +96,8 @@ function makeComposers( renderer, sceneFlat, preFlatSetup, sceneGlow, preGlowSet
 			//, format: THREE.RGBFormat
 			, stencilBufer: false };
 	if( !renderTargetGlow ){
+          var size = renderer.getSize();
+          console.log( size );
 	  renderTargetGlow = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight/*, renderTargetParameters*/ );
 	  renderTargetGlow.texture.minFilter = THREE.LinearFilter;
 	  renderTargetGlow.texture.magFilter = THREE.LinearFilter;
@@ -132,10 +134,8 @@ function makeComposers( renderer, sceneFlat, preFlatSetup, sceneGlow, preGlowSet
 	// Prepare the base scene render pass
 	var renderModel = new THREE.RenderPass( sceneFlat, camera );
 	var renderModel2 = new THREE.RenderPass( sceneGlow, camera );
-    //var renderModel3 = new THREE.RenderPass( sceneOver, camera );
 	renderModel.clear = true;
 	renderModel2.clear = false;
-    //renderModel3.clear = false;
 
 
 	// Prepare the composer's render target
@@ -166,11 +166,9 @@ function makeComposers( renderer, sceneFlat, preFlatSetup, sceneGlow, preGlowSet
 
 	// Prepare the additive blending pass
 	var finalPass = new THREE.ShaderPass( finalshader );
-    //finalPass.
 	finalPass.needsSwap = false;
 	// Make sure the additive blending is rendered to the screen (since it's the last pass)
 	finalPass.renderToScreen = true;
-    //renderModel3.renderToScreen = true;
 
 	// Create the composer
 	finalcomposer = new THREE.EffectComposer( renderer, renderTarget );
@@ -179,7 +177,7 @@ function makeComposers( renderer, sceneFlat, preFlatSetup, sceneGlow, preGlowSet
 	finalcomposer.addPass( renderModel );
 	finalcomposer.addPass( renderModel2 );
 	finalcomposer.addPass( finalPass );
-}
+   }
     //finalcomposer.addPass( renderModel3 );
 }
 

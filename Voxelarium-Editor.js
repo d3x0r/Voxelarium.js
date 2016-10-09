@@ -4,10 +4,12 @@
 
 //var words1 = voxelUniverse.createTextCluster( "Hello World" );
 //var glow = require( './glow.renderer.js' );
+const detailedLog = false;
 
 var controlNatural, controlGame, controlOrbit;
 
 var controls;
+var sceneRoot = new THREE.Scene();
 	var scene;
 	var scene2;
 	var scene3;
@@ -27,6 +29,9 @@ var vrDisplay= window;
 var effect = null;
 var controller1=null, controller2=null;
 var headLight = null;
+var sceneScale = THREE.Vector3One;
+var sceneOffset = THREE.Vector3Zero;
+var skeleton;
 
 
 	var tests = [];
@@ -87,6 +92,72 @@ function setControls3() {
 }
 
 
+function setupViveControls( scene ) {
+	controls = new THREE.VRControls( camera );
+	controls.standing = true;
+	//scene.add( new THREE.HemisphereLight( 0x888877, 0x777788 ) );
+
+	headLight = new THREE.DirectionalLight( 0xffffff );
+	headLight.position.set( 0, -6, 0 );
+	headLight.castShadow = true;
+	headLight.shadow.camera.top = 2;
+	headLight.shadow.camera.bottom = -2;
+	headLight.shadow.camera.right = 2;
+	headLight.shadow.camera.left = -2;
+	headLight.shadow.mapSize.set( 4096, 4096 );
+	//scene.add( headLight );
+
+
+	// controllers
+
+	controller1 = new Voxelarium.ViveController( 0 );
+	controller1.standingMatrix = controls.getStandingMatrix();
+	controller1.userData.points = [ new THREE.Vector3(), new THREE.Vector3() ];
+	controller1.userData.matrices = [ new THREE.Matrix4(), new THREE.Matrix4() ];
+	controller1.userData.altspace = { collider: { enabled: false } };
+	//scene.add( controller1 );
+
+	controller2 = new Voxelarium.ViveController( 1 );
+	controller2.standingMatrix = controls.getStandingMatrix();
+	controller2.userData.points = [ new THREE.Vector3(), new THREE.Vector3() ];
+	controller2.userData.matrices = [ new THREE.Matrix4(), new THREE.Matrix4() ];
+	controller2.userData.altspace = { collider: { enabled: false } };
+	//scene.add( controller2 );
+return;
+	var loader = new THREE.OBJLoader();
+	loader.setPath( 'models/obj/vive-controller/' );
+	loader.load( 'vr_controller_vive_1_5.obj', function ( object ) {
+
+		var loader = new THREE.TextureLoader();
+		loader.setPath( 'models/obj/vive-controller/' );
+
+		if( Voxelarium.Settings.AltSpace )
+			object.userData = { altspace: { collider: { enabled: false } } };
+
+		var controller = object.children[ 0 ];
+		controller.material.map = loader.load( 'onepointfive_texture.png' );
+		controller.material.specularMap = loader.load( 'onepointfive_spec.png' );
+		controller.castShadow = true;
+		controller.receiveShadow = true;
+
+		// var pivot = new THREE.Group();
+		// var pivot = new THREE.Mesh( new THREE.BoxGeometry( 0.01, 0.01, 0.01 ) );
+		var pivot = new THREE.Mesh( new THREE.IcosahedronGeometry( 0.002, 2 ) );
+		pivot.name = 'pivot';
+		pivot.position.y = -0.016;
+		pivot.position.z = -0.043;
+		pivot.rotation.x = Math.PI / 5.5;
+		controller.add( pivot );
+
+		controller1.add( controller.clone() );
+
+		pivot.material = pivot.material.clone();
+		controller2.add( controller.clone() );
+
+	} );
+
+}
+
 var status_line;
 	function init() {
 	var x = document.getElementById( "controls1");
@@ -96,11 +167,17 @@ var status_line;
 	var x = document.getElementById( "controls3");
 	if(x)		x.onclick = setControls3;
 
+	if( detailedLog )console.log( "init..." );
+
 		if( !scene ) {
 			scene = new THREE.Scene();
 			scene2 = new THREE.Scene();
 			scene3 = new THREE.Scene();
+			sceneRoot.add( scene );
+			sceneRoot.add( scene2 );
+			sceneRoot.add( scene3 );
 		}
+
 		if( !Voxelarium.Settings.AltSpace ) {
 
 			scene.matrixAutoUpdate = false;
@@ -120,13 +197,17 @@ var status_line;
 		if( !Voxelarium.Settings.VR ) {
 
 			renderer = new THREE.WebGLRenderer();
-                        renderer.autoClear = false;
+      renderer.autoClear = false;
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			window.addEventListener( "resize", ()=>{ renderer.setSize( window.innerWidth, window.innerHeight ) } );
 			document.body.appendChild( renderer.domElement );
 
 			camera.matrixAutoUpdate = false;
-			camera.position.z = 800;
+			camera.position.y = 64 * 0.0254;
+			camera.position.z = -20 * 0.0254;
+			camera.matrix.origin.y = 33 * 0.0254;
+			camera.matrix.origin.z = 20 * 0.0254;
+			camera.matrix.origin.x = 16 * 0.0254;
 			camera.matrixWorldNeedsUpdate = true;
 
 					if ( !renderer.extensions.get('WEBGL_depth_texture') ) {
@@ -170,71 +251,12 @@ var status_line;
 				renderer.gammaInput = true;
 				renderer.gammaOutput = true;
 
-				scene.add( new THREE.HemisphereLight( 0x888877, 0x777788 ) );
-
-				headLight = new THREE.DirectionalLight( 0xffffff );
-				headLight.position.set( 0, 6, 0 );
-				headLight.castShadow = true;
-				headLight.shadow.camera.top = 2;
-				headLight.shadow.camera.bottom = -2;
-				headLight.shadow.camera.right = 2;
-				headLight.shadow.camera.left = -2;
-				headLight.shadow.mapSize.set( 4096, 4096 );
-				scene.add( light );
-
 				document.body.appendChild( renderer.domElement );
-
-				controls = new THREE.VRControls( camera );
-				controls.standing = true;
-
-				// controllers
-
-				controller1 = new THREE.PaintViveController( 0 );
-				controller1.standingMatrix = controls.getStandingMatrix();
-				controller1.userData.points = [ new THREE.Vector3(), new THREE.Vector3() ];
-				controller1.userData.matrices = [ new THREE.Matrix4(), new THREE.Matrix4() ];
-				scene.add( controller1 );
-
-				controller2 = new THREE.PaintViveController( 1 );
-				controller2.standingMatrix = controls.getStandingMatrix();
-				controller2.userData.points = [ new THREE.Vector3(), new THREE.Vector3() ];
-				controller2.userData.matrices = [ new THREE.Matrix4(), new THREE.Matrix4() ];
-				scene.add( controller2 );
-
-				var loader = new THREE.OBJLoader();
-				loader.setPath( 'models/obj/vive-controller/' );
-				loader.load( 'vr_controller_vive_1_5.obj', function ( object ) {
-
-					var loader = new THREE.TextureLoader();
-					loader.setPath( 'models/obj/vive-controller/' );
-
-					var controller = object.children[ 0 ];
-					controller.material.map = loader.load( 'onepointfive_texture.png' );
-					controller.material.specularMap = loader.load( 'onepointfive_spec.png' );
-					controller.castShadow = true;
-					controller.receiveShadow = true;
-
-					// var pivot = new THREE.Group();
-					// var pivot = new THREE.Mesh( new THREE.BoxGeometry( 0.01, 0.01, 0.01 ) );
-					var pivot = new THREE.Mesh( new THREE.IcosahedronGeometry( 0.002, 2 ) );
-					pivot.name = 'pivot';
-					pivot.position.y = -0.016;
-					pivot.position.z = -0.043;
-					pivot.rotation.x = Math.PI / 5.5;
-					controller.add( pivot );
-
-					controller1.add( controller.clone() );
-
-					pivot.material = pivot.material.clone();
-					controller2.add( controller.clone() );
-
-				} );
 
 				effect = new THREE.VREffect( renderer );
 				effect.autoSubmitFrame = false;
 				effect.autoClear = false;
 				effect.setSize( window.innerWidth, window.innerHeight );
-
 
 									if( !Voxelarium.Settings.use_basic_material ){
 													glow.makeComposers( effect, scene
@@ -253,7 +275,9 @@ var status_line;
 													);
 											 }
 
-				if ( WEBVR.isAvailable() === true ) {
+
+				if ( typeof WEBVR !== "undefined" )
+				    if( WEBVR.isAvailable() === true ) {
 
 					document.body.appendChild( WEBVR.getButton( effect ) );
 
@@ -261,6 +285,8 @@ var status_line;
 					document.body.appendChild( WEBVR.getMessage() );
 
 				}
+				if( detailedLog )console.log( "setup vive controllers")
+				setupViveControls( scene );
 			} else { // is AltSpace
 
 			}
@@ -283,6 +309,7 @@ var status_line;
 			camera.matrixAutoUpdate = false;
 			controls = controlGame;
 		}
+		if( detailedLog )console.log( "done core init...")
 		initVoxelarium();
 
 		//
@@ -329,13 +356,25 @@ function handleController( controller ) {
 }
 
 
-function render() {
-	if( Voxelarium.Settings.ALtSpace )
-		return;
-	if( Voxelarium.Settings.VR ) {
+//------------------------------------------------------------------------
+//  render
+//------------------------------------------------------------------------
 
+var priorError = { message: ""};
+function render() {
+	if( Voxelarium.Settings.VR ) {
 		//effect.clear();
-    if( Voxelarium.Settings.use_basic_material ) {
+		if( Voxelarium.Settings.AltSpace ) {
+			 try {
+				 renderer.render( sceneRoot );
+			} catch( err ) {
+				 if( priorError.message !== err.message ) {
+					  console.log( err );
+						priorError = err;
+					}
+			 }
+		}
+    else if( Voxelarium.Settings.use_basic_material ) {
 		  effect.render( scene, camera );
 		  effect.render( scene2, camera );
 		  effect.render( scene3, camera );
@@ -347,14 +386,13 @@ function render() {
 	}
 	else {
     if( Voxelarium.Settings.use_basic_material ) {
-	      renderer.clear();
-		  renderer.render( scene, camera );
-		  renderer.render( scene2, camera );
-		  renderer.render( scene3, camera );
-
-  	  }
-      else
-          	glow.render( effect );
+      renderer.clear();
+	  	renderer.render( scene, camera );
+	  	renderer.render( scene2, camera );
+	  	renderer.render( scene3, camera );
+		}
+    else
+      glow.render( effect );
   }
 }
 //render();
@@ -382,21 +420,20 @@ function animate() {
 		}
 
 		Voxelarium.selector.update();
-
-		if( slow_animate )
-			requestAnimationFrame( slowanim );
-		else {
-				if( Voxelarium.Settings.VR )
-					vrDisplay.requestAnimationFrame( animate )
-				else
-					requestAnimationFrame( animate );
-		}
-		//var unit = Math.PI/2; //worst case visible
-
 		inventory.animate( camera, delta );
-		//stats.end();
-		render();
-		//stats.begin();
+
+				if( slow_animate )
+					requestAnimationFrame( slowanim );
+				else {
+						if( Voxelarium.Settings.VR )
+							vrDisplay.requestAnimationFrame( animate )
+						else
+							requestAnimationFrame( animate );
+				}
+
+			//stats.end();
+			render();
+			//stats.begin();
 }
 
 
@@ -415,8 +452,9 @@ function initVoxelarium() {
 	    : Voxelarium.GeometryShader();
 
 	Voxelarium.TextureAtlas.init( 32, 64 );
-
+	if( detailedLog )console.log( "to db init...")
 		Voxelarium.db.init( ()=>{
+			 if( detailedLog )console.log( "db init finished");
 			//geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
 			geometryShader.vertexColors = THREE.VertexColors;
 			if( geometryShader.uniforms )
@@ -433,6 +471,9 @@ function initVoxelarium() {
 
 			var cluster = voxelUniverse.createCluster( basicMesher, 0.0254 );
 			cluster.THREE_solid = new THREE.Object3D();
+			if( Voxelarium.Settings.AltSpace )
+				cluster.THREE_solid.userData = { altspace: { collider: { enabled: false } } };
+
 			scene2.add( cluster.THREE_solid );
 			clusters.push( cluster );
 			cluster.pivot.add( THREE.Vector3Pool.new( cluster.voxelUnitSize * ( cluster.sectorSizeX/2 )
@@ -482,7 +523,11 @@ function initVoxelarium() {
 
 			 inventory = Voxelarium.Inventory(inventory_geometryShader,renderer&&renderer.domElement);
 			//inventory.THREE_solid.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
+			if( Voxelarium.Settings.AltSpace )
+				inventory.THREE_solid.userData = { altspace: { collider: { enabled: false } } };
+
 			scene3.add( inventory.THREE_solid );
+
 			//scene3.add( inventory.selector.THREE_solid );
 			//sector.THREE_solid.matrix.Translate( -16*20, 16*20, -16*20 );
 			//camera.matrix.Translate( 16*20, -16*20, 16*20 );
@@ -492,7 +537,7 @@ function initVoxelarium() {
 			window.addEventListener( 'keyup', master_onKeyUp, false );
 			//stats.begin();
 			if( !Voxelarium.Settings.AltSpace )
-				animate();
+				requestAnimationFrame( animate );
 		});
 	//});
 
@@ -513,17 +558,21 @@ function master_onKeyDown( event ) {
 }
 
 function master_onKeyUp( event ) {
-
 	switch ( event.keyCode ) {
 	}
 }
 
 
 
-if( Voxelarium.Settings.AltSpace ) {
+function initAltSpace( continueCb ) {
 	var instanceRef;
 	var sceneSync;
-	var sim = altspace.utilities.Simulation();
+	var sim = altspace.utilities.Simulation();// {auto:true });
+	renderer = sim.renderer;// altspace.getThreeJSRenderer();
+	//renderer.autoClear = false;
+	Object.defineProperty( renderer, "domElement", { value: document } );
+	sceneRoot = sim.scene;
+
 	var inCodePen = altspace.utilities.codePen.inCodePen;
 		altspace.utilities.sync.connect({
 					appId: 'Voxelarium.js',
@@ -531,6 +580,8 @@ if( Voxelarium.Settings.AltSpace ) {
 				instanceId: inCodePen ? altspace.utilities.codePen.getPenId() : null
 		}).then(function(connection) {
 				instanceRef = connection.instance;
+
+
 
 				sceneSync = altspace.utilities.behaviors.SceneSync(instanceRef, {
 					instantiators: {
@@ -561,12 +612,41 @@ if( Voxelarium.Settings.AltSpace ) {
 				sim.scene.addBehavior(sceneSync);
 
 
+
 				if (altspace.inClient) {
+
 					console.log( "In an enclosure.... so I have to add to it?");
+					/*
+					altspace.getThreeJSTrackingSkeleton().then( (s)=>{
+						skeleton = s;
+						/*
+						var promises = [altspace.getThreeJSTrackingSkeleton(), altspace.getEnclosure()];
+						Promise.all(promises).then(function (array) {
+								skeleton = array[0];
+								sim.scene.add(skeleton);
+								head = skeleton.getJoint('Head');//head is an Object3D
+								enclosure = array[1];
+								scale = enclosure.pixelsPerMeter * config.modelScaleFactor;
+								loadModels();
+						}).catch(function (err) {
+								console.log('Failed to get Altspace browser properties', err);
+						});
+					} )
+					*/
+
 						altspace.getEnclosure().then(function (enclosure) {
+							  console.log( "got enclosure...")
 								var scale =  enclosure.pixelsPerMeter;// * 0.0254;
-						        sim.scene.scale.set( scale, scale,scale );
+						    sceneScale = new THREE.Vector3( scale, scale,scale );
+								sceneOffset = new THREE.Vector3( 0, -enclosure.innerHeight / 2, 0 );
+
+								//sceneRoot.position.add( sceneOffset );
+								//sceneRoot.scale.set( sceneScale );
+
 								sim.scene.position.y -= enclosure.innerHeight / 2;
+								sim.scene.scale.set( sceneScale );
+
+								if( continueCb ) continueCb();
 						});
 				} else {
 						Voxelarium.camera = sim.camera;
@@ -574,19 +654,13 @@ if( Voxelarium.Settings.AltSpace ) {
 						sim.camera.position.y = 0;
 						sim.camera.lookAt(sim.scene.position);
 						console.log( 'seting scene to ', sim.scene )
-						//sim.scene.position.y = -enclosure.innerHeight / 2
-						scene = sim.scene;
-						scene2 = sim.scene;
-						scene3 = sim.scene;
-				}
-				init();
-				if (altspace.inClient) {
-					sim.scene.add( scene);
-					sim.scene.add( scene2);
-					sim.scene.add( scene3);
+						sim.scene.position.y = -enclosure.innerHeight / 2
 				}
      } );
 }
-else {
+
+
+if( Voxelarium.Settings.AltSpace )
+	initAltSpace( init );
+else
 	init();
-}
