@@ -28,7 +28,7 @@ if(  THREE === null ) {
 //   var altspace = require( "./AltSpaceVR/dist/altspace.js" );
 
 Voxelarium.Stats = (!Voxelarium.Settings.VR)?require( './three.js/js/stats.min.js' ):function(){};
-if( !Voxelarium.Settings.AltSpace && Voxelarium.Settings.VR ) {
+if( Voxelarium.Settings.VR ) {
   require( './three.js/js/controls/VRControls.js' );
   require( './three.js/js/effects/VREffect.js' );
 
