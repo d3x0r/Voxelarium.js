@@ -14,7 +14,7 @@ THREE.NaturalControls = function ( object, domElement ) {
         , A:65, S:83, D:68, W:87, SPACE:32, C:67 };
 
 	// internals
-
+const moveSpeed = 12 * 0.0254;
 	var scope = this;
 
 	var rotateStart = new THREE.Vector2();
@@ -81,19 +81,15 @@ THREE.NaturalControls = function ( object, domElement ) {
 
     touchUpdate();
 
-    if( phiDelta )
-        var a = 3;
-        scope.object.matrix.motion.rotation.x = -phiDelta;
-        scope.object.matrix.motion.rotation.y = thetaDelta;//, 0 );
+    scope.object.matrix.motion.rotation.x = -phiDelta;
+    scope.object.matrix.motion.rotation.y = thetaDelta;
+    scope.object.matrix.move( tick );
+    scope.object.matrix.rotateRelative( 0, 0, -scope.object.matrix.roll );
 
-        //scope.object.matrix.rotateRelative( -phiDelta, thetaDelta, 0 );
-        scope.object.matrixWorldNeedsUpdate = true;
+    scope.object.matrixWorldNeedsUpdate = true;
 
-        scope.object.matrix.move( tick );
-        scope.object.matrix.rotateRelative( 0, 0, -scope.object.matrix.roll );
-
-        thetaDelta = 0;
-		phiDelta = 0;
+    thetaDelta = 0;
+    phiDelta = 0;
 	};
 
 
@@ -173,25 +169,25 @@ THREE.NaturalControls = function ( object, domElement ) {
 
 		if ( scope.enabled === false ) return;
 		if ( scope.userPan === false ) return;
-
+    
 		switch ( event.keyCode ) {
             case scope.keys.SPACE:
-                scope.object.matrix.motion.speed.y = 100;
+                scope.object.matrix.motion.speed.y = moveSpeed;
                 break;
             case scope.keys.C:
-                scope.object.matrix.motion.speed.y = -100;
+                scope.object.matrix.motion.speed.y = -moveSpeed;
                 break;
             case scope.keys.A:
-                scope.object.matrix.motion.speed.x = -100;
+                scope.object.matrix.motion.speed.x = -moveSpeed;
 				break;
 			case scope.keys.W:
-                scope.object.matrix.motion.speed.z = 100;
+                scope.object.matrix.motion.speed.z = moveSpeed;
 				break;
 			case scope.keys.S:
-                scope.object.matrix.motion.speed.z = -100;
+                scope.object.matrix.motion.speed.z = -moveSpeed;
 				break;
 			case scope.keys.D:
-                scope.object.matrix.motion.speed.x = 100;
+                scope.object.matrix.motion.speed.x = moveSpeed;
 				break;
 		}
 
