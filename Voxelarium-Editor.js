@@ -31,7 +31,7 @@ var headLight = null;
 var sceneScale = THREE.Vector3One;
 var sceneOffset = THREE.Vector3Zero;
 var skeleton;
-
+var head;
 
 	var tests = [];
 	var clusters = [];
@@ -91,8 +91,13 @@ function setControls3() {
 }
 
 function setupViveControls( scene ) {
-	controls = new THREE.VRControls( camera );
-	controls.standing = true;
+		// update camera poosition from VR inputs...
+		if( Voxelarium.Settings.AltSpace ) {
+			controls = new THREE.AltSpaceControls( camera );
+		} else
+			controls = new THREE.VRControls( camera );
+		controls.standing = true;
+
 	scene.add( new THREE.HemisphereLight( 0x888877, 0x777788 ) );
 
 	headLight = new THREE.DirectionalLight( 0xffffff );
@@ -167,7 +172,9 @@ var status_line;
 		sceneRoot = new THREE.Scene();
 
 		if( !scene ) {
-			sceneRoot.add( scene = new THREE.Scene() );
+			//sceneRoot.add(
+				scene = new THREE.Scene()
+			// );
 			sceneRoot.add( scene2 = new THREE.Scene() );
 			sceneRoot.add( scene3 = new THREE.Scene() );
 		}
@@ -312,7 +319,7 @@ function slowanim() {
 }
 
 function handleController( controller ) {
-
+  // update controller object from VR input (gamepad)
 	controller.update();
 
 	var pivot = controller.getObjectByName( 'pivot' );
@@ -358,6 +365,7 @@ function render() {
 		if( Voxelarium.Settings.AltSpace ){
 			try {
 				renderer.render( sceneRoot );
+				renderer.render( scene );
 			}catch( err ) {
 				console.log( err );
 			}
@@ -558,6 +566,7 @@ var sim;
 function initAltSpace( init ) {
 	sim = altspace.utilities.Simulation( {auto:false });
 	renderer = sim.renderer;
+	camera = Voxelarium.camera = sim.camera;
 
 	if (altspace.inClient) {
 		// internally use this to attach events for inventory (for instance)
@@ -604,10 +613,9 @@ function initAltSpace( init ) {
 
 
 				if (altspace.inClient) {
-					console.log( "In an enclosure.... so I have to add to it?");
 					altspace.getThreeJSTrackingSkeleton().then( (s)=>{
-						console.log( "got skeleton...");
 						skeleton = s;
+						head = skeleton.getJoint( "Head" );
 					} )
 
 						altspace.getEnclosure().then(function (enclosure) {
@@ -618,7 +626,6 @@ function initAltSpace( init ) {
 								sceneRoot.position.y -= enclosure.innerHeight / 2;
 						});
 				} else {
-						Voxelarium.camera = sim.camera;
 						sim.camera.position.z = 32;
 						sim.camera.position.y = 0;
 						sim.camera.lookAt(sim.scene.position);

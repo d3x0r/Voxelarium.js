@@ -696,7 +696,7 @@ THREE.OBJLoader.prototype = {
 
 				if ( ! material ) {
 
-					material = ( ! isLine ? new THREE.MeshPhongMaterial() : new THREE.LineBasicMaterial() );
+					material = ( ! isLine ? new THREE.MeshBasicMaterial() : new THREE.LineBasicMaterial() );
 					material.name = sourceMaterial.name;
 
 				}

@@ -2,7 +2,7 @@
  * @author mrdoob / http://mrdoob.com
  * @author stewdio / http://stewd.io
  */
-
+var n = 0;
 THREE.ViveController = function ( id ) {
 
 	THREE.Object3D.call( this );
@@ -26,6 +26,12 @@ THREE.ViveController = function ( id ) {
 		for ( var i = 0, j = 0; i < 4; i ++ ) {
 
 			var gamepad = gamepads[ i ];
+			if( gamepad && "hand" in gamepad ) {
+				if( gamepad.hand === "left" && id === 0 )
+				   return gamepad;
+				if( gamepad.hand === "right" && id === 1 )
+	 				return gamepad;
+			}
 
 			if ( gamepad && gamepad.id === 'OpenVR Gamepad' ) {
 
@@ -56,7 +62,7 @@ THREE.ViveController = function ( id ) {
 		if ( button === 'menu' ) return menuIsPressed;
 
 	};
-
+	this.n = 0;
 	this.update = function () {
 
 		gamepad = findGamepad( id );
@@ -64,12 +70,15 @@ THREE.ViveController = function ( id ) {
 		if ( gamepad !== undefined && gamepad.pose !== undefined ) {
 
 			if ( gamepad.pose === null ) return; // No user action yet
-
+			//console.log( 'control update.')
 			//  Position and orientation.
 
 			var pose = gamepad.pose;
+			if( this.n++ < 100 )
+					console.log( "gamepad pose", gamepad, pose.position, pose.orientation )
 
 			if ( pose.position !== null ) scope.position.fromArray( pose.position );
+			scope.position.y += 36;//copy( THREE.Vector3Up );
 			if ( pose.orientation !== null ) scope.quaternion.fromArray( pose.orientation );
 			scope.matrix.compose( scope.position, scope.quaternion, scope.scale );
 			scope.matrix.multiplyMatrices( scope.standingMatrix, scope.matrix );
