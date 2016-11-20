@@ -1,4 +1,6 @@
 # Voxelarium.js
+
+[![Join the chat at https://gitter.im/d3x0r/Voxelarium.js](https://badges.gitter.im/d3x0r/Voxelarium.js.svg)](https://gitter.im/d3x0r/Voxelarium.js?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 Game inspired by/based on Blackvoxel; in javascript
 
 requires 
