@@ -19,8 +19,8 @@ if( typeof updateVoxelariumSettings === 'function' ){
 
 Object.freeze( Voxelarium.Settings );
 
-if(  THREE === null ) {
-//	THREE = require( "./three.js.74/build/three.js")
+if(typeof  THREE !== "object" ) {
+	var THREE = THREE || require( "./three.js/build/three.js")
 }
 	require( "./three.js/personalFill.js")
 

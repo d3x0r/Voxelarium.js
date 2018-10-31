@@ -123,6 +123,7 @@ function loadAVoxel( n, cb ) {
 	{
 		try {
 			xhrObj.open('GET', `./src/voxels/voxel_${n}.js`);
+			xhrObj.responseType = "text";
 			//xhrObj.responseType = "text";
 			//xhrObj.response = "";
 			xhrObj.send(null);
@@ -140,33 +141,42 @@ function loadAVoxel( n, cb ) {
 
 					t.codeData = xhrObj.responseText;
 					xhrObj.open('GET', `./src/voxels/images/voxel_${n}.png`);
+					xhrObj.responseType = "blob";
 					xhrObj.onerror = (err)=>{
 						 console.log( "error:", err);
 				     loadAVoxel( n+1, cb );
 				  }
 					xhrObj.send(null);
 					xhrObj.onload = ()=>{
-						if( xhrObj.responseText.length > 0 ) {
-							( t.image = new Image() ).src = xhrObj.responseText;
-							t.textureData = xhrObj.response;
-							t.image.onerror = (err)=>{ console.log( "image load error?", err)}
-							//console.log( t );
-							if( true || !t.image.width )
-							{
-								t.image.onload = ()=> {
-									 //console.log( "Waited until load to setup coords", t)
-								   t.textureCoords = Voxelarium.TextureAtlas.add( t.image )
-							  }
-							} else {
-								//console.log( "don't have to delay load?")
-							  //t.textureCoords = Voxelarium.TextureAtlas.add( t.image )
-						  }
+						if( xhrObj.response.size > 0 ) {
+							( t.image = new Image() );
+							var reader = new FileReader();
+							reader.onload = function(e) {
+								t.image.src = t.textureData = e.target.result;
+							        
+//								( t.image = new Image() ).src = 'data:image/png;base64,' + b64Response;
+                                                                
+								//t.textureData = xhrObj.responseText;
+								t.image.onerror = (err)=>{ console.log( "image load error?", err)}
+								//console.log( t );
+								if( true || !t.image.width )
+								{
+									t.image.onload = ()=> {
+										 //console.log( "Waited until load to setup coords", t)
+									   t.textureCoords = Voxelarium.TextureAtlas.add( t.image )
+								  }
+								} else {
+									//console.log( "don't have to delay load?")
+								  //t.textureCoords = Voxelarium.TextureAtlas.add( t.image )
+						  	  	}
+								loadAVoxel( n+1, cb );
+							};
+							reader.readAsDataURL(xhrObj.response);
 						}
-						loadAVoxel( n+1, cb );
 					}
 				}
 				else {
-					console.log( "All completed... out of loadables...")
+					//console.log( "All completed... out of loadables...")
 					cb();
 				}
 			}

@@ -1,7 +1,8 @@
 
 //var Gun = require( "gun" );
 var Gun = require( "../node_modules/gun/gun.js" );
-
+require( "../node_modules/gun/lib/path.js" );
+require( "../node_modules/gun/lib/not.js" );
 var db = {};
 Voxelarium.db = db;
 
@@ -78,6 +79,8 @@ function getPath( sector ) {
 //db.player = db.globalDb.get( "player" );
 
 function playerPositionChange( data ) {
+
+    return;
     var lastq = db.player.quat
     var q = db.player._quat.set( data.qx,data.qy,data.qz,data.qw)
     var lasto = db.player.origin
@@ -126,8 +129,10 @@ function setupEvents( cb ) {
 
 function loadVoxels(cb, val){
   var count = val.voxelTypeCount;
-  //console.log( "have " , count )
-  db.world.voxelInfo.path( "voxelTypes" ).map( (data,field)=>{
+ console.log( "have " , count )
+
+  db.world.voxelInfo.path( "voxelTypes" ).map().on( (data,field)=>{
+	console.log( "map in voxelTypes" );
       var t = Voxelarium.Voxels.types[Number(field)];
       if( t ) return;
       //console.log( "reloading ", field, data.ID)
@@ -135,7 +140,7 @@ function loadVoxels(cb, val){
 
       if( data.texture ) {
         count++;
-        ( t.image = new Image() ).src = t.textureData = data.texture;
+        ( t.image = new Image() ).src = (t.textureData = data.texture);
 
           t.image.onload = ()=> {
              //console.log( "Wait until load to setup coords")
@@ -208,7 +213,7 @@ function doDefaultGlobalInitTrigger() {
 }
 
 function playerConnect( val, field ) {
-  console.log( "player has connected", val, field );
+  //console.log( "player has connected", val, field );
 }
 
 var defaultTimeout;
@@ -223,7 +228,7 @@ db.init = function( cb ) {
         db.player.global = db.globalDb.path( "player" ).path( data );
         console.log( "going to request world_id...")
         db.player.local.path("world_id").val( (data)=> {
-            console.log( "received world_id")
+            console.log( "received world_id", data)
           db.player.world_id = data;
           db.world.db = db.globalDb.path( "world" ).path( db.player.world_id );
           db.player.global.map().val( playerConnect );
@@ -294,3 +299,5 @@ function loadSector( sector ) {
 }
 
 //gun.get( `org.d3x0r.voxelarium.universe.${universe}.player.${self}`)
+
+	

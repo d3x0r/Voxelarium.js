@@ -396,8 +396,14 @@ function render() {
 
 var clock = new THREE.Clock();
 var db_delta = 0;
+var start = Date.now();
 function animate() {
 	var delta = clock.getDelta();
+	var now = Date.now();
+if( delta > 0.033 || (now - start) > 50 )
+	console.log( "Tick is:", delta, now - start );
+	delta = (now - start)/1000;
+	start = now;
 	db_delta += delta;
 		if( !Voxelarium.db.player.positionUpdate ) {
 			controls.update( delta );
@@ -433,6 +439,10 @@ function animate() {
 		//stats.end();
 		render();
 		//stats.begin();
+if( (Date.now() - start) > 50 ) {
+	console.log( "Taaaick is:", delta, Date.now() - start );
+}
+	start = Date.now();
 }
 
 
