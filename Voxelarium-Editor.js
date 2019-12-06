@@ -294,19 +294,19 @@ var status_line;
 
 		if( !Voxelarium.Settings.VR ) {
 			controlNatural = new THREE.NaturalControls( camera, renderer.domElement );
-			controlNatural.disable();
+			controlNatural.enable();
 
 			/* auto enables; make sure to disable before enabling something else... */
 			controlOrbit = new THREE.OrbitControls( camera, renderer.domElement );
 			controlOrbit.disable();
 
 			controlGame = new THREE.GameMouse( camera, renderer.domElement );
-			controlGame.enable();
+			controlGame.disable();
 
 			scene.add( controlGame.casting.mesh );
 
 			camera.matrixAutoUpdate = false;
-			controls = controlGame;
+			controls = controlNatural;
 		}
 		initVoxelarium();
 

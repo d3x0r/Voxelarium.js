@@ -139,6 +139,7 @@ function loadVoxels(cb, val){
       t = Voxelarium.Voxels.types[data.ID] = eval( data.code );
 
       if( data.texture ) {
+	console.log( "add count:", count );
         count++;
         ( t.image = new Image() ).src = (t.textureData = data.texture);
 
@@ -146,10 +147,14 @@ function loadVoxels(cb, val){
              //console.log( "Wait until load to setup coords")
              t.textureCoords = Voxelarium.TextureAtlas.add( t.image )
              //console.log( "pending ", count );
+		console.log( "count:", count );
              if( !--count ) { console.log( "ZERO!" ); cb(); }
           }
 
-      }
+      }else {
+	count--;
+	}	
+	console.log( "count:", count );
       if( !--count ) cb();
   });
 }

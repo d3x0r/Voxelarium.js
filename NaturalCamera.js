@@ -115,8 +115,8 @@ const moveSpeed = 12 * 0.0254;
     rotateEnd.set( event.clientX, event.clientY );
 		rotateDelta.subVectors( rotateEnd, rotateStart );
 
-        rotateDelta.x = 32 * (rotateDelta.x / window.innerWidth)
-        rotateDelta.y = 32 * (rotateDelta.y / window.innerHeight)
+        rotateDelta.x = 16 * (rotateDelta.x / window.innerWidth)
+        rotateDelta.y = 16 * (rotateDelta.y / window.innerHeight)
 
 		scope.rotateLeft( 2 * Math.PI * rotateDelta.x  );
 		scope.rotateUp( 2 * Math.PI * rotateDelta.y );
@@ -224,8 +224,8 @@ const moveSpeed = 12 * 0.0254;
 	}
 
 var touches = [];
-
-TouchList.prototype.forEach = function(c){ for( var n = 0; n < this.length; n++ ) c(this[n]); }
+if( typeof TouchList !== "undefined" )
+	TouchList.prototype.forEach = function(c){ for( var n = 0; n < this.length; n++ ) c(this[n]); }
 
 function touchUpdate() {
   if( touches.length == 1 ){

@@ -148,7 +148,7 @@ function loadAVoxel( n, cb ) {
 				  }
 					xhrObj.send(null);
 					xhrObj.onload = ()=>{
-						if( xhrObj.response.size > 0 ) {
+						if( xhrObj.status === 200 && xhrObj.response.size > 0 ) {
 							( t.image = new Image() );
 							var reader = new FileReader();
 							reader.onload = function(e) {
@@ -172,7 +172,9 @@ function loadAVoxel( n, cb ) {
 								loadAVoxel( n+1, cb );
 							};
 							reader.readAsDataURL(xhrObj.response);
-						}
+						}else 								
+							loadAVoxel( n+1, cb );
+
 					}
 				}
 				else {

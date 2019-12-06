@@ -6,10 +6,10 @@ if( typeof Voxelarium === "undefined" ){
 
 Voxelarium = { VERSION : "0.0.1",
   Settings : {
-     VR : true,
-     AltSpace : true,
-      use_basic_material : true,
-      use_vive : true,
+     VR : false,
+     AltSpace : false,
+      use_basic_material : false,
+      use_vive : false,
   }
 };
 
@@ -72,8 +72,6 @@ require( "./src/three.js.post/TexturePass.js")
 
 
 Voxelarium.camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 0.001, 10000 );
-
-require( "./src/voxelarium.gun.db.js" )
 
 //--- fonts ---
 Voxelarium.Fonts = {};

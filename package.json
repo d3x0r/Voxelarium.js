@@ -2,11 +2,10 @@
  "name": "Voxelarium",
  "version": "5633.33412.0",
  "main": "main.js",
-  "repository": {
-      "type": "git",
-      "url": "https://github.com/d3x0r/voxelarium.js"
-  },
-
+ "repository": {
+  "type": "git",
+  "url": "https://github.com/d3x0r/voxelarium.js"
+ },
  "scripts": {
   "build": "rollup -c",
   "build-uglify": "rollup -c --language-in=ECMASCRIPT6_STRICT && uglifyjs build/three.js -cm --preamble \"// threejs.org/license\" > build/three.min.js",
@@ -16,8 +15,8 @@
  },
  "dependencies": {
   "gun": "github:amark/gun",
-  "rollup": "^0.34.8",
-  "rollup-plugin-replace": "^1",
+  "rollup": "^0.34.13",
+  "rollup-plugin-replace": "^1.2.1",
   "rollup-watch": "^2.5.0",
   "uglify-js": "^2.6.0"
  }
