@@ -1,3 +1,4 @@
+import {Voxelarium} from "./Voxelarium.core.js"
 
 
 Voxelarium.SectorSphere = function( world, Render_Distance_h, Render_Distance_v ) {

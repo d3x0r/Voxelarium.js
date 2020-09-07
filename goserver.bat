@@ -1,1 +1,1 @@
-node server\http.js
+node --experimental-modules server\testWsHttp.mjs

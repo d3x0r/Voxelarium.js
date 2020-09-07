@@ -97,7 +97,7 @@ THREE.GameMouse = function ( object, domElement ) {
       var y = (((e.clientY-rect.top)-(h/2.0))/h) * 2;
       //console.log( `mouse at ${x}, ${y}` )
 
-      var mouse_ray_slope = camera.matrix.left.clone().multiplyScalar( x*camera.aspect );
+      var mouse_ray_slope = new THREE.Vector3( camera.matrix.elements[0], camera.matrix.elements[1], camera.matrix.elements[2] ).multiplyScalar( x*camera.aspect );
       mouse_ray_slope.addScaledVector( camera.matrix.up, -(y) );
 
       // 0.47 is some magic number for 90 degree FOV
@@ -355,10 +355,10 @@ function onTouchCancel(event) {
 function  rayCast(cluster, o, forward )
 {
     var Out = null;
-  var Delta_h = new THREE.Vector4Pool.new(),Delta_v = new THREE.Vector4Pool.new(),Delta_s = new THREE.Vector4Pool.new();
-  var Offset_h = new THREE.Vector4Pool.new(), Offset_v = new THREE.Vector4Pool.new(), Offset_s = new THREE.Vector4Pool.new();
-  var Norm_h = new THREE.Vector3Pool.new(), Norm_v = new THREE.Vector3Pool.new(), Norm_s = new THREE.Vector3Pool.new();
-  var Collision_h = new THREE.Vector4Pool.new(), Collision_v = new THREE.Vector4Pool.new(), Collision_s = new THREE.Vector4Pool.new();
+  var Delta_h = THREE.Vector4Pool.new(),Delta_v = THREE.Vector4Pool.new(),Delta_s = THREE.Vector4Pool.new();
+  var Offset_h = THREE.Vector4Pool.new(), Offset_v = THREE.Vector4Pool.new(), Offset_s = THREE.Vector4Pool.new();
+  var Norm_h = THREE.Vector3Pool.new(), Norm_v = THREE.Vector3Pool.new(), Norm_s = THREE.Vector3Pool.new();
+  var Collision_h = THREE.Vector4Pool.new(), Collision_v = THREE.Vector4Pool.new(), Collision_s = THREE.Vector4Pool.new();
 
   var ActualCube_x,ActualCube_y,ActualCube_z;
   var NewCube_x,NewCube_y,NewCube_z;

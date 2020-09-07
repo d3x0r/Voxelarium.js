@@ -1,4 +1,5 @@
 "use strict";
+import {Voxelarium} from "./Voxelarium.core.js"
 
 var types = Voxelarium.Voxels;
 

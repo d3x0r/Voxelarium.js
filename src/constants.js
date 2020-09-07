@@ -1,3 +1,4 @@
+import {Voxelarium} from "./Voxelarium.core.js"
 
 Voxelarium.D = function( valname, value ) {
     if( typeof valname == "object" ) {

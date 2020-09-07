@@ -1,5 +1,7 @@
 
-require( "./packedboolarray.js" )
+import {Voxelarium} from "./Voxelarium.core.js"
+
+import "./packedboolarray.js" 
 Voxelarium.ModificationTracker = function(size) {
     return {
         lastCycle : -1,

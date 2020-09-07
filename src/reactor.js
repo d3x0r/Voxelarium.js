@@ -1,3 +1,5 @@
+import {Voxelarium} from "./Voxelarium.core.js"
+
 
 Voxelarium.Reactor = function( world ) {
     var reactor = {

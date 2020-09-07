@@ -1,6 +1,7 @@
 
 
 //FastBit_Array_32k
+import {Voxelarium} from "./Voxelarium.core.js"
 
 
 Voxelarium.PackedBoolArray = function ( size ){

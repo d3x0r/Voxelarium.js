@@ -1,5 +1,7 @@
+import {Voxelarium} from "./Voxelarium.core.js"
 
-Voxelarium.Voxels = {
+
+const voxels = {
 	types : [],
 	add : function( type, properties,reaction ) {
         	//this.types.push(
@@ -74,6 +76,7 @@ Documentation_PageNum = 0;
 */
 
 }
+Voxelarium.Voxels = voxels;
 
 Voxelarium.Voxels.types.push(
 Voxelarium.Voxels.add( "Void", {
@@ -105,6 +108,7 @@ Voxelarium.Voxels.add( "Void", {
       BvProp_EgmyT1Resistant : false,
       LiquidDensity : 0.0,
 } ) );
+
 
 Voxelarium.Voxels.getIndex = function( type ) {
 	var types = Voxelarium.Voxels.types;
@@ -195,3 +199,4 @@ function loadAVoxel( n, cb ) {
 
 //Voxelarium.Voxels.types[0] = Voxelarium.Voxels.types.Void;
 //Voxelarium.Voxels.types[1] = Voxelarium.Voxels.types["BlackRock Blue"];
+export { voxels };

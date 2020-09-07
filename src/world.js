@@ -1,6 +1,8 @@
 
-require( "./cluster.js")
-var fonts = require( "./voxel.fonts.js" );
+import {Voxelarium} from "./Voxelarium.core.js"
+
+import  "./cluster.js"
+import {fonts} from "./voxel.fonts.js";
 
 Voxelarium.World = function() {
     return {

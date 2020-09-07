@@ -1,6 +1,8 @@
 
+import {Voxelarium} from "./src/Voxelarium.core.js"
 
-glow = {
+const camera = Voxelarium.camera;
+const glow = {
 
  glowcomposer : null,
  scenecomposer : null,
@@ -213,3 +215,4 @@ glow.render = function glowRender() {
 	  effect.submitFrame();
 
 }
+export {glow}

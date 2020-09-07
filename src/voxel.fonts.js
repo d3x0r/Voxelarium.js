@@ -1,6 +1,10 @@
+import {Voxelarium} from "./Voxelarium.core.js"
 
+const fonts = {
+	drawCharacter : drawCharacter
+}
 
-exports.drawCharacter = function drawCharacter( cluster, pos, v, c, font ) {
+function drawCharacter( cluster, pos, v, c, font ) {
     var pchar;
     if( pchar = font.characters[c] ) {
         var data  = pchar.data;
@@ -61,3 +65,6 @@ function drawMonoChar( cluster, pos, v, pchar, font, CharDatax, inc ) {
     }
     return pchar.w;
 }
+
+export {fonts}
+

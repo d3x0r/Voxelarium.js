@@ -1,5 +1,7 @@
 "use strict";
 
+import {Voxelarium} from "./Voxelarium.core.js"
+
 Voxelarium.TextureAtlas = {
     texture : null,
     texture_count : 0,

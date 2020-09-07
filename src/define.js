@@ -5,9 +5,7 @@
  *
  * @returns {function}  @see exports.definer
  */
-module.exports = function (object) {
-    return module.exports.definer(object);
-};
+
 
 /**
  * Binds a new "constant" property to an input object
@@ -18,7 +16,7 @@ module.exports = function (object) {
  *
  * @return {object}  The input object
  */
-module.exports.define = function (object, name, value) {
+function define(object, name, value) {
     var key;
 
     // if an object, loop the properties for the definitions
@@ -48,9 +46,11 @@ module.exports.define = function (object, name, value) {
  *
  * @return {function}
  */
-module.exports.definer = function (object) {
+function definer(object) {
     object = object || Object.create(null);
     return function (name, value) {
         return module.exports.define(object, name, value);
     };
 };
+
+export {definer,define}

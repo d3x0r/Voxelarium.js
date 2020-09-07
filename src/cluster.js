@@ -1,6 +1,8 @@
 
-require( "./constants.js");
-require( "./reactor.js" );
+import {Voxelarium} from "./Voxelarium.core.js"
+
+import  "./constants.js";
+import  "./reactor.js" ;
 
 Voxelarium.Cluster = function( x, y, z, props ) {
     var cluster = {

@@ -1,5 +1,6 @@
 "use strict";
-var voxels = require( "./voxels.js")
+
+import {voxels} from  "./voxels.js"
 
 
 Voxelarium.BasicMesher = function(  ) {

@@ -1,8 +1,9 @@
 "use strict";
 
-require( "./packedboolarray.js")
-require( "./modtracker.js")
+import  "./packedboolarray.js"
+import "./modtracker.js"
 
+import {Voxelarium} from "./Voxelarium.core.js"
 
 
 Voxelarium.Sector = function( cluster, x, y, z ) {
@@ -938,7 +939,7 @@ function makeVoxelRef( cluster, sector, x, y, z )
 		return not_zero ? 1 : 0;
 	}
 
-	function GetVoxelRefs( nearOnly )
+	function GetVoxelRefsA( nearOnly )
 	{
 		var result = {
 			ResultSectors : new Array(nearOnly ? 7 : 19),
@@ -1071,7 +1072,7 @@ function makeVoxelRef( cluster, sector, x, y, z )
 		return that;
 	}
 
-	function GetNearVoxelRef( direction )
+	function GetNearVoxelRefOne( direction )
 	{
 		var that = GetNearVoxelRef( )
 		var cluster = this.sector.cluster;
@@ -1143,151 +1144,6 @@ function makeVoxelRef( cluster, sector, x, y, z )
 			}
 			break;
 		}
-		if( that.sector != null )
-		{
-			that.Type = self.VoxelTypeManager.VoxelTable[that.sector.Data.Data[that.Offset]];
-			that.VoxelExtension = that.sector.Data.OtherInfos[that.Offset];
-		}
-		else
-		{
-			that.Type = null;
-			that.VoxelExtension = null;
-		}
-	}
-
-
-	function GetNearLeftVoxelRef( that, self )
-	{
-		that.sector = self.sector;
-		that.Offset = self.Offset;
-			if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_X << VoxelSector.ZVOXELBLOCSHIFT_Y ) ) != 0 )
-				that.Offset -= that.sector.Size_y;
-			else
-			{
-				that.sector = self.sector.near_sectors[Voxelarium.RelativeVoxelOrds.LEFT - 1];
-				if( that.sector != null )
-					that.Offset += VoxelSector.ZVOXELBLOCSIZE_Y * ( VoxelSector.ZVOXELBLOCSIZE_X - 2 );
-			}
-		if( that.sector != null )
-		{
-			that.Type = self.VoxelTypeManager.VoxelTable[that.sector.Data.Data[that.Offset]];
-			that.VoxelExtension = that.sector.Data.OtherInfos[that.Offset];
-		}
-		else
-		{
-			that.Type = null;
-			that.VoxelExtension = null;
-		}
-	}
-
-	function GetNearRightVoxelRef( that, self )
-	{
-		that.sector = self.sector;
-		that.Offset = self.Offset;
-			if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_X << VoxelSector.ZVOXELBLOCSHIFT_Y ) ) != VoxelSector.ZVOXELBLOCMASK_X << VoxelSector.ZVOXELBLOCSHIFT_Y )
-				that.Offset += VoxelSector.ZVOXELBLOCSIZE_Y;
-			else
-			{
-				that.sector = self.sector.near_sectors[Voxelarium.RelativeVoxelOrds.RIGHT - 1];
-				if( that.sector != null )
-					that.Offset -= VoxelSector.ZVOXELBLOCSIZE_Y * ( VoxelSector.ZVOXELBLOCSIZE_X - 2 );
-			}
-		if( that.sector != null )
-		{
-			that.Type = self.VoxelTypeManager.VoxelTable[that.sector.Data.Data[that.Offset]];
-			that.VoxelExtension = that.sector.Data.OtherInfos[that.Offset];
-		}
-		else
-		{
-			that.Type = null;
-			that.VoxelExtension = null;
-		}
-	}
-
-	function GetNearAheadVoxelRef( that, self )
-	{
-		that.sector = self.sector;
-		that.Offset = self.Offset;
-			if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_Z << ( VoxelSector.ZVOXELBLOCSHIFT_X + VoxelSector.ZVOXELBLOCSHIFT_Y ) ) ) != ( VoxelSector.ZVOXELBLOCMASK_Z << ( VoxelSector.ZVOXELBLOCSHIFT_X + VoxelSector.ZVOXELBLOCSHIFT_Y ) ) )
-				that.Offset += VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X;
-			else
-			{
-				that.sector = self.sector.near_sectors[Voxelarium.RelativeVoxelOrds.AHEAD - 1];
-				if( that.sector != null )
-					that.Offset -= ( VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y * ( VoxelSector.ZVOXELBLOCSIZE_Z - 2 ) );
-			}
-		if( that.sector != null )
-		{
-			that.Type = self.VoxelTypeManager.VoxelTable[that.sector.Data.Data[that.Offset]];
-			that.VoxelExtension = that.sector.Data.OtherInfos[that.Offset];
-		}
-		else
-		{
-			that.Type = null;
-			that.VoxelExtension = null;
-		}
-	}
-
-	function GetNearBehindVoxelRef( that, self )
-	{
-		that.sector = self.sector;
-		that.Offset = self.Offset;
-			if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_Z << ( VoxelSector.ZVOXELBLOCSHIFT_X + VoxelSector.ZVOXELBLOCSHIFT_Y ) ) ) != 0 )
-				that.Offset -= VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X;
-			else
-			{
-				that.sector = self.sector.near_sectors[Voxelarium.RelativeVoxelOrds.BEHIND - 1];
-				if( that.sector != null )
-					that.Offset += ( VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y * ( VoxelSector.ZVOXELBLOCSIZE_Z - 2 ) );
-			}
-		if( that.sector != null )
-		{
-			that.Type = self.VoxelTypeManager.VoxelTable[that.sector.Data.Data[that.Offset]];
-			that.VoxelExtension = that.sector.Data.OtherInfos[that.Offset];
-		}
-		else
-		{
-			that.Type = null;
-			that.VoxelExtension = null;
-		}
-	}
-
-	function GetNearAboveVoxelRef( that,  self )
-	{
-		that.sector = self.sector;
-		that.Offset = self.Offset;
-			if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_Y ) ) != VoxelSector.ZVOXELBLOCMASK_Y )
-				that.Offset++;
-			else
-			{
-				that.sector = self.sector.near_sectors[Voxelarium.RelativeVoxelOrds.ABOVE - 1];
-				if( that.sector != null )
-					that.Offset -= ( VoxelSector.ZVOXELBLOCSIZE_Y - 2 );
-			}
-		if( that.sector != null )
-		{
-			that.Type = self.VoxelTypeManager.VoxelTable[that.sector.Data.Data[that.Offset]];
-			that.VoxelExtension = that.sector.Data.OtherInfos[that.Offset];
-		}
-		else
-		{
-			that.Type = null;
-			that.VoxelExtension = null;
-		}
-	}
-
-	function GetNearBelowVoxelRef( that, self )
-	{
-		that.sector = self.sector;
-		that.Offset = self.Offset;
-			if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_Y ) ) != 0 )
-				that.Offset--;
-			else
-			{
-				that.sector = self.sector.near_sectors[Voxelarium.RelativeVoxelOrds.BELOW - 1];
-				if( that.sector != null )
-					that.Offset += ( VoxelSector.ZVOXELBLOCSIZE_Y - 2 );
-			}
 		if( that.sector != null )
 		{
 			that.Type = self.VoxelTypeManager.VoxelTable[that.sector.Data.Data[that.Offset]];
@@ -1576,7 +1432,7 @@ function makeVoxelRef( cluster, sector, x, y, z )
 		}
 	}
 
-	function GetVoxelRefs( nearOnly )
+	function GetVoxelRefsB( nearOnly )
 	{
 		if( nearOnly )
 		{
@@ -2227,7 +2083,7 @@ function makeVoxelRef( cluster, sector, x, y, z )
 	}
 
 	// result set is only 9 (3x3 face)
-	function GetVoxelRefs(  ResultSectors,  ResultOffsets, faceOnly )
+	function GetVoxelRefsOther(  ResultSectors,  ResultOffsets, faceOnly )
 	{
 		var result = {
 			ResultSectors : new Array(27),

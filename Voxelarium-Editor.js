@@ -1,6 +1,6 @@
 "use strict";
 
-
+import {Voxelarium,glow} from "./Voxelarium.js"
 
 //var words1 = voxelUniverse.createTextCluster( "Hello World" );
 //var glow = require( './glow.renderer.js' );
@@ -652,4 +652,4 @@ function initAltSpace( init ) {
 if( Voxelarium.Settings.AltSpace )
 	initAltSpace( init );
 else
-	init();
+	setTimeout( init, 1000);
