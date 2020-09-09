@@ -90,7 +90,7 @@ var status_line;
 		camera = Voxelarium.camera;
 
 		camera.matrixAutoUpdate = false;
-		camera.position.z = 1500;
+		camera.position.z = 700;
 		camera.matrixWorldNeedsUpdate = true;
 
 		 geometryShader = new THREE.MeshBasicMaterial();
@@ -238,10 +238,17 @@ function initVoxelarium() {
 
 	const blackGradient = new TimeGradient( TimeGradient.arrayScalar )
 			.addStage( 1, [0,0,0] );
+	const whiteGradient = new TimeGradient( TimeGradient.arrayScalar )
+			.addStage( 1, [1,1,1] );
 
 	const blueGlow = new TimeGradient( TimeGradient.arrayScalar )
 			.addStage( 0.25, [0,0.6,0.8] )
 			.addStage( 0.5, [0,0.2,0.4] )
+			;
+
+	const greenGlow = new TimeGradient( TimeGradient.arrayScalar )
+			.addStage( 0.5, [0,0.8,0] )
+			.addStage( 0.5, [0,0.4,0] )
 			;
 
 	const rainGlow = new TimeGradient( TimeGradient.arrayScalar )
@@ -283,14 +290,14 @@ function initVoxelarium() {
 		scene2.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShaderMono ) )
 		sector.THREE_solid.onBeforeRender = sector.solid_geometry.updateUniforms.bind( sector.THREE_solid, sector );
 		sector.faceGradient = rainGlow
-		sector.edgeGradient = blueGlow
+		sector.edgeGradient = whiteGradient
 
 		sector.solid_geometry.geometry.uniforms.in_FaceColor = new THREE.Vector4( 0.4, 0.8, 1, 1 );
 		sector.solid_geometry.geometry.uniforms.edge_only = 0;
 		sector.THREE_solid.position.add( new THREE.Vector3( -800, -2*8*20+offset, 0 ));
 	})
 	var detailsize = 5;
-	renderVoxelWords( "Inventory", -800, -n*8*detailsize -3*8*20 -0*8*detailsize +offset, detailsize );
+	renderVoxelWords( "Inventory", -800, -0*8*detailsize -3*8*20 -0*8*detailsize +offset, detailsize );
 	for( var n = 0; n < 10; n++ ) {
 		renderVoxelWords( "Server Name Goes here", -800,-n*8*detailsize -3*8*20-1*8*detailsize+offset, detailsize );
 		renderVoxelWords( "Players 0/3", -800 + 25 * 8*detailsize,-n*8*detailsize -3*8*20-1*8*detailsize+offset, detailsize );
@@ -303,7 +310,10 @@ function initVoxelarium() {
 			basicMesher.MakeSectorRenderingData( sector );
 			scene2.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShaderMono ) )
 			sector.THREE_solid.onBeforeRender = sector.solid_geometry.updateUniforms.bind( sector.THREE_solid, sector );
-			sector.solid_geometry.geometry.uniforms.in_FaceColor = new THREE.Vector4( 0.6, 0.1, 0.4, 1 );
+			sector.solid_geometry.geometry.uniforms.in_FaceColor = new THREE.Vector4( 0, 0, 0, 1 );
+			sector.faceGradient = blackGradient
+			sector.edgeGradient = greenGlow
+	
 			sector.solid_geometry.geometry.uniforms.edge_only = 0;
 			//sector.THREE_solid.matrix.Translate( xofs, offset, 0 );
 			sector.THREE_solid.position.add( new THREE.Vector3(xofs, offset, 0) );
