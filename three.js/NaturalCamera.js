@@ -16,7 +16,13 @@ function controls( object, domElement ) {
         , A:65, S:83, D:68, W:87, SPACE:32, C:67 };
 
 	// internals
-const moveSpeed = 12 * 0.0254;
+//const moveSpeed = 12 * 0.0254;
+
+const mps = 1/32;
+const kmph = mps*(60*60)/(1000);
+
+const runScalar = 1;
+const moveSpeed = ( 1*kmph ) /runScalar ;
 	var scope = this;
 
 	var rotateStart = new THREE.Vector2();
@@ -87,8 +93,7 @@ const moveSpeed = 12 * 0.0254;
     scope.object.matrix.motion.rotation.y = thetaDelta;
     scope.object.matrix.move( tick );
     scope.object.matrix.rotateRelative( 0, 0, -scope.object.matrix.roll );
-
-    scope.object.matrixWorldNeedsUpdate = false;
+    scope.object.matrixWorldNeedsUpdate = true;
 
     thetaDelta = 0;
     phiDelta = 0;
@@ -157,11 +162,11 @@ const moveSpeed = 12 * 0.0254;
 
 		if ( delta > 0 ) {
 
-			scope.zoomOut();
+			//scope.zoomOut();
 
 		} else {
 
-			scope.zoomIn();
+			//scope.zoomIn();
 
 		}
 
