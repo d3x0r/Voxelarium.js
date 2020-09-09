@@ -2,6 +2,11 @@
 
 import {Voxelarium} from "./src/Voxelarium.core.js"
 
+const readies = [];
+Voxelarium.onready = function(cb) {
+	readies.push(cb);
+}
+
 if( typeof Voxelarium === "undefined" ){
     this.Voxelarium = {};
 //	var Voxelarium;
@@ -23,7 +28,7 @@ if( typeof updateVoxelariumSettings === 'function' ){
 
 Object.freeze( Voxelarium.Settings );
 
-import "./three.js/build/three.js"
+import * as THREE from "./three.js/build/three.module.js"
 
 import  "./three.js/personalFill.js"
 
@@ -54,30 +59,37 @@ if( Voxelarium.Settings.VR ) {
 
 Voxelarium.clock = new THREE.Clock()
 
+Voxelarium.controls = { orbit:null
+	, natural : null
+	, game : null 
+	}
 
-//if( !Voxelarium.Settings.VR ) {
-  import "./orbit_controls.js"
-  import "./NaturalCamera.js"
-  import "./gameMouse.js"
-//}
+  import {controls as oControls } from "./three.js/orbit_controls.js"
+  Voxelarium.controls.orbit = oControls;
+  import {controls as nControls } from "./three.js/NaturalCamera.js"
+  Voxelarium.controls.natural = nControls;
+  import {controls as gControls } from "./three.js/gameMouse.js"
+  Voxelarium.controls.game = gControls;
+
 
 //if( !Voxelarium.Settings.use_basic_material )
 
 import {glow} from "./glow.renderer.js";
 
 import( "./three.js/js/renderers/Projector.js" )
-import( "./src/three.js.post/shaders/CopyShader.js")
-import( "./src/three.js.post/shaders/HorizontalBlurShader.js")
-import( "./src/three.js.post/shaders/VerticalBlurShader.js")
-import( "./src/three.js.post/EffectComposer.js")
-import( "./src/three.js.post/BloomPass.js")
+import( "./three.js/three.js.post/shaders/CopyShader.js")
+import( "./three.js/three.js.post/shaders/HorizontalBlurShader.js")
+import( "./three.js/three.js.post/shaders/VerticalBlurShader.js")
+import( "./three.js/three.js.post/EffectComposer.js").then( ()=>{
+	import( "./three.js/three.js.post/BloomPass.js")
+	import( "./three.js/three.js.post/ClearPass.js")
+	import( "./three.js/three.js.post/MaskPass.js")
+	import( "./three.js/three.js.post/RenderPass.js")
+	import( "./three.js/three.js.post/ShaderPass.js")
+	import( "./three.js/three.js.post/TexturePass.js")
+})
 
 
-import( "./src/three.js.post/ClearPass.js")
-import( "./src/three.js.post/MaskPass.js")
-import( "./src/three.js.post/RenderPass.js")
-import( "./src/three.js.post/ShaderPass.js")
-import( "./src/three.js.post/TexturePass.js")
 
 
 Voxelarium.camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 0.001, 10000 );
@@ -110,6 +122,11 @@ import( "./src/voxels.js" )  // must be after atlas
 
 
 import( "./src/voxel_inventory.js")  // must be after voxels
+
+function tick() {
+	if( Voxelarium.World &&   Voxelarium.db ) { if( readies.length ) readies[0](); }
+	else setTimeout( tick, 100 );
+}tick();
 
 //Object.freeze( Voxelarium );
 //Voxelarium.freeze();

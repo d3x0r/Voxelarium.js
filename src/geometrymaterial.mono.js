@@ -1,3 +1,4 @@
+import * as THREE from "../three.js/build/three.module.js"
 
 
 Voxelarium.GeometryShaderMono = function() {
@@ -71,10 +72,11 @@ Voxelarium.GeometryShaderMono = function() {
                 uniform  float edge_only;
     			uniform sampler2D tex;
     			void main(void) {
+			float ca = ex_Color.a;
+			ca = 1.0;
     			  if( ex_use_texture > 0.5 )
     				{
     					gl_FragColor = ex_Color * texture2D( tex, ex_texCoord );
-                        gl_FragColor =vec4(1,0,0,1);// ex_Color;
     				}
     				else if( ex_flat_color > 0.5 )
     				{
@@ -82,7 +84,7 @@ Voxelarium.GeometryShaderMono = function() {
     				}
     				else
     				{
-                        float a = mod(ex_Modulous.x +0.5, 1.0 )-0.5;
+		                        float a = mod(ex_Modulous.x +0.5, 1.0 )-0.5;
         				float b = mod(ex_Modulous.y +0.5, 1.0 )-0.5;
 
         				float g;
@@ -90,20 +92,26 @@ Voxelarium.GeometryShaderMono = function() {
         				vec3 white;
         				a = 4.0*(0.25-a*a);
         				b = 4.0*(0.25-b*b);
-        				a = pow( a, ex_Pow );
-        				b = pow( b, ex_Pow2 );
+        				a = pow( abs(a), 10.0);//ex_Pow );
+        				b = pow( abs(b), 10.0);//ex_Pow2 );
 
         			 //g = pow( ( max(a,b)),in_Pow);
         				//h = pow( ( a*b),in_Pow/4);
         				g = min(1.0,b+a);
         				h = max((b+a)-1.0,0.0)/3.0;
-        				white = vec3(1.0,1.0,1.0) * max(ex_Color.r,max(ex_Color.g,ex_Color.b));
-        			//	gl_FragColor = vec4( h * white + (g * ex_Color.rgb), ex_Color.a ) ;
+					float mx = max(ex_Color.r,max(ex_Color.g,ex_Color.b));
+					if( mx < 0.0001 ) white = vec3(1.0,1.0,1.0);
+        				else white = vec3(1.0,1.0,1.0) * max(ex_Color.r,max(ex_Color.g,ex_Color.b));
+					
+        				//gl_FragColor = vec4( h * white + (g * ex_Color.rgb), ca ) ;
+//        				gl_FragColor = vec4(  white.rgb, ca ) ;
+        				gl_FragColor = vec4( ex_FaceColor.rgb, 1 ) ;
+					return;
         			//  gl_FragColor = vec4( g * ex_Color.rgb, ex_Color.a ) ;
-                    if( edge_only > 0.5 )
-                        gl_FragColor = vec4( h* ( white - ex_FaceColor.rgb )+ (g* ex_Color.rgb), (g * ex_Color.a) ) ;
-                    else
-        			    gl_FragColor = vec4( ex_FaceColor.a*(1.0-g)*ex_FaceColor.rgb + h* ( white - ex_FaceColor.rgb )+ (g* ex_Color.rgb), (1.0-g)*ex_FaceColor.a + (g * ex_Color.a) ) ;
+                    if( edge_only > 0.5 ) {
+                        gl_FragColor = vec4( h* ( white - ex_FaceColor.rgb )+ (g* ex_Color.rgb), 1.0/*(g * ca)*/ ) ;
+	               } else
+        			    gl_FragColor = vec4( ex_FaceColor.a*(1.0-g)*ex_FaceColor.rgb + h* ( white - ex_FaceColor.rgb )+ (g* ex_Color.rgb), 1.0/*(1.0-g)*ex_FaceColor.a + (g * ca)*/ ) ;
                     //    gl_FragColor = vec4( ex_FaceColor.a*(1.0-g)*ex_FaceColor.rgb +  (g* ex_Color.rgb), (1.0-g)*ex_FaceColor.a + (g * ex_Color.a) ) ;
     			}
             }

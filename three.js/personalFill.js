@@ -1,11 +1,9 @@
 
-if( !THREE.REVISION.includes( "d3x0r" ) ) {
+import * as THREE from './build/three.module.js';
 
-if( Number(THREE.REVISION) === 74 ) {
-}
 
 var vector3Pool = [];
-THREE.Vector3Pool = {
+const Vector3Pool = {
 	new : function(x,y,z) {
 		var r = vector3Pool.pop();
 		if( r ) {
@@ -26,7 +24,7 @@ THREE.Vector3.prototype.delete = function() {
 }
 
 var vector4Pool = [];
-THREE.Vector4Pool = {
+const Vector4Pool = {
 	new : function(x,y,z,w) {
 		var r = vector4Pool.pop();
 		if( r ) {
@@ -47,6 +45,8 @@ THREE.Vector4.prototype.delete = function() {
     return this;
 }
 
+export {Vector3Pool};
+export {Vector4Pool};
 
 /*
 	INLINEFUNC( void, Rotate, ( RCOORD dAngle, P_POINT vaxis1, P_POINT vaxis2 ) )
@@ -65,14 +65,25 @@ THREE.Vector4.prototype.delete = function() {
 	}
 */
 
-THREE.Vector3Unit = new      THREE.Vector3(  1,  1,  1 );
-THREE.Vector3Zero = new      THREE.Vector3(  0,  0,  0 );
-THREE.Vector3Right = new     THREE.Vector3( -1,  0,  0 );
-THREE.Vector3Backward = new  THREE.Vector3(  0,  0,  1 );
-THREE.Vector3Up = new        THREE.Vector3(  0,  1,  0 );
-THREE.Vector3Left = new      THREE.Vector3(  1,  0,  0 );
-THREE.Vector3Forward = new   THREE.Vector3(  0,  0, -1 );
-THREE.Vector3Down = new      THREE.Vector3(  0, -1,  0 );
+
+const Vector3Unit     = new  THREE.Vector3(  1,  1,  1 );
+const Vector3Zero     = new  THREE.Vector3(  0,  0,  0 );
+const Vector3Right    = new  THREE.Vector3( -1,  0,  0 );
+const Vector3Backward = new  THREE.Vector3(  0,  0,  1 );
+const Vector3Up       = new  THREE.Vector3(  0,  1,  0 );
+const Vector3Left     = new  THREE.Vector3(  1,  0,  0 );
+const Vector3Forward  = new  THREE.Vector3(  0,  0, -1 );
+const Vector3Down     = new  THREE.Vector3(  0, -1,  0 );
+
+const consts = {
+ Vector3Unit      :Vector3Unit    ,
+ Vector3Zero      :Vector3Zero    ,
+ Vector3Right     :Vector3Right   ,
+ Vector3Backward  :Vector3Backward,
+ Vector3Up        :Vector3Up      ,
+ Vector3Left      :Vector3Left    ,
+ Vector3Forward   :Vector3Forward ,
+ Vector3Down      :Vector3Down };
 
 
 ["Vector3Unit"
@@ -83,28 +94,14 @@ THREE.Vector3Down = new      THREE.Vector3(  0, -1,  0 );
 ,"Vector3Left"
 ,"Vector3Forward"
 ,"Vector3Down"].forEach( function(key){
-	Object.freeze(THREE[key])
-	Object.defineProperty(THREE[key], "x", { writable: false })
-	Object.defineProperty(THREE[key], "y", { writable: false })
-	Object.defineProperty(THREE[key], "z", { writable: false })
+	Object.freeze(consts[key])
+	Object.defineProperty(consts[key], "x", { writable: false })
+	Object.defineProperty(consts[key], "y", { writable: false })
+	Object.defineProperty(consts[key], "z", { writable: false })
 })
 
 var oldProto = THREE.Matrix4.prototype;
 var oldMatrixContructor = THREE.Matrix4.prototype.constructor;
-THREE.Matrix4x = function() {
-	this.elements = new Float32Array( [
-
-		1, 0, 0, 0,
-		0, 1, 0, 0,
-		0, 0, 1, 0,
-		0, 0, 0, 1
-
-	] );
-
-	Object.defineProperty(this, "elements", { writable:false } );
-
-
-}
 
 THREE.Matrix4.prototype.__defineGetter__( "motion", function(){
 	if( !this._motion ){
@@ -433,22 +430,22 @@ THREE.Matrix4.prototype.rotateOrtho = function( angle, axis1, axis2 ) {
 		}
 	};
 	THREE.Matrix4.prototype.__defineGetter__( "left", function(){
-        	return THREE.Vector3Pool.new( this.elements[0], this.elements[1], this.elements[2] );
+        	return Vector3Pool.new( this.elements[0], this.elements[1], this.elements[2] );
         } );
 	THREE.Matrix4.prototype.__defineGetter__( "right", function(){
-		return THREE.Vector3Pool.new( -this.elements[0], -this.elements[1], -this.elements[2] );
+		return Vector3Pool.new( -this.elements[0], -this.elements[1], -this.elements[2] );
 	} );
 	THREE.Matrix4.prototype.__defineGetter__( "up", function(){
-        	return THREE.Vector3Pool.new( this.elements[4], this.elements[5], this.elements[6] );
+        	return Vector3Pool.new( this.elements[4], this.elements[5], this.elements[6] );
         } );
 	THREE.Matrix4.prototype.__defineGetter__( "down", function(){
-		return THREE.Vector3Pool.new( -this.elements[4], -this.elements[5], -this.elements[6] );
+		return Vector3Pool.new( -this.elements[4], -this.elements[5], -this.elements[6] );
         } );
 	THREE.Matrix4.prototype.__defineGetter__( "forward", function(){
-        	return THREE.Vector3Pool.new( -this.elements[8], -this.elements[9], -this.elements[10] );
+        	return Vector3Pool.new( -this.elements[8], -this.elements[9], -this.elements[10] );
         } );
 	THREE.Matrix4.prototype.__defineGetter__( "backward", function(){
-		return THREE.Vector3Pool.new( this.elements[8], this.elements[9], this.elements[10] );
+		return Vector3Pool.new( this.elements[8], this.elements[9], this.elements[10] );
         } );
 	THREE.Matrix4.prototype.move = function (tick) {
         	if( this.motion )
@@ -486,12 +483,11 @@ THREE.Matrix4.prototype.rotateOrtho = function( angle, axis1, axis2 ) {
 		return Math.asin( this.forward.dot( relativeRight ) );
 	};
 	THREE.Matrix4.prototype.__defineGetter__( "roll", function(){
-		return this.getRoll( THREE.Vector3Up );
+		return this.getRoll( consts.Vector3Up );
 	} );
 	THREE.Matrix4.prototype.__defineGetter__( "pitch", function(){
-		return this.getPitch( THREE.Vector3Forward );
+		return this.getPitch( consts.Vector3Forward );
 	} );
 	THREE.Matrix4.prototype.__defineGetter__( "yaw", function(){
-		return this.getYaw( THREE.Vector3Right );
+		return this.getYaw( consts.Vector3Right );
 	} );
-}

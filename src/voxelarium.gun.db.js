@@ -1,15 +1,11 @@
 
 //var Gun = require( "gun" );
-var Gun = require( "../node_modules/gun/gun.js" );
-require( "../node_modules/gun/lib/path.js" );
-require( "../node_modules/gun/lib/not.js" );
+
 var db = {};
 Voxelarium.db = db;
 
 //Voxelarium.db = db;
 
-//global = Gun({prefix: 'global/', peers: ['https://localhost:8080/gun']})
-//local = Gun({prefix: 'local/'}).
 
 
 db.globalDb = Gun( {prefix: 'global/', peers: [`ws://${location.host}/gun`]} ).get( "Voxelarium" );

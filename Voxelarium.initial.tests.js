@@ -1,6 +1,13 @@
 "use strict";
 
 
+import * as THREE from "../three.js/build/three.module.js"
+
+window.THREE = THREE;
+import ( "./Voxelarium.js" ).then ( (V)=>{
+const Voxelarium = V.Voxelarium;
+const glow = V.glow;
+Voxelarium.onready( ()=>{
 //var glow = require( './glow.renderer.js' );
 
 var clusters = [];
@@ -71,6 +78,7 @@ function setControls2() {
 
 var status_line;
 	function init() {
+		console.log( "init?" );
 		document.getElementById( "controls1").onclick = setControls1;
 		document.getElementById( "controls2").onclick = setControls2;
 
@@ -112,7 +120,7 @@ var status_line;
 		          return;
 		        }
 
-		glow.makeComposers( scene
+		glow.makeComposers( renderer, scene
 			, ()=>{
 				clusters.forEach( (cluster)=>{ cluster.SectorList.forEach( (sector)=>{
 					sector.solid_geometry.geometry.uniforms.edge_only = 0;
@@ -128,10 +136,10 @@ var status_line;
 
 		document.body.appendChild( renderer.domElement );
 
-		controlNatural = new THREE.NaturalControls( camera, renderer.domElement );
+		controlNatural = new Voxelarium.controls.natural( camera, renderer.domElement );
 		controlNatural.disable();
 
-		controlOrbit = new THREE.OrbitControls( camera, renderer.domElement );
+		controlOrbit = new Voxelarium.controls.orbit( camera, renderer.domElement );
 		controlOrbit.enable();
 
 		controls = controlOrbit;
@@ -163,9 +171,13 @@ function animate() {
 		//nFrame++;
 		if( nFrame++ < nTarget ) {
 			clusters.forEach( (cluster)=>{ cluster.SectorList.forEach( (sector)=>{
+				sector.THREE_solid.material.uniformsNeedUpdate = true;
 				sector.solid_geometry.geometry.uniforms.in_FaceColor = new THREE.Vector4( 0.2 * 1, 0.5* 1,0.05* 1, 1.0 );
+				sector.solid_geometry.geometry.uniforms.in_FaceColor.needsUpdate = true;
 				//sector.solid_geometry.geometry.uniforms.in_FaceColor = new THREE.Vector4( 0.3 * (nTarget-nFrame)/nTarget, 0.7* (nTarget-nFrame)/nTarget,0.9* (nTarget-nFrame)/nTarget, 1.0 );
 				sector.solid_geometry.geometry.uniforms.in_Color = new THREE.Vector4( 0.01 * (nFrame)/nTarget, 0.4* (nFrame)/nTarget,0.01* (nFrame)/nTarget, 1.0 );
+				sector.solid_geometry.geometry.uniforms.in_Color.needsUpdate = true;
+				//console.log( "Stting color:", sector.solid_geometry.geometry.uniforms.in_FaceColor, sector.solid_geometry.geometry.uniforms.in_Color );
 			})})
 		} else if( nFrame < nTarget2 ) {
 			clusters.forEach( (cluster)=>{ cluster.SectorList.forEach( (sector)=>{
@@ -193,18 +205,22 @@ function animate() {
 function initVoxelarium() {
 
 	Voxelarium.TextureAtlas.init( 32, 64 );
-
   Voxelarium.db.init( ()=>{
 //	Voxelarium.Voxels.load( ()=>{
+	console.log( "db init finish?" );
    geometryShader.map = Voxelarium.TextureAtlas.texture;
 	 geometryShader.needsUpdate = true;
 
 	 var geometryMaterial = Voxelarium.GeometryBasicBuffer();
-			//Voxelarium.GeometryBuffer();
-	 geometryMaterial.makeVoxCube(  400, Voxelarium.Voxels.BlackRockType );
+
+	// geometryMaterial.makeVoxCube(  400, Voxelarium.Voxels.BlackRockType );
+	// scene2.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
+
+	 geometryMaterial.makeVoxCube(  200, Voxelarium.Voxels.BlackRockType );
 	 scene2.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
 
-  var basicMesher = Voxelarium.BasicMesher(  );
+
+	var basicMesher = Voxelarium.BasicMesher(  );
 
 	var words1 = voxelUniverse.createTextCluster( "Voxelarium", Voxelarium.Voxels.BlackRockType, basicMesher, Voxelarium.Fonts.TI99 );
 	clusters.push( words1 );
@@ -259,3 +275,4 @@ function initVoxelarium() {
 
 init();
 animate();
+                                                   })})

@@ -1,3 +1,4 @@
+import * as THREE from "../three.js/build/three.module.js"
 
 
 Voxelarium.GeometryBufferMono = function () {
@@ -90,6 +91,7 @@ Voxelarium.GeometryBufferMono = function () {
      };
 
      buffer.markDirty = function () {
+        this.geometry.drawRange.count = this.used;
          ["position","in_Texture"
          ,"in_Modulous"
          ,"in_Normal", "in_flat_color", "in_use_texture", "in_decal_texture"
@@ -97,15 +99,8 @@ Voxelarium.GeometryBufferMono = function () {
              var attrib = this.geometry.getAttribute(att);
              attrib.needsUpdate = true;
              attrib.array = buffer[att];
+             attrib.count = this.used;
          })
-
-         this.geometry.attributes.position.needsUpdate = true;
-         this.geometry.attributes.in_Texture.needsUpdate = true;
-         this.geometry.attributes.in_Normal.needsUpdate = true;
-         this.geometry.attributes.in_use_texture.needsUpdate = true;
-         this.geometry.attributes.in_flat_color.needsUpdate = true;
-         this.geometry.attributes.in_decal_texture.needsUpdate = true;
-         this.geometry.attributes.in_Modulous.needsUpdate = true;
      }
 
      buffer.addPoint = function( v, n, ut, flat, dt, mod ) {
@@ -125,6 +120,7 @@ Voxelarium.GeometryBufferMono = function () {
         this.in_use_texture[ this.used ] = ut;
         this.in_flat_color[this.used] = flat;
         this.in_decal_texture[this.used] = dt;
+
         this.in_Modulous[this.used * 2 + 0] = mod[0];
         this.in_Modulous[this.used * 2 + 1] = mod[1];
 

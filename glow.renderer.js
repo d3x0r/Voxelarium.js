@@ -1,3 +1,9 @@
+import * as THREE from "../three.js/build/three.module.js"
+import {ShaderPass} from  "../three.js/three.js.post/ShaderPass.js"
+import {VerticalBlurShader} from  "../three.js/three.js.post/shaders/VerticalBlurShader.js"
+import {HorizontalBlurShader} from "../three.js/three.js.post/shaders/HorizontalBlurShader.js"
+import {RenderPass} from "../three.js/three.js.post/RenderPass.js"
+import {EffectComposer} from "../three.js/three.js.post/EffectComposer.js"
 
 import {Voxelarium} from "./src/Voxelarium.core.js"
 
@@ -83,6 +89,7 @@ var scene;
 
 glow.makeComposers =
 function makeComposers( renderer, sceneFlat, preFlatSetup, sceneGlow, preGlowSetup, sceneOver ) {
+	const camera = Voxelarium.camera;
   scene = sceneFlat;
   glow.renderer = renderer;
   renderer.autoClear = false;
@@ -108,8 +115,8 @@ function makeComposers( renderer, sceneFlat, preFlatSetup, sceneGlow, preGlowSet
 		//renderTargetGlow.depthTexture.type = isWebGL2 ? THREE.FloatType : THREE.UnsignedShortType;
 	}
 	// Prepare the blur shader passes
-	var hblur = new THREE.ShaderPass( THREE.HorizontalBlurShader );
-	var vblur = new THREE.ShaderPass( THREE.VerticalBlurShader );
+	var hblur = new ShaderPass( HorizontalBlurShader );
+	var vblur = new ShaderPass( VerticalBlurShader );
 
 	var bluriness = 1;
 
@@ -122,10 +129,10 @@ function makeComposers( renderer, sceneFlat, preFlatSetup, sceneGlow, preGlowSet
 	//vblur.material.depthWrite = false;
 
 	// Prepare the glow scene render pass
-	var renderModelGlow = new THREE.RenderPass( sceneGlow, camera);
+	var renderModelGlow = new RenderPass( sceneGlow, camera);
 
 	// Create the glow composer
-	glowcomposer = new THREE.EffectComposer( renderer, renderTargetGlow );
+	glowcomposer = new EffectComposer( renderer, renderTargetGlow );
 
 	// Add all the glow passes
 	glowcomposer.addPass( renderModelGlow );
@@ -134,8 +141,8 @@ function makeComposers( renderer, sceneFlat, preFlatSetup, sceneGlow, preGlowSet
 
 
 	// Prepare the base scene render pass
-	var renderModel = new THREE.RenderPass( sceneFlat, camera );
-	var renderModel2 = new THREE.RenderPass( sceneGlow, camera );
+	var renderModel = new RenderPass( sceneFlat, camera );
+	var renderModel2 = new RenderPass( sceneGlow, camera );
 	renderModel.clear = true;
 	renderModel2.clear = false;
 
@@ -167,13 +174,13 @@ function makeComposers( renderer, sceneFlat, preFlatSetup, sceneGlow, preGlowSet
 	// Note that the tDiffuse sampler2D will be automatically filled by the EffectComposer
 
 	// Prepare the additive blending pass
-	var finalPass = new THREE.ShaderPass( finalshader );
+	var finalPass = new ShaderPass( finalshader );
 	finalPass.needsSwap = false;
 	// Make sure the additive blending is rendered to the screen (since it's the last pass)
 	finalPass.renderToScreen = true;
 
 	// Create the composer
-	finalcomposer = new THREE.EffectComposer( renderer, renderTarget );
+	finalcomposer = new EffectComposer( renderer, renderTarget );
 
 	// Add all passes
 	finalcomposer.addPass( renderModel );
@@ -187,6 +194,7 @@ function makeComposers( renderer, sceneFlat, preFlatSetup, sceneGlow, preGlowSet
 
 //exports.render =
 glow.render = function glowRender() {
+	const camera = Voxelarium.camera;
   if( !Voxelarium.Settings.use_basic_material ) {
     preGlow();
     glowcomposer.render();

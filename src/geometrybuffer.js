@@ -1,3 +1,4 @@
+import * as THREE from "../three.js/build/three.module.js"
 
 const attribs = ["position","uv"
 ,"in_Color", "in_FaceColor", "in_Modulous"

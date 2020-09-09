@@ -5,8 +5,9 @@
  * @author WestLangley / http://github.com/WestLangley
  * @contributor d3x0r / http://github.com/d3x0r  - add enable/disable to allow disconnecting these events
  */
+import * as THREE from "./build/three.module.js"
 
-THREE.OrbitControls = function ( object, clusterLookAt, domElement ) {
+function controls( object, clusterLookAt, domElement ) {
 	// mode 1, is limited
 	this.mode = 2;
 	this.object = object;
@@ -574,4 +575,5 @@ THREE.OrbitControls = function ( object, clusterLookAt, domElement ) {
 
 };
 
-THREE.OrbitControls.prototype = Object.create( THREE.EventDispatcher.prototype );
+controls.prototype = Object.create( THREE.EventDispatcher.prototype );
+export {controls}

@@ -1,4 +1,5 @@
 "use strict";
+import * as THREE from "../three.js/build/three.module.js"
 
 import {Voxelarium} from "./Voxelarium.core.js"
 

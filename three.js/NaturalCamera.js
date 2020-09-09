@@ -1,8 +1,10 @@
 /**
  * @author d3x0r / https://github.com/d3x0r
  */
+import * as THREE from "./build/three.module.js"
 
-THREE.NaturalControls = function ( object, domElement ) {
+
+function controls( object, domElement ) {
 
     this.object = object;
 	this.domElement = ( domElement !== undefined ) ? domElement : document;
@@ -86,7 +88,7 @@ const moveSpeed = 12 * 0.0254;
     scope.object.matrix.move( tick );
     scope.object.matrix.rotateRelative( 0, 0, -scope.object.matrix.roll );
 
-    scope.object.matrixWorldNeedsUpdate = true;
+    scope.object.matrixWorldNeedsUpdate = false;
 
     thetaDelta = 0;
     phiDelta = 0;
@@ -312,4 +314,5 @@ function onTouchEnd( e ) {
 
 //THREE.NaturalCamera.
 
-THREE.NaturalControls.prototype = Object.create( THREE.EventDispatcher.prototype );
+controls.prototype = Object.create( THREE.EventDispatcher.prototype );
+export {controls}

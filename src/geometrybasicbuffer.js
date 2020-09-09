@@ -1,3 +1,4 @@
+import * as THREE from "../three.js/build/three.module.js"
 
 if( Number(THREE.REVISION) >= 76 ) {
 	var count_is_getter = false;

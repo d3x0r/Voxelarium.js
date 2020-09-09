@@ -1,3 +1,4 @@
+import * as THREE from "./build/three.module.js"
 
 
 var casting = {
@@ -66,7 +67,7 @@ casting.addRef = function updateCastMesh( currentRef) {
 
 
 
-THREE.GameMouse = function ( object, domElement ) {
+function controls( object, domElement ) {
     this.object = object;
 	this.domElement = ( domElement !== undefined ) ? domElement : document;
     this.casting = casting;
@@ -622,3 +623,7 @@ function  rayCast(cluster, o, forward )
 
   return Out;
 }
+
+
+//THREE.GameMouse = 
+export {controls}
