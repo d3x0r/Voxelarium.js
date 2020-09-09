@@ -99,7 +99,7 @@ const consts = {
 	Object.defineProperty(consts[key], "y", { writable: false })
 	Object.defineProperty(consts[key], "z", { writable: false })
 })
-
+export {consts}
 var oldProto = THREE.Matrix4.prototype;
 var oldMatrixContructor = THREE.Matrix4.prototype.constructor;
 

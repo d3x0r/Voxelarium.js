@@ -1,5 +1,5 @@
 import * as THREE from "./build/three.module.js"
-
+import {consts,Vector4Pool,Vector3Pool} from "./personalFill.js"
 
 var casting = {
     reset: function() { this.cubes = 0; },
@@ -76,7 +76,7 @@ function controls( object, domElement ) {
   this.mode = 0;
   this.voxelSelector = null;
   this.clusters = null;
-  this.mouseRay = { n : THREE.Vector3Zero.clone(), o: new THREE.Vector3().delete() }
+  this.mouseRay = { n : consts.Vector3Zero.clone(), o: new THREE.Vector3().delete() }
   this.mouseClock = new THREE.Clock();
   this.mouseEvents = [];
   this.currentAddType = Voxelarium.Voxels.types[2];
@@ -301,7 +301,7 @@ function onTouchCancel(event) {
 
     	event.preventDefault();
 
-        scope.setMouseRay( camera, event );
+        scope.setMouseRay( Voxelarium.camera, event );
 
     }
 
@@ -356,10 +356,10 @@ function onTouchCancel(event) {
 function  rayCast(cluster, o, forward )
 {
     var Out = null;
-  var Delta_h = THREE.Vector4Pool.new(),Delta_v = THREE.Vector4Pool.new(),Delta_s = THREE.Vector4Pool.new();
-  var Offset_h = THREE.Vector4Pool.new(), Offset_v = THREE.Vector4Pool.new(), Offset_s = THREE.Vector4Pool.new();
-  var Norm_h = THREE.Vector3Pool.new(), Norm_v = THREE.Vector3Pool.new(), Norm_s = THREE.Vector3Pool.new();
-  var Collision_h = THREE.Vector4Pool.new(), Collision_v = THREE.Vector4Pool.new(), Collision_s = THREE.Vector4Pool.new();
+  var Delta_h = Vector4Pool.new(),Delta_v = Vector4Pool.new(),Delta_s = Vector4Pool.new();
+  var Offset_h = Vector4Pool.new(), Offset_v = Vector4Pool.new(), Offset_s = Vector4Pool.new();
+  var Norm_h = Vector3Pool.new(), Norm_v = Vector3Pool.new(), Norm_s = Vector3Pool.new();
+  var Collision_h = Vector4Pool.new(), Collision_v = Vector4Pool.new(), Collision_s = Vector4Pool.new();
 
   var ActualCube_x,ActualCube_y,ActualCube_z;
   var NewCube_x,NewCube_y,NewCube_z;

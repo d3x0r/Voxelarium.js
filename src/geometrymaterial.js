@@ -3,15 +3,18 @@ import * as THREE from "../three.js/build/three.module.js"
 
 Voxelarium.GeometryShader = function() {
     return new THREE.ShaderMaterial( {
-
+	defines:{
+		USE_MAP:'',
+		USE_UV:'',
+	},
 	uniforms: {
         edge_only : { type: "f", value : 0 },
         map : { type : "t", value : null }
+		
 	},
     transparent : true,
      blending: THREE.NormalBlending,
 	vertexShader: `
-    #define USE_MAP
 
     #include <common>
     #include <uv_pars_vertex>
@@ -143,11 +146,10 @@ fragmentShader:`
     	varying vec3 vNormal;
 
     #endif
-    #define USE_MAP
 
     #include <common>
-    #include <color_pars_fragment>
     #include <uv_pars_fragment>
+    #include <color_pars_fragment>
     #include <uv2_pars_fragment>
     #include <map_pars_fragment>
     #include <alphamap_pars_fragment>
@@ -192,10 +194,11 @@ fragmentShader:`
         {
                 if( ex_use_texture > 0.5 )
                 {
+			
                     if( edge_only > 0.5 )
                         diffuseColor = vec4(1.0);
                     else
-                        diffuseColor = vec4( texture2D( map, ex_texCoord ).rgb, 1.0 );
+                        diffuseColor = vec4(  texture2D( map, ex_texCoord ).rgb, 1.0 );
                       //  diffuseColor = vec4( ex_texCoord, texture2D( map, ex_texCoord ).r, 1.0 );
                     //diffuseColor =vec4(ex_texCoord.x,ex_texCoord.y,0,1);// ex_Color;
                 }

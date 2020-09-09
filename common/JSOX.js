@@ -13,7 +13,6 @@ var exports = exports || {};
 const _JSON=JSON; // in case someone does something like JSON=JSOX; we still need a primitive _JSON for internal stringification
 const JSOX = exports;
 
-function privateizeEverything() {
 	const _DEBUG_LL = false;
 	const _DEBUG_PARSING = false;
 	const _DEBUG_STRINGIFY = false;
@@ -355,6 +354,9 @@ JSOX.begin = function( cb, reviver ) {
 				_DEBUG_PARSING && console.log( "CONVERT VAL:", val );
 				switch( val.value_type ){
 				case VALUE_NUMBER:
+					if( ( ( val.string.length > 10 ) || ( val.string.length == 10 && val[0]>'2' ) ) 
+					    && !exponent_digit && !exponent_sign && !decimal )
+						isBigInt = true;
 					if( isBigInt ) { if( hasBigInt ) return BigInt(val.string); else throw new Error( "no builtin BigInt()", 0 ) }
 					if( date_format ) { const r = new Date( val.string ); if(isNaN(r.getTime())) throwError( "Bad number format", cInt ); return r;  }
 					return  (negative?-1:1) * Number( val.string );
@@ -423,6 +425,7 @@ JSOX.begin = function( cb, reviver ) {
 						if( !obj ) throw new Error( "Path did not resolve poperly.");
 						_DEBUG_PARSING && console.log( "Resulting resolved object:", obj );
 						_DEBUG_PARSING_DETAILS && console.log( "SETTING MODE TO -3 (resolved -2)" );
+						arrayType = -3;
 						return obj;
 					}
 					if( val.className ) { 
@@ -2531,8 +2534,5 @@ const nonIdent =
 ].map( row=>{ return{ firstChar : row[0], lastChar: row[1], bits : row[2] }; } );
 
 
-}
-
-privateizeEverything();
 
 export {JSOX}

@@ -1,7 +1,9 @@
 "use strict";
 
+import * as THREE  from "./three.js/build/three.module.js"
+window.THREE = THREE;
 import {Voxelarium,glow} from "./Voxelarium.js"
-
+import {consts,Vector3Pool} from "./three.js/personalFill.js"
 //var words1 = voxelUniverse.createTextCluster( "Hello World" );
 //var glow = require( './glow.renderer.js' );
 
@@ -28,8 +30,8 @@ var vrDisplay= window;
 var effect = null;
 var controller1=null, controller2=null;
 var headLight = null;
-var sceneScale = THREE.Vector3One;
-var sceneOffset = THREE.Vector3Zero;
+var sceneScale = consts.Vector3One;
+var sceneOffset = consts.Vector3Zero;
 var skeleton;
 var head;
 
@@ -73,20 +75,20 @@ function setMode3() {
 function setControls1() {
 	controls.disable();
 	camera.matrixAutoUpdate = false;
-	controls = controlNatural;
+	controls = Voxelarium.controls.controlNatural;
 	controls.enable();
 }
 function setControls2() {
 	controls.disable();
 	camera.matrixAutoUpdate = false;  // current mode doesn't auto update
-	controls = controlOrbit;
+	controls = Voxelarium.controls.controlOrbit;
 	controls.enable();
 }
 
 function setControls3() {
 	controls.disable();
 	camera.matrixAutoUpdate = false;  // current mode doesn't auto update
-	controls = controlGame;
+	controls = Voxelarium.controls.controlGame;
 	controls.enable();
 }
 
@@ -293,20 +295,20 @@ var status_line;
 
 
 		if( !Voxelarium.Settings.VR ) {
-			controlNatural = new THREE.NaturalControls( camera, renderer.domElement );
-			controlNatural.enable();
+			Voxelarium.controls.controlNatural = new Voxelarium.controls.natural( camera, renderer.domElement );
+			Voxelarium.controls.controlNatural.enable();
 
 			/* auto enables; make sure to disable before enabling something else... */
-			controlOrbit = new THREE.OrbitControls( camera, renderer.domElement );
-			controlOrbit.disable();
+			Voxelarium.controls.controlOrbit = new Voxelarium.controls.orbit( camera, renderer.domElement );
+			Voxelarium.controls.controlOrbit.disable();
 
-			controlGame = new THREE.GameMouse( camera, renderer.domElement );
-			controlGame.disable();
+			Voxelarium.controls.controlGame = new Voxelarium.controls.game( camera, renderer.domElement );
+			Voxelarium.controls.controlGame.disable();
 
-			scene.add( controlGame.casting.mesh );
+			scene.add( Voxelarium.controls.controlGame.casting.mesh );
 
 			camera.matrixAutoUpdate = false;
-			controls = controlNatural;
+			controls = Voxelarium.controls.controlNatural;
 		}
 		initVoxelarium();
 
@@ -483,13 +485,13 @@ function initVoxelarium() {
 				cluster.THREE_solid.userData.altspace = { collider: { enabled: false } };
 			scene2.add( cluster.THREE_solid );
 			clusters.push( cluster );
-			cluster.pivot.add( THREE.Vector3Pool.new( cluster.voxelUnitSize * ( cluster.sectorSizeX/2 )
+			cluster.pivot.add( Vector3Pool.new( cluster.voxelUnitSize * ( cluster.sectorSizeX/2 )
 					, -1 * cluster.voxelUnitSize * ( cluster.sectorSizeY/2 )
 					, cluster.voxelUnitSize * ( cluster.sectorSizeZ/2 ) ).delete() );
-			if( controlOrbit )
-				controlOrbit.center = cluster.pivot;
-			if( controlGame )
-				controlGame.clusters = clusters;
+			if( Voxelarium.controls.controlOrbit )
+				Voxelarium.controls.controlOrbit.center = cluster.pivot;
+			if( Voxelarium.controls.controlGame )
+				Voxelarium.controls.controlGame.clusters = clusters;
 			//var sector = Voxelarium.Sector(cluster,0,-1,0);
 			var sector = cluster.createSector( 0, 0, 0 );
 			sector.MakeSector(Voxelarium.Voxels.types[1]);
@@ -652,4 +654,4 @@ function initAltSpace( init ) {
 if( Voxelarium.Settings.AltSpace )
 	initAltSpace( init );
 else
-	setTimeout( init, 1000);
+	Voxelarium.onready( init );

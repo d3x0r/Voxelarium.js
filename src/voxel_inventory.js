@@ -1,7 +1,8 @@
 "use strict";
+import * as THREE from "../three.js/build/three.module.js"
 import {Voxelarium} from "./Voxelarium.core.js"
+import {consts} from "../three.js/personalFill.js"
 
-var types = Voxelarium.Voxels;
 
 var keys = { LEFT: 37, UP: 38, RIGHT: 39, BOTTOM: 40
 	, A:65, S:83, D:68, W:87, SPACE:32, C:67
@@ -32,7 +33,7 @@ Voxelarium.Inventory = function( geometryShader,domElement ) {
         THREE_solid : new THREE.Object3D(),
          x_max : 15, y_max : 12,
          x_inc : 0.75, y_inc : 0.75,
-         mouseRay : { n : THREE.Vector3Zero.clone(), o: new THREE.Vector3().delete() },
+         mouseRay : { n : consts.Vector3Zero.clone(), o: new THREE.Vector3() },
          last_intersects : null,
          deactivates : [],
          //mouseClock : new THREE.Clock();
@@ -156,6 +157,7 @@ Voxelarium.Inventory = function( geometryShader,domElement ) {
         	//}
         }
     }
+	const types = Voxelarium.Voxels;
     types.types.forEach( (voxel)=>{
         var item;
         inventory.items.push( item = InventoryItem( voxel ) );
@@ -313,7 +315,7 @@ Voxelarium.Inventory = function( geometryShader,domElement ) {
           if ( inventory.enabled === false ) return;
           event.preventDefault();
           if( inventory.selector.currentVoxel ) {
-              controlGame.setCurrentType( inventory.selector.currentVoxel.object.item.voxelType );
+              Voxelarium.controls.controlGame.setCurrentType( inventory.selector.currentVoxel.object.item.voxelType );
 
               inventory.deactivate();
           }
@@ -339,7 +341,7 @@ Voxelarium.Inventory = function( geometryShader,domElement ) {
         function onMouseMove( event ) {
         	if ( inventory.enabled === false ) return;
         	event.preventDefault();
-            setMouseRay( camera, event );
+            setMouseRay( Voxelarium.camera, event );
         }
 
         function onMouseWheel( event ) {

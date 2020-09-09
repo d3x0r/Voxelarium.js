@@ -24,6 +24,15 @@ class Db  {
 	this_ = this;
 	onComplete = null;
 	connected = false;
+	animate() {
+		// called every half second during animation loop
+		// this allows sending/retreiving external player positions.
+	}
+	player = {
+		positionUpdate : false,
+		
+		
+	}
 	world = {
 		currentCluster : null,
 		set cluster(val) {
@@ -32,7 +41,10 @@ class Db  {
                 loadWorld : loadWorld,
 		loadSector( into ) {
 			console.log( "loadsomething:", into );
-			this_.send( {op:"load", into:into } );	
+
+			db.send( {op:"load", pos:into.pos  } );	
+		},
+		storeSector( sector ) {
 		},
 		voxelInfo: null
 	}

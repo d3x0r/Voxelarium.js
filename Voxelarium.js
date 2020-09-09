@@ -124,7 +124,7 @@ import( "./src/voxels.js" )  // must be after atlas
 import( "./src/voxel_inventory.js")  // must be after voxels
 
 function tick() {
-	if( Voxelarium.World &&   Voxelarium.db ) { if( readies.length ) readies[0](); }
+	if( Voxelarium.World && Voxelarium.Inventory  && Voxelarium.db && Voxelarium.Voxels) { if( readies.length ) readies[0](); }
 	else setTimeout( tick, 100 );
 }tick();
 
