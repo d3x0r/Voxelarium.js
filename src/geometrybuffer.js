@@ -39,9 +39,12 @@ Voxelarium.GeometryBuffer = function () {
     }
 
     attribs.forEach( (att,index)=>{
-      buffer.geometry.addAttribute( att, new THREE.BufferAttribute( buffer[att], attrib_sizes[index], attrib_normalize[index] ))
+      buffer.geometry.setAttribute( att, new THREE.BufferAttribute( buffer[att], attrib_sizes[index], attrib_normalize[index] ))
     })
 
+	buffer.updateUniforms = function() {
+		console.log( this.material.uniforms, this.geometry.uniforms );
+	}
 
      buffer.expand = function() {
          var newbuf;

@@ -66,7 +66,7 @@ Voxelarium.GeometryBasicBuffer = function () {
     }
 
     attribs.forEach( (att)=>{
-      buffer.geometry.addAttribute( att.name, new THREE.BufferAttribute( buffer[att.name], att.size, att.normalize ))
+      buffer.geometry.setAttribute( att.name, new THREE.BufferAttribute( buffer[att.name], att.size, att.normalize ))
     })
 
 

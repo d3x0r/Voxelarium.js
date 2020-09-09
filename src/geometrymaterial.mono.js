@@ -105,8 +105,8 @@ Voxelarium.GeometryShaderMono = function() {
 					
         				//gl_FragColor = vec4( h * white + (g * ex_Color.rgb), ca ) ;
 //        				gl_FragColor = vec4(  white.rgb, ca ) ;
-        				gl_FragColor = vec4( ex_FaceColor.rgb, 1 ) ;
-					return;
+//      				gl_FragColor = vec4( ex_Color.rgb, 1 ) ;
+//					return;
         			//  gl_FragColor = vec4( g * ex_Color.rgb, ex_Color.a ) ;
                     if( edge_only > 0.5 ) {
                         gl_FragColor = vec4( h* ( white - ex_FaceColor.rgb )+ (g* ex_Color.rgb), 1.0/*(g * ca)*/ ) ;

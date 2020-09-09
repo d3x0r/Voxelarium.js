@@ -4,6 +4,7 @@ import * as THREE from "../three.js/build/three.module.js"
 Voxelarium.GeometryBufferMono = function () {
     var buffer = {};
      buffer.geometry = new THREE.BufferGeometry();
+	
      buffer.geometry.uniforms = {
              in_Color : new THREE.Vector4(1,0,0,1),
              in_FaceColor : new THREE.Vector4(0,1,0,1),
@@ -25,6 +26,15 @@ Voxelarium.GeometryBufferMono = function () {
     buffer.available = 0;
     buffer.used = 0;
 
+	buffer.updateUniforms = function() {
+		this.material.uniforms.in_Color.value = this.geometry.uniforms.in_Color;
+		this.material.uniforms.in_FaceColor.value = this.geometry.uniforms.in_FaceColor;
+		this.material.uniforms.in_Pow.value = this.geometry.uniforms.in_Pow;
+		this.material.uniforms.edge_only.value = this.geometry.uniforms.edge_only;
+//		this.material.uniforms.
+		//console.log( this.material.program.getUniforms() );
+	}
+
     buffer.clear = function() {
         this.used = 0;
     }
@@ -43,16 +53,16 @@ Voxelarium.GeometryBufferMono = function () {
     attribute  vec2 in_Modulous;
 */
 //buffer.geometry
-    buffer.geometry.addAttribute( 'position', new THREE.BufferAttribute( buffer.position, 3 ) );
-     buffer.geometry.addAttribute( 'in_Texture', new THREE.BufferAttribute( buffer.in_Texture, 2 ) );
+    buffer.geometry.setAttribute( 'position', new THREE.BufferAttribute( buffer.position, 3 ) );
+     buffer.geometry.setAttribute( 'in_Texture', new THREE.BufferAttribute( buffer.in_Texture, 2 ) );
      //buffer.geometry.addAttribute( 'in_Color', new THREE.BufferAttribute( buffer.in_Color, 4,true ) );
      //buffer.geometry.addAttribute( 'in_FaceColor', new THREE.BufferAttribute( buffer.in_FaceColor, 4, true ) );
-     buffer.geometry.addAttribute( 'in_Normal', new THREE.BufferAttribute( buffer.in_Normal, 3 ) );
+     buffer.geometry.setAttribute( 'in_Normal', new THREE.BufferAttribute( buffer.in_Normal, 3 ) );
      //buffer.geometry.addAttribute( 'in_Pow', new THREE.BufferAttribute( buffer.in_Pow, 1 ) );
-     buffer.geometry.addAttribute( 'in_use_texture', new THREE.BufferAttribute( buffer.in_use_texture, 1 ) );
-     buffer.geometry.addAttribute( 'in_flat_color', new THREE.BufferAttribute( buffer.in_flat_color, 1 ) );
-     buffer.geometry.addAttribute( 'in_decal_texture', new THREE.BufferAttribute( buffer.in_decal_texture, 1 ) );
-     buffer.geometry.addAttribute( 'in_Modulous', new THREE.BufferAttribute( buffer.in_Modulous, 2, false ) );
+     buffer.geometry.setAttribute( 'in_use_texture', new THREE.BufferAttribute( buffer.in_use_texture, 1 ) );
+     buffer.geometry.setAttribute( 'in_flat_color', new THREE.BufferAttribute( buffer.in_flat_color, 1 ) );
+     buffer.geometry.setAttribute( 'in_decal_texture', new THREE.BufferAttribute( buffer.in_decal_texture, 1 ) );
+     buffer.geometry.setAttribute( 'in_Modulous', new THREE.BufferAttribute( buffer.in_Modulous, 2, false ) );
 
 
 
