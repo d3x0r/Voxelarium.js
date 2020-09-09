@@ -18,11 +18,11 @@ function controls( object, domElement ) {
 	// internals
 //const moveSpeed = 12 * 0.0254;
 
-const mps = 1000/32;
-const kmph = mps*(60*60)/(1000);
+let mps = 1000/32;
+let kmph = mps*(60*60)/(1000);
 
-const runScalar = 1;
-const moveSpeed = ( 1*kmph ) /runScalar ;
+let runScalar = 1;
+let moveSpeed = ( 1*kmph ) /runScalar ;
 	var scope = this;
 
 	var rotateStart = new THREE.Vector2();
@@ -35,7 +35,13 @@ const moveSpeed = ( 1*kmph ) /runScalar ;
 
 	var lastPosition = new THREE.Vector3();
 
+	this.setMPS= function(n) {
+		mps = n/32;
+		kmph = mps*(60*60)/(1000);
 
+		runScalar = 1;
+		moveSpeed = ( 1*kmph ) /runScalar ;
+	}
 
 	this.rotateLeft = function ( angle ) {
 

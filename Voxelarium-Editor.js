@@ -297,6 +297,7 @@ var status_line;
 		if( !Voxelarium.Settings.VR ) {
 			Voxelarium.controls.controlNatural = new Voxelarium.controls.natural( camera, renderer.domElement );
 			Voxelarium.controls.controlNatural.enable();
+			Voxelarium.controls.controlNatural.setMPS(1);
 
 			/* auto enables; make sure to disable before enabling something else... */
 			Voxelarium.controls.controlOrbit = new Voxelarium.controls.orbit( camera, renderer.domElement );
