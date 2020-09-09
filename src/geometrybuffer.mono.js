@@ -1,5 +1,7 @@
 import * as THREE from "../three.js/build/three.module.js"
 
+let priorFace = null;
+let priorEdge = null;
 
 Voxelarium.GeometryBufferMono = function () {
     var buffer = {};
@@ -26,9 +28,29 @@ Voxelarium.GeometryBufferMono = function () {
     buffer.available = 0;
     buffer.used = 0;
 
-	buffer.updateUniforms = function() {
-		this.material.uniforms.in_Color.value = this.geometry.uniforms.in_Color;
-		this.material.uniforms.in_FaceColor.value = this.geometry.uniforms.in_FaceColor;
+	buffer.updateUniforms = function(sector) {
+		const face = sector.faceGradient;
+		const edge = sector.edgeGradient;
+		if( face ) {
+			if( priorFace !== face || face.changed() ) {
+				this.material.uniforms.in_FaceColor.value = face.getValue();
+				this.material.uniformsNeedUpdate = true;
+			}
+		} else
+			this.material.uniforms.in_Color.value = this.geometry.uniforms.in_Color;
+
+		if( edge ) {
+			if( priorEdge !== edge || edge.changed() ) {
+				this.material.uniforms.in_Color.value = edge.getValue();
+				this.material.uniformsNeedUpdate = true;
+			}
+		} else
+			this.material.uniforms.in_FaceColor.value = this.geometry.uniforms.in_FaceColor;
+
+		priorFace = face;
+		priorEdge = edge;
+		//WebGLUniforms.upload( _gl, materialProperties.uniformsList, m_uniforms, textures );
+		this.material.uniformsNeedUpdate = true;
 		this.material.uniforms.in_Pow.value = this.geometry.uniforms.in_Pow;
 		this.material.uniforms.edge_only.value = this.geometry.uniforms.edge_only;
 //		this.material.uniforms.

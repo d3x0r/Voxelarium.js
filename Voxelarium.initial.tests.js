@@ -2,7 +2,7 @@
 
 
 import * as THREE from "../three.js/build/three.module.js"
-
+import {TimeGradient} from "./src/TimeGradient.js"
 window.THREE = THREE;
 import ( "./Voxelarium.js" ).then ( (V)=>{
 const Voxelarium = V.Voxelarium;
@@ -164,6 +164,8 @@ function animate() {
 	var delta = clock.getDelta();
 
 		controls.update(delta);
+		TimeGradient.update(delta);
+
 
 		tests.forEach( (test)=>{ test.animate(); } )
 
@@ -171,12 +173,12 @@ function animate() {
 		//nFrame++;
 		if( nFrame++ < nTarget ) {
 			clusters.forEach( (cluster)=>{ cluster.SectorList.forEach( (sector)=>{
-				sector.THREE_solid.material.uniformsNeedUpdate = true;
-				sector.solid_geometry.geometry.uniforms.in_FaceColor = new THREE.Vector4( 0.2 * 1, 0.5* 1,0.05* 1, 1.0 );
-				sector.solid_geometry.geometry.uniforms.in_FaceColor.needsUpdate = true;
+				//sector.THREE_solid.material.uniformsNeedUpdate = true;
+				//sector.solid_geometry.geometry.uniforms.in_FaceColor = new THREE.Vector4( 0.2 * 1, 0.5* 1,0.05* 1, 1.0 );
+				//sector.solid_geometry.geometry.uniforms.in_FaceColor.needsUpdate = true;
 				//sector.solid_geometry.geometry.uniforms.in_FaceColor = new THREE.Vector4( 0.3 * (nTarget-nFrame)/nTarget, 0.7* (nTarget-nFrame)/nTarget,0.9* (nTarget-nFrame)/nTarget, 1.0 );
 				sector.solid_geometry.geometry.uniforms.in_Color = new THREE.Vector4( 0.01 * (nFrame)/nTarget, 0.4* (nFrame)/nTarget,0.01* (nFrame)/nTarget, 1.0 );
-				sector.solid_geometry.geometry.uniforms.in_Color.needsUpdate = true;
+				//sector.solid_geometry.geometry.uniforms.in_Color.needsUpdate = true;
 				//console.log( "Stting color:", sector.solid_geometry.geometry.uniforms.in_FaceColor, sector.solid_geometry.geometry.uniforms.in_Color );
 			})})
 		} else if( nFrame < nTarget2 ) {
@@ -208,16 +210,16 @@ function initVoxelarium() {
   Voxelarium.db.init( ()=>{
 //	Voxelarium.Voxels.load( ()=>{
 	console.log( "db init finish?" );
-   geometryShader.map = Voxelarium.TextureAtlas.texture;
-	 geometryShader.needsUpdate = true;
+	geometryShader.map = Voxelarium.TextureAtlas.texture;
+	geometryShader.needsUpdate = true;
 
 	 var geometryMaterial = Voxelarium.GeometryBasicBuffer();
 
 	// geometryMaterial.makeVoxCube(  400, Voxelarium.Voxels.BlackRockType );
 	// scene2.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
 
-	 geometryMaterial.makeVoxCube(  200, Voxelarium.Voxels.BlackRockType );
-	 scene2.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
+	 //geometryMaterial.makeVoxCube(  200, Voxelarium.Voxels.BlackRockType );
+	 //scene2.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
 
 
 	var basicMesher = Voxelarium.BasicMesher(  );
@@ -225,10 +227,40 @@ function initVoxelarium() {
 	var words1 = voxelUniverse.createTextCluster( "Voxelarium", Voxelarium.Voxels.BlackRockType, basicMesher, Voxelarium.Fonts.TI99 );
 	clusters.push( words1 );
 	var offset = 300;
+	const titleFaceGradient = new TimeGradient( TimeGradient.arrayScalar )
+			.addStage( 1, [0.4,0.8,1.0] )
+			.addStage( 1, [0,0,0] );
+
+	const titleEdgeGradient = new TimeGradient( TimeGradient.arrayScalar )
+			.addStage( 1, [0,0,0] )
+			.addStage( 1.2, [0.4,0.8,1.0] )
+			;
+
+	const blackGradient = new TimeGradient( TimeGradient.arrayScalar )
+			.addStage( 1, [0,0,0] );
+
+	const blueGlow = new TimeGradient( TimeGradient.arrayScalar )
+			.addStage( 0.25, [0,0.6,0.8] )
+			.addStage( 0.5, [0,0.2,0.4] )
+			;
+
+	const rainGlow = new TimeGradient( TimeGradient.arrayScalar )
+			.addStage( 1, [1,0,0] )
+			.addStage( 1, [0.5,0.3,0] )
+			.addStage( 1, [0.8,0.8,0] )
+			.addStage( 1, [0.0,0.8,0] )
+			.addStage( 1, [0,1,0.5] )
+			.addStage( 1, [0.8,0,1] )
+			.addStage( 1, [1,0,0] )
+			;
+
 	words1.SectorList.forEach( (sector)=>{
 		basicMesher.MakeSectorRenderingData( sector );
 		scene2.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShaderMono ) )
-		sector.THREE_solid.onBeforeRender = sector.solid_geometry.updateUniforms;
+		sector.THREE_solid.onBeforeRender = sector.solid_geometry.updateUniforms.bind( sector.THREE_solid, sector );
+		sector.faceGradient = titleFaceGradient
+		sector.edgeGradient = titleEdgeGradient
+
 		//sector.THREE_solid.matrix.Translate( -800, +offset, 0 );
 		sector.THREE_solid.position.add( new THREE.Vector3(-800, +offset, 0 ));
 	})
@@ -238,6 +270,9 @@ function initVoxelarium() {
 	words1.SectorList.forEach( (sector)=>{
 		basicMesher.MakeSectorRenderingData( sector );
 		scene2.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShaderMono ) )
+		sector.faceGradient = blackGradient
+		sector.edgeGradient = blueGlow
+		sector.THREE_solid.onBeforeRender = sector.solid_geometry.updateUniforms.bind( sector.THREE_solid, sector );
 		sector.THREE_solid.position.add( new THREE.Vector3( -800, -1*8*20+offset, 0 ));
 	})
 
@@ -246,6 +281,10 @@ function initVoxelarium() {
 	words1.SectorList.forEach( (sector)=>{
 		basicMesher.MakeSectorRenderingData( sector );
 		scene2.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShaderMono ) )
+		sector.THREE_solid.onBeforeRender = sector.solid_geometry.updateUniforms.bind( sector.THREE_solid, sector );
+		sector.faceGradient = rainGlow
+		sector.edgeGradient = blueGlow
+
 		sector.solid_geometry.geometry.uniforms.in_FaceColor = new THREE.Vector4( 0.4, 0.8, 1, 1 );
 		sector.solid_geometry.geometry.uniforms.edge_only = 0;
 		sector.THREE_solid.position.add( new THREE.Vector3( -800, -2*8*20+offset, 0 ));
@@ -263,7 +302,8 @@ function initVoxelarium() {
 		words1.SectorList.forEach( (sector)=>{
 			basicMesher.MakeSectorRenderingData( sector );
 			scene2.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShaderMono ) )
-			sector.solid_geometry.geometry.uniforms.in_FaceColor = new THREE.Vector4( 0.4, 0.8, 1, 1 );
+			sector.THREE_solid.onBeforeRender = sector.solid_geometry.updateUniforms.bind( sector.THREE_solid, sector );
+			sector.solid_geometry.geometry.uniforms.in_FaceColor = new THREE.Vector4( 0.6, 0.1, 0.4, 1 );
 			sector.solid_geometry.geometry.uniforms.edge_only = 0;
 			//sector.THREE_solid.matrix.Translate( xofs, offset, 0 );
 			sector.THREE_solid.position.add( new THREE.Vector3(xofs, offset, 0) );

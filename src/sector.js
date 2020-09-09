@@ -27,7 +27,8 @@ Voxelarium.Sector = function( cluster, x, y, z ) {
 		RingNum : 0,
 
 		cluster : cluster,
-
+		faceGradient : null,
+		edgeGradient : null,
 		data : { data : new Array( cluster.sectorSize )
 				, sleepState : Voxelarium.PackedBoolArray( cluster.sectorSize )
             	, otherInfos : []
