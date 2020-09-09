@@ -1,9 +1,10 @@
 
-import sack from "sack.vfs";
 
-//var sack = require( "sack.vfs" );
+import {sack} from "sack.vfs"
 import path from "path";
-//const path = require( "path" );
+
+import {db} from "./db.mjs"
+
 var serverOpts;
 var server = sack.WebSocket.Server( serverOpts = { port: Number(process.argv[2])||8080 } )
 var disk = sack.Volume();
@@ -11,6 +12,7 @@ console.log( "serving on " + serverOpts.port );
 
 
 server.onrequest( function( req, res ) {
+
 	var ip = ( req.headers && req.headers['x-forwarded-for'] ) ||
 		 req.connection.remoteAddress ||
 		 req.socket.remoteAddress ||
@@ -58,25 +60,23 @@ server.onrequest( function( req, res ) {
 		//console.log( "Read:", "." + req.url );
 		res.end( disk.read( filePath ) );
 	} else {
-		console.log( "Failed request: ", req );
+		console.log( "Failed request: ", req.url );
 		res.writeHead( 404 );
 		res.end( "<HTML><HEAD>404</HEAD><BODY>404</BODY></HTML>");
 	}
 } );
 
 server.onaccept( function ( ws ) {
-	this.accept();
+	const protocol = ws.headers['Sec-WebSocket-Protocol'];
+	console.log( "Connection received with : ", protocol );
+	if( protocol === "VOXDB" ) {
+		this.accept();
+	} else
+		this.reject();
+	return;
 } );
 
 server.onconnect( function (ws) {
-	console.log( "Connect:", ws );
-
-	ws.onmessage( function( msg ) {
-        	//console.log( "Received data:", msg );
-                ws.send( msg );
-		//ws.close();
-        } );
-	ws.onclose( function() {
-        	//console.log( "Remote closed" );
-        } );
+	//const protocol = ws.headers['Sec-WebSocket-Protocol'];
+	db.connect( ws );
 } );
