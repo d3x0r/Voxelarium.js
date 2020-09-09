@@ -1,11 +1,11 @@
-import * as THREE from "../three.js/build/three.module.js"
-import {ShaderPass} from  "../three.js/three.js.post/ShaderPass.js"
-import {VerticalBlurShader} from  "../three.js/three.js.post/shaders/VerticalBlurShader.js"
-import {HorizontalBlurShader} from "../three.js/three.js.post/shaders/HorizontalBlurShader.js"
-import {RenderPass} from "../three.js/three.js.post/RenderPass.js"
-import {EffectComposer} from "../three.js/three.js.post/EffectComposer.js"
+import * as THREE from "./build/three.module.js"
+import {ShaderPass} from  "./three.js.post/ShaderPass.js"
+import {VerticalBlurShader} from  "./three.js.post/shaders/VerticalBlurShader.js"
+import {HorizontalBlurShader} from "./three.js.post/shaders/HorizontalBlurShader.js"
+import {RenderPass} from "./three.js.post/RenderPass.js"
+import {EffectComposer} from "./three.js.post/EffectComposer.js"
 
-import {Voxelarium} from "./src/Voxelarium.core.js"
+import {Voxelarium} from "../src/Voxelarium.core.js"
 
 const camera = Voxelarium.camera;
 const glow = {

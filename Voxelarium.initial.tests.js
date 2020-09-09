@@ -228,6 +228,7 @@ function initVoxelarium() {
 	words1.SectorList.forEach( (sector)=>{
 		basicMesher.MakeSectorRenderingData( sector );
 		scene2.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShaderMono ) )
+		sector.THREE_solid.onBeforeRender = sector.solid_geometry.updateUniforms;
 		//sector.THREE_solid.matrix.Translate( -800, +offset, 0 );
 		sector.THREE_solid.position.add( new THREE.Vector3(-800, +offset, 0 ));
 	})

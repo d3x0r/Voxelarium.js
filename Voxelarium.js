@@ -74,7 +74,7 @@ Voxelarium.controls = { orbit:null
 
 //if( !Voxelarium.Settings.use_basic_material )
 
-import {glow} from "./glow.renderer.js";
+import {glow} from "./three.js/glow.renderer.js";
 
 import( "./three.js/js/renderers/Projector.js" )
 import( "./three.js/three.js.post/shaders/CopyShader.js")
