@@ -215,6 +215,9 @@ function controls( object, clusterLookAt, domElement ) {
 			this.dispatchEvent( changeEvent );
 
 			lastPosition.copy( this.object.position );
+				var tmp = this.center.clone().addScaledVector( this.object.matrix.backward, offset.length() *(scale) );
+				this.object.matrix.origin.copy( tmp );
+				this.object.matrixWorldNeedsUpdate = true;
 
 		}
 
