@@ -139,13 +139,13 @@ var status_line;
 
 		document.body.appendChild( renderer.domElement );
 
-		controlNatural = new Voxelarium.controls.natural( camera, renderer.domElement );
-		controlNatural.disable();
+		Voxelarium.controls.controlNatural = new Voxelarium.controls.natural( camera, renderer.domElement );
+		Voxelarium.controls.controlNatural.enable();
 
-		controlOrbit = new Voxelarium.controls.orbit( camera, renderer.domElement );
-		controlOrbit.enable();
+		Voxelarium.controls.controlOrbit = new Voxelarium.controls.orbit( camera, renderer.domElement );
+		Voxelarium.controls.controlOrbit.disable();
 
-		controls = controlOrbit;
+		controls = Voxelarium.controls.controlNatural;
 
 	}
 
