@@ -201,12 +201,14 @@ function onTouchCancel(event) {
 	if( scope.domElement ){
 		switch(mode ) {
 		case 0:
-			Voxelarium.controls.game.enable();
+			Voxelarium.controls.natural.enable();
 			Voxelarium.controls.natural.disable();
+			Voxelarium.controls.game.enable();
 			break;
 		case 1:
-			Voxelarium.controls.natural.enable();
+			Voxelarium.controls.game.enable();
 			Voxelarium.controls.game.disable();
+			Voxelarium.controls.natural.enable();
 			break;
 		}
 /*
