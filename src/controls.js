@@ -4,12 +4,11 @@ import {consts,Vector4Pool,Vector3Pool} from "../three.js/personalFill.js"
 
 function controls( object, domElement ) {
     this.object = object;
-	this.mode = 0;
+	let mode = 1;
 	this.domElement = domElement ;
   this.camera = null;
   var scope = this;
   let tabDown = false;
-  let mode = 0;
   this.voxelSelector = null;
   this.clusters = null;
   this.mouseRay = { n : consts.Vector3Zero.clone(), o: new THREE.Vector3().delete() }

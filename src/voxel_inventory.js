@@ -315,7 +315,7 @@ Voxelarium.Inventory = function( geometryShader,domElement ) {
           if ( inventory.enabled === false ) return;
           event.preventDefault();
           if( inventory.selector.currentVoxel ) {
-              Voxelarium.controls.controlGame.setCurrentType( inventory.selector.currentVoxel.object.item.voxelType );
+              Voxelarium.controls.game.setCurrentType( inventory.selector.currentVoxel.object.item.voxelType );
 
               inventory.deactivate();
           }
