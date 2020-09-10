@@ -295,21 +295,21 @@ var status_line;
 
 
 		if( !Voxelarium.Settings.VR ) {
-			Voxelarium.controls.controlNatural = new Voxelarium.controls.natural( camera, renderer.domElement );
-			Voxelarium.controls.controlNatural.enable();
-			Voxelarium.controls.controlNatural.setMPS(1);
+			//Voxelarium.controls.controlNatural = new Voxelarium.controls.natural( camera, renderer.domElement );
+			Voxelarium.controls.natural.enable();
+			Voxelarium.controls.natural.setMPS(1);
 
 			/* auto enables; make sure to disable before enabling something else... */
-			Voxelarium.controls.controlOrbit = new Voxelarium.controls.orbit( camera, renderer.domElement );
-			Voxelarium.controls.controlOrbit.disable();
+			//Voxelarium.controls.controlOrbit = new Voxelarium.controls.orbit( camera, renderer.domElement );
+			Voxelarium.controls.orbit.disable();
 
-			Voxelarium.controls.controlGame = new Voxelarium.controls.game( camera, renderer.domElement );
-			Voxelarium.controls.controlGame.disable();
+			//Voxelarium.controls.controlGame = new Voxelarium.controls.game( camera, renderer.domElement );
+			Voxelarium.controls.game.disable();
 
-			scene.add( Voxelarium.controls.controlGame.casting.mesh );
+			scene.add( Voxelarium.controls.game.casting.mesh );
 
 			camera.matrixAutoUpdate = false;
-			controls = Voxelarium.controls.controlNatural;
+			controls = Voxelarium.controls.natural;
 		}
 		initVoxelarium();
 
@@ -489,10 +489,9 @@ function initVoxelarium() {
 			cluster.pivot.add( Vector3Pool.new( cluster.voxelUnitSize * ( cluster.sectorSizeX/2 )
 					, -1 * cluster.voxelUnitSize * ( cluster.sectorSizeY/2 )
 					, cluster.voxelUnitSize * ( cluster.sectorSizeZ/2 ) ).delete() );
-			if( Voxelarium.controls.controlOrbit )
-				Voxelarium.controls.controlOrbit.center = cluster.pivot;
-			if( Voxelarium.controls.controlGame )
-				Voxelarium.controls.controlGame.clusters = clusters;
+
+			Voxelarium.controls.orbit.center = cluster.pivot;
+			Voxelarium.controls.game.clusters = clusters;
 
 			//var sector = Voxelarium.Sector(cluster,0,-1,0);
 			var sector = cluster.createSector( 0, 0, 0 );
