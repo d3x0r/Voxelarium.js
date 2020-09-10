@@ -18,7 +18,7 @@ function controls( object, domElement ) {
 	// internals
 //const moveSpeed = 12 * 0.0254;
 
-let mps = 1;
+let mps = 1/8.0;
 let kmph = mps*(60*60)/(1000);
 
 let runScalar = 1;
@@ -179,7 +179,7 @@ let moveSpeed = ( 1*kmph ) /runScalar ;
 	}
 
 	function onKeyDown( event ) {
-
+	         event.preventDefault();
 		if ( scope.enabled === false ) return;
 		if ( scope.userPan === false ) return;
     
@@ -207,6 +207,8 @@ let moveSpeed = ( 1*kmph ) /runScalar ;
 	}
 
 	function onKeyUp( event ) {
+
+	         event.preventDefault();
 
         switch ( event.keyCode ) {
             case scope.keys.SPACE:
@@ -314,6 +316,8 @@ function onTouchEnd( e ) {
       scope.domElement.addEventListener( 'touchstart', onTouchStart, false );
       scope.domElement.addEventListener( 'touchmove', onTouchMove, false );
       scope.domElement.addEventListener( 'touchend', onTouchEnd, false );
+
+        	this.object.matrix.origin.copy( this.object.position );
 
     	scope.domElement.addEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
     	window.addEventListener( 'keydown', onKeyDown, false );
