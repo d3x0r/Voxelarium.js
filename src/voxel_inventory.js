@@ -68,8 +68,8 @@ Voxelarium.Inventory = function( geometryShader,domElement ) {
         	domElement.addEventListener( 'mousewheel', onMouseWheel, false );
             domElement.addEventListener( 'mousemove', onMouseMove, false );
             domElement.addEventListener( 'mouseup', onMouseUp, false );
-            window.addEventListener( 'keydown', onKeyDown, false );
-            window.addEventListener( 'keyup', onKeyUp, false );
+            //domElement.addEventListener( 'keydown', onKeyDown, false );
+            //domElement.addEventListener( 'keyup', onKeyUp, false );
             inventory.THREE_solid.visible = true;
             inventory.enabled = true;
             if( inactiveCallback )
@@ -82,8 +82,8 @@ Voxelarium.Inventory = function( geometryShader,domElement ) {
             //domElement.removeEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
             domElement.removeEventListener( 'mousemove', onMouseMove, false );
             domElement.removeEventListener( 'mouseup', onMouseUp, false );
-            window.removeEventListener( 'keydown', onKeyDown, false );
-            window.removeEventListener( 'keyup', onKeyUp, false );
+            //domElement.removeEventListener( 'keydown', onKeyDown, false );
+            //domElement.removeEventListener( 'keyup', onKeyUp, false );
 
             inventory.THREE_solid.visible = false;
             inventory.enabled = false;
@@ -320,6 +320,7 @@ Voxelarium.Inventory = function( geometryShader,domElement ) {
               inventory.deactivate();
           }
           //inventory.last_intersects = inventory.raycaster.intersectObjects( inventory.THREE_solid.children );
+	if( inventory.last_intersects )
           for ( var i = 0; i < inventory.last_intersects.length; i++ ) {
               if( inventory.last_intersects[i].object !== inventory.selector.THREE_solid ) {
                   inventory.selector.currentVoxel = inventory.last_intersects[i];

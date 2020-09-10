@@ -21,7 +21,7 @@ var geometryShaderMono;
 
 var controlNatural;
 var controlOrbit;
-var controls;
+
 	var scene;
 	var scene2;
 	var scene3;
@@ -62,25 +62,9 @@ function setMode2() {
 function setMode3() {
 }
 
-function setControls1() {
-	controls.disable();
-	camera.matrixAutoUpdate = false;
-	controls = controlNatural;
-	controls.enable();
-}
-function setControls2() {
-	controls.disable();
-	camera.matrixAutoUpdate = false;  // current mode doesn't auto update
-	controls = controlOrbit;
-	controls.enable();
-}
-
-
 var status_line;
 	function init() {
 		console.log( "init?" );
-		document.getElementById( "controls1").onclick = setControls1;
-		document.getElementById( "controls2").onclick = setControls2;
 
 		scene = new THREE.Scene();
 		scene2 = new THREE.Scene();
@@ -139,13 +123,7 @@ var status_line;
 
 		document.body.appendChild( renderer.domElement );
 
-		Voxelarium.controls.controlNatural = new Voxelarium.controls.natural( camera, renderer.domElement );
-		Voxelarium.controls.controlNatural.enable();
-
-		Voxelarium.controls.controlOrbit = new Voxelarium.controls.orbit( camera, renderer.domElement );
-		Voxelarium.controls.controlOrbit.disable();
-
-		controls = Voxelarium.controls.controlNatural;
+		Voxelarium.controls.setDOM( renderer.domElement );
 
 	}
 
@@ -166,7 +144,7 @@ var nTarget2 = 120;
 function animate() {
 	var delta = clock.getDelta();
 
-		controls.update(delta);
+		Voxelarium.controls.update(delta);
 		TimeGradient.update(delta);
 
 

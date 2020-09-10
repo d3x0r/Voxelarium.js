@@ -69,7 +69,7 @@ casting.addRef = function updateCastMesh( currentRef) {
 
 function controls( object, domElement ) {
     this.object = object;
-	this.domElement = ( domElement !== undefined ) ? domElement : document;
+	this.domElement = domElement ;
     this.casting = casting;
   this.camera = null;
   var scope = this;
@@ -79,8 +79,11 @@ function controls( object, domElement ) {
   this.mouseRay = { n : consts.Vector3Zero.clone(), o: new THREE.Vector3().delete() }
   this.mouseClock = new THREE.Clock();
   this.mouseEvents = [];
-  this.currentAddType = Voxelarium.Voxels.types[2];
-
+  this.currentAddType = null;//Voxelarium.Voxels.types[2];
+  this.setDOM = (dom)=>{
+	scope.domElement = dom;
+		
+  }
   var mouseButtonCount = 0;
   var mouseScrollX = 0;
   var mouseScrollY = 0;
@@ -314,8 +317,10 @@ function onTouchCancel(event) {
   function ignore(event) {
       event.preventDefault();
   }
-
+	this.enabled = false;
   this.disable = function() {
+	this.enabled = false;
+	if( scope.domElement ){
     scope.domElement.removeEventListener( 'contextmenu', ignore, false );
     scope.domElement.removeEventListener( 'touchstart', onTouchDown, false );
     scope.domElement.removeEventListener( 'touchend', onTouchUp, false );
@@ -326,11 +331,53 @@ function onTouchCancel(event) {
     scope.domElement.removeEventListener( 'mousemove', onMouseMove, false );
     scope.domElement.removeEventListener( 'mousewheel', onMouseWheel, false );
     scope.domElement.removeEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
+	}
     //window.removeEventListener( 'keydown', onKeyDown, false );
     //window.removeEventListener( 'keyup', onKeyUp, false );
   }
 
+			 let inventory = null;
+
+	this.onKeyDown = onKeyDown;
+	let inventoryShowing = false;
+	function onKeyDown(event){
+		if( event.keyCode === 73 ) {
+			if( !inventoryShowing ){
+				inventoryShowing = true;
+				inventory.activate();
+				event.preventDefault();
+			}else {
+				inventoryShowing = false;
+				inventory.deactivate();
+				event.preventDefault();
+			}
+
+		}
+		
+	}
+
   this.enable = function() {
+	this.enabled = true;
+	if( scope.domElement ){
+		if( !inventory  ){
+			var inventory_geometryShader = Voxelarium.Settings.use_basic_material
+					? new THREE.MeshBasicMaterial()
+					: Voxelarium.GeometryShader();
+
+			inventory_geometryShader.depthTest = false;
+			inventory_geometryShader.depthWrite = false;
+			inventory_geometryShader.transparent = false;
+			inventory_geometryShader.vertexColors = THREE.VertexColors;
+			inventory_geometryShader.map = Voxelarium.TextureAtlas.texture;
+			if( inventory_geometryShader.uniforms )
+				inventory_geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
+			inventory_geometryShader.needsUpdate = true;
+			//inventory_geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
+
+			 inventory = Voxelarium.Inventory(inventory_geometryShader,scope.domElement);
+		}
+    this.currentAddType = Voxelarium.Voxels.types[2];
+
     scope.domElement.addEventListener( 'contextmenu', ignore, false );
     scope.domElement.addEventListener( 'touchstart', onTouchDown, false );
     scope.domElement.addEventListener( 'touchend', onTouchUp, false );
@@ -341,10 +388,10 @@ function onTouchCancel(event) {
     scope.domElement.addEventListener( 'mousemove', onMouseMove, false );
     scope.domElement.addEventListener( 'mousewheel', onMouseWheel, false ); // firefox
     scope.domElement.addEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
+	}
     //window.addEventListener( 'keydown', onKeyDown, false );
     //window.addEventListener( 'keyup', onKeyUp, false );
   }
-  this.enable();
 
 
 }

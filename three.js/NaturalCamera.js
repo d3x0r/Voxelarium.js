@@ -7,9 +7,15 @@ import * as THREE from "./build/three.module.js"
 function controls( object, domElement ) {
 
     this.object = object;
-	this.domElement = ( domElement !== undefined ) ? domElement : document;
+	this.domElement =  domElement ;
 
-	this.enabled = true;
+  this.setDOM = (dom)=>{
+	scope.domElement = dom;
+	if( enabled ) scope.enable();
+	//else this.disable();		
+  }
+	
+	let enabled = true;
 
 	// 65 /*A*/, 83 /*S*/, 68 /*D*/
 	this.keys = { LEFT: 37, UP: 38, RIGHT: 39, BOTTOM: 40
@@ -108,7 +114,7 @@ let moveSpeed = ( 1*kmph ) /runScalar ;
 
 
 	function onMouseDown( event ) {
-		if ( scope.enabled === false ) return;
+		if ( enabled === false ) return;
 
 		event.preventDefault();
 
@@ -121,7 +127,7 @@ let moveSpeed = ( 1*kmph ) /runScalar ;
 
 	function onMouseMove( event ) {
 
-		if ( scope.enabled === false ) return;
+		if ( enabled === false ) return;
 
 		event.preventDefault();
 
@@ -140,7 +146,7 @@ let moveSpeed = ( 1*kmph ) /runScalar ;
 
 	function onMouseUp( event ) {
 
-		if ( scope.enabled === false ) return;
+		if ( enabled === false ) return;
 		if ( scope.userRotate === false ) return;
 
 		document.removeEventListener( 'mousemove', onMouseMove, false );
@@ -151,7 +157,7 @@ let moveSpeed = ( 1*kmph ) /runScalar ;
 
 	function onMouseWheel( event ) {
 
-		if ( scope.enabled === false ) return;
+		if ( enabled === false ) return;
 		if ( scope.userZoom === false ) return;
 
 		var delta = 0;
@@ -178,9 +184,11 @@ let moveSpeed = ( 1*kmph ) /runScalar ;
 
 	}
 
+	this.onKeyDown = onKeyDown;
+	this.onKeyUp = onKeyUp;
 	function onKeyDown( event ) {
 	         event.preventDefault();
-		if ( scope.enabled === false ) return;
+		if ( enabled === false ) return;
 		if ( scope.userPan === false ) return;
     
 		switch ( event.keyCode ) {
@@ -206,6 +214,7 @@ let moveSpeed = ( 1*kmph ) /runScalar ;
 
 	}
 
+	this.onKeyUp = onKeyUp;
 	function onKeyUp( event ) {
 
 	         event.preventDefault();
@@ -300,16 +309,21 @@ function onTouchEnd( e ) {
     function ignore(event) {
         event.preventDefault();
     }
+	enabled = false;
     this.disable = function() {
+	this.enabled = false;
+	if( scope.domElement ) {
     	scope.domElement.removeEventListener( 'contextmenu', ignore, false );
     	scope.domElement.removeEventListener( 'mousedown', onMouseDown, false );
     	scope.domElement.removeEventListener( 'mousewheel', onMouseWheel, false );
     	scope.domElement.removeEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
-    	window.removeEventListener( 'keydown', onKeyDown, false );
-    	window.removeEventListener( 'keyup', onKeyUp, false );
+    	//window.removeEventListener( 'keydown', onKeyDown, false );
+    	//window.removeEventListener( 'keyup', onKeyUp, false );	
+	}
     }
-
     this.enable = function() {
+	enabled = true;
+	if( scope.domElement ) {
     	scope.domElement.addEventListener( 'contextmenu', ignore, false );
     	scope.domElement.addEventListener( 'mousedown', onMouseDown, false );
     	scope.domElement.addEventListener( 'mousewheel', onMouseWheel, false );
@@ -317,13 +331,13 @@ function onTouchEnd( e ) {
       scope.domElement.addEventListener( 'touchmove', onTouchMove, false );
       scope.domElement.addEventListener( 'touchend', onTouchEnd, false );
 
-        	this.object.matrix.origin.copy( this.object.position );
 
     	scope.domElement.addEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
-    	window.addEventListener( 'keydown', onKeyDown, false );
-    	window.addEventListener( 'keyup', onKeyUp, false );
+    	//window.addEventListener( 'keydown', onKeyDown, false );
+    	//window.addEventListener( 'keyup', onKeyUp, false );
+	}
+        	this.object.matrix.origin.copy( this.object.position );
     }
-    this.enable();
 
 };
 

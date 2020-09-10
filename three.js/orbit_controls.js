@@ -12,8 +12,13 @@ function controls( object, clusterLookAt, domElement ) {
 	this.mode = 2;
 	this.object = object;
 	this.cluster = clusterLookAt;
-	this.domElement = ( domElement !== undefined ) ? domElement : document;
+	this.domElement = domElement;
 
+  this.setDOM = (dom)=>{
+	scope.domElement = dom;
+	if( scope.enabled ) scope.enable();
+	//else this.disable();		
+  }
 	// API
 
 	this.enabled = true;
@@ -549,6 +554,7 @@ function controls( object, clusterLookAt, domElement ) {
         event.preventDefault();
     }
     this.disable = function() {
+	if( scope.domElement ) {
     	scope.domElement.removeEventListener( 'contextmenu', ignore, false );
 			scope.domElement.removeEventListener( 'touchstart', onTouchDown, false );
 	    scope.domElement.removeEventListener( 'touchend', onTouchUp, false );
@@ -559,9 +565,11 @@ function controls( object, clusterLookAt, domElement ) {
     	scope.domElement.removeEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
     	window.removeEventListener( 'keydown', onKeyDown, false );
     	window.removeEventListener( 'keyup', onKeyUp, false );
+	}
     }
 
     this.enable = function() {
+	if( scope.domElement ) {
     	scope.domElement.addEventListener( 'contextmenu', ignore, false );
 			scope.domElement.addEventListener( 'touchstart', onTouchDown, false );
 	    scope.domElement.addEventListener( 'touchend', onTouchUp, false );
@@ -573,8 +581,8 @@ function controls( object, clusterLookAt, domElement ) {
     	window.addEventListener( 'keydown', onKeyDown, false );
     	window.addEventListener( 'keyup', onKeyUp, false );
 			Voxelarium.camera.matrixAutoUpdate = false;
+	}
     }
-    this.enable();
 
 };
 

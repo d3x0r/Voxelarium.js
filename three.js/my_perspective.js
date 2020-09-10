@@ -44,3 +44,5 @@ function myPerspective( m, fovy, aspect, zNear, zFar ) {
 //		 glMultMatrixf(&m[0][0]);
 //	#endif
 }
+
+export {myPerspective}

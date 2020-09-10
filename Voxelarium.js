@@ -62,18 +62,22 @@ Voxelarium.clock = new THREE.Clock()
 Voxelarium.controls = { orbit:null
 	, natural : null
 	, game : null 
+	, core : null 
+	, setDOM(dom ) {
+		Voxelarium.controls.orbit.setDOM(dom);
+		Voxelarium.controls.game.setDOM(dom);
+		Voxelarium.controls.natural.setDOM(dom);
+		Voxelarium.controls.core.setDOM(dom);
+		Voxelarium.controls.core.enable();
 	}
-
-  import {controls as oControls } from "./three.js/orbit_controls.js"
-  Voxelarium.controls.orbit = oControls;
-  import {controls as nControls } from "./three.js/NaturalCamera.js"
-  Voxelarium.controls.natural = nControls;
-  import {controls as gControls } from "./three.js/gameMouse.js"
-  Voxelarium.controls.game = gControls;
+	, update(delta) {
+		Voxelarium.controls.core.update(delta);
+	}
+}
 
 
 //if( !Voxelarium.Settings.use_basic_material )
-
+import {myPerspective} from './three.js/my_perspective.js'
 import {glow} from "./three.js/glow.renderer.js";
 
 import( "./three.js/js/renderers/Projector.js" )
@@ -93,6 +97,18 @@ import( "./three.js/three.js.post/EffectComposer.js").then( ()=>{
 
 
 Voxelarium.camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 0.001, 10000 );
+myPerspective( Voxelarium.camera.projectionMatrix, 90, window.innerWidth / window.innerHeight, 0.01, 10000 );
+
+  import {controls as oControls } from "./three.js/orbit_controls.js"
+  Voxelarium.controls.orbit = new oControls(Voxelarium.camera);
+  import {controls as nControls } from "./three.js/NaturalCamera.js"
+  Voxelarium.controls.natural = new nControls(Voxelarium.camera);
+  import {controls as gControls } from "./three.js/gameMouse.js"
+  Voxelarium.controls.game = new gControls(Voxelarium.camera);
+  import {controls as coreControls } from "./src/controls.js"
+  Voxelarium.controls.core = new coreControls(Voxelarium.camera);
+
+
 
 //--- fonts ---
 Voxelarium.Fonts = {};
