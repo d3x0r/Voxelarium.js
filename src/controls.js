@@ -27,6 +27,9 @@ function controls( object, domElement ) {
       this.currentAddType = type;
   }
 
+  this.setMode = function(mode_){
+	mode = mode_;
+	}
   this.update = function(delta) {
 		switch( mode ) {
 		case 0:

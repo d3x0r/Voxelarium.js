@@ -344,11 +344,11 @@ function onTouchCancel(event) {
 		if( event.keyCode === 73 ) {
 			if( !inventoryShowing ){
 				inventoryShowing = true;
-				inventory.activate();
+				Voxelarium.inventory.activate();
 				event.preventDefault();
 			}else {
 				inventoryShowing = false;
-				inventory.deactivate();
+				Voxelarium.inventory.deactivate();
 				event.preventDefault();
 			}
 
@@ -374,7 +374,7 @@ function onTouchCancel(event) {
 			inventory_geometryShader.needsUpdate = true;
 			//inventory_geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
 
-			 inventory = Voxelarium.Inventory(inventory_geometryShader,scope.domElement);
+			Voxelarium.inventory = Voxelarium.Inventory(inventory_geometryShader,scope.domElement);
 		}
     this.currentAddType = Voxelarium.Voxels.types[2];
 
