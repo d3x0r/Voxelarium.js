@@ -18,7 +18,7 @@ function controls( object, domElement ) {
 	// internals
 //const moveSpeed = 12 * 0.0254;
 
-let mps = 1000/32;
+let mps = 1;
 let kmph = mps*(60*60)/(1000);
 
 let runScalar = 1;

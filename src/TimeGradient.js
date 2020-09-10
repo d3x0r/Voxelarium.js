@@ -66,12 +66,13 @@ class TimeGradient {
         
         tick(delta){
         	if( this.stage < this.stages.length ) {
-	        	if( ( this.tick_+delta ) > this.stages[this.stage].span ) {
-                        	this.tick_ = this.tick_+delta - this.stages[this.stage].span;
+			delta += this.tick_;
+	        	while( ( delta ) > this.stages[this.stage].span ) {
+				delta -= this.stages[this.stage].span;
                         	this.stage++;
                                 if( this.stage >= this.stages.length ) this.stage = 0;
                         }
-                        	this.tick_ += delta;
+                        this.tick_ = delta;
                         const nextStage = ( this.stage < this.stages.length )?this.stage+1:0;
 			//this.version = Version;
                         //return this.scalar( this.stages[stage].value, this.stages[nextStage].value, this.tick_ / this.stages[stage].span );

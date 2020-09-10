@@ -90,7 +90,10 @@ var status_line;
 		camera = Voxelarium.camera;
 
 		camera.matrixAutoUpdate = false;
-		camera.position.z = 700;
+		camera.position.z = 0.8;
+		//camera.position.x = 0.5;
+		//camera.position.x = 1.5;
+		//camera.position.y = 2.5;
 		camera.matrixWorldNeedsUpdate = true;
 
 		 geometryShader = new THREE.MeshBasicMaterial();
@@ -223,10 +226,11 @@ function initVoxelarium() {
 
 
 	var basicMesher = Voxelarium.BasicMesher(  );
+	let line = 0.5;
 
-	var words1 = voxelUniverse.createTextCluster( "Voxelarium", Voxelarium.Voxels.BlackRockType, basicMesher, Voxelarium.Fonts.TI99 );
+	var words1 = voxelUniverse.createTextCluster( "Voxelarium", Voxelarium.Voxels.BlackRockType, basicMesher, Voxelarium.Fonts.TI99, 1.0/80.0 );
 	clusters.push( words1 );
-	var offset = 300;
+	var offset = 0;
 	const titleFaceGradient = new TimeGradient( TimeGradient.arrayScalar )
 			.addStage( 1, [0.4,0.8,1.0] )
 			.addStage( 1, [0,0,0] );
@@ -269,10 +273,11 @@ function initVoxelarium() {
 		sector.edgeGradient = titleEdgeGradient
 
 		//sector.THREE_solid.matrix.Translate( -800, +offset, 0 );
-		sector.THREE_solid.position.add( new THREE.Vector3(-800, +offset, 0 ));
+		sector.THREE_solid.position.add( new THREE.Vector3(-1, line+offset, 0 ));
 	})
+	line -= 4/25.0;
 
-	var words1 = voxelUniverse.createTextCluster( "Blackvoxel", Voxelarium.Voxels.BlackRockType, basicMesher, Voxelarium.Fonts.TI99 );
+	var words1 = voxelUniverse.createTextCluster( "Blackvoxel", Voxelarium.Voxels.BlackRockType, basicMesher, Voxelarium.Fonts.TI99, 1.0/80.0 );
 	clusters.push( words1 );
 	words1.SectorList.forEach( (sector)=>{
 		basicMesher.MakeSectorRenderingData( sector );
@@ -280,10 +285,11 @@ function initVoxelarium() {
 		sector.faceGradient = blackGradient
 		sector.edgeGradient = blueGlow
 		sector.THREE_solid.onBeforeRender = sector.solid_geometry.updateUniforms.bind( sector.THREE_solid, sector );
-		sector.THREE_solid.position.add( new THREE.Vector3( -800, -1*8*20+offset, 0 ));
+		sector.THREE_solid.position.add( new THREE.Vector3( -1, line+offset, 0 ));
 	})
+	line -= 4/25.0;
 
-	var words1 = voxelUniverse.createTextCluster( "Play Game", Voxelarium.Voxels.BlackRockType, basicMesher, Voxelarium.Fonts.TI99 );
+	var words1 = voxelUniverse.createTextCluster( "Play Game", Voxelarium.Voxels.BlackRockType, basicMesher, Voxelarium.Fonts.TI99, 1.0/80.0 );
 	clusters.push( words1 );
 	words1.SectorList.forEach( (sector)=>{
 		basicMesher.MakeSectorRenderingData( sector );
@@ -294,14 +300,21 @@ function initVoxelarium() {
 
 		sector.solid_geometry.geometry.uniforms.in_FaceColor = new THREE.Vector4( 0.4, 0.8, 1, 1 );
 		sector.solid_geometry.geometry.uniforms.edge_only = 0;
-		sector.THREE_solid.position.add( new THREE.Vector3( -800, -2*8*20+offset, 0 ));
+		sector.THREE_solid.position.add( new THREE.Vector3( -1, line+offset, 0 ));
 	})
-	var detailsize = 5;
-	renderVoxelWords( "Inventory", -800, -0*8*detailsize -3*8*20 -0*8*detailsize +offset, detailsize );
-	for( var n = 0; n < 10; n++ ) {
-		renderVoxelWords( "Server Name Goes here", -800,-n*8*detailsize -3*8*20-1*8*detailsize+offset, detailsize );
-		renderVoxelWords( "Players 0/3", -800 + 25 * 8*detailsize,-n*8*detailsize -3*8*20-1*8*detailsize+offset, detailsize );
-		renderVoxelWords( "Ping 333", -800 + (25+12)* 8*detailsize,-n*8*detailsize -3*8*20-1*8*detailsize+offset, detailsize );
+	line -= 4/25.0;
+
+	var detailsize = (1.0/80.0)*0.25;
+	const word = renderVoxelWords( "Inventory", -1, line +offset, detailsize );
+	line -= 4/25.0;
+	
+	line = -4/25.0;
+	// test layout works...
+	for( var n = 0; n < 1; n++ ) {
+		renderVoxelWords( "Server Name Goes here" , -1                    ,line+offset, detailsize );
+		renderVoxelWords( "Players 0/3"           , -1 + 25 * 8*detailsize,line+offset, detailsize );
+		renderVoxelWords( "Ping 333"              , -1 + 40 * 8*detailsize,line+offset, detailsize );
+		line -= 10*detailsize;
 	}
 	function renderVoxelWords( string, xofs, offset, size ) {
 		var words1 = voxelUniverse.createTextCluster( string, Voxelarium.Voxels.BlackRockType, basicMesher, Voxelarium.Fonts.TI99, size );
@@ -318,9 +331,9 @@ function initVoxelarium() {
 			//sector.THREE_solid.matrix.Translate( xofs, offset, 0 );
 			sector.THREE_solid.position.add( new THREE.Vector3(xofs, offset, 0) );
 		})
-
+		return words1;
 	}
-})
+	}, 10)
 }
 
 

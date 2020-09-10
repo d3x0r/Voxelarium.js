@@ -6,6 +6,7 @@ import {JSOX} from "../common/JSOX.js"
 
 const l = {
 	playerId : localStorage.getItem( "playerId" ),
+	requiredLoad : 0,
 }
 
 function makeSocket( addr, protocol ) {
@@ -58,12 +59,13 @@ class Db  {
 	onOpen() {
 		this.send( {op:"init" } );
 	}
-	init(cb) {
+	init(cb,required) {
+		if( required ) l.requiredLoad = required;
 		console.log( "INIT?", cb );
 		if( this.connected )
-			initialVoxelTypeLoad(cb);
+			initialVoxelTypeLoad(cb,required);
 		else
-			this.onComplete = ()=>initialVoxelTypeLoad(cb);
+			this.onComplete = ()=>initialVoxelTypeLoad(cb,required);
 	}
 	send( msg_ ) {
 		const msg = JSOX.stringify( msg_ );
@@ -142,7 +144,7 @@ function loadVoxels(cb, val){
 }
 
 
-function initialVoxelTypeLoad(cb) {
+function initialVoxelTypeLoad(cb,required) {
     console.log( "Loading initial voxels...")
     Voxelarium.Voxels.load( ()=>{
         var voxelTypes = {};
@@ -155,14 +157,14 @@ function initialVoxelTypeLoad(cb) {
 	db.world.voxelInfo = { voxelTypes : voxelTypes, voxelTypeCount : n };
 
         cb();
-    });
+    }, required );
 }
 
-function loadWorld( cb ) {
+function loadWorld( cb,required ) {
 
 
 	//db.world.loadVoxelInfo();
-	initialVoxelTypeLoad(cb)
+	initialVoxelTypeLoad(cb,required)
 
 }
 
