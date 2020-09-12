@@ -1,4 +1,4 @@
-
+// mostly just a copy of sack.vfs/tests/testWsHttp.js
 
 import {sack} from "sack.vfs"
 import path from "path";
@@ -9,6 +9,8 @@ var serverOpts;
 var server = sack.WebSocket.Server( serverOpts = { port: Number(process.argv[2])||8080 } )
 var disk = sack.Volume();
 console.log( "serving on " + serverOpts.port );
+
+db.init( );
 
 
 server.onrequest( function( req, res ) {

@@ -28,9 +28,9 @@ Voxelarium.GeometryBufferMono = function () {
     buffer.available = 0;
     buffer.used = 0;
 
-	buffer.updateUniforms = function(sector) {
-		const face = sector.faceGradient;
-		const edge = sector.edgeGradient;
+	buffer.updateUniforms = function(opts) {
+		const face = opts.faceGradient;
+		const edge = opts.edgeGradient;
 		if( face ) {
 			if( priorFace !== face || face.changed() ) {
 				this.material.uniforms.in_FaceColor.value = face.getValue();

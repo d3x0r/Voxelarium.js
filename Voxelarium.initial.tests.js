@@ -246,9 +246,11 @@ function initVoxelarium() {
 	words1.SectorList.forEach( (sector)=>{
 		basicMesher.MakeSectorRenderingData( sector );
 		scene2.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShaderMono ) )
-		sector.THREE_solid.onBeforeRender = sector.solid_geometry.updateUniforms.bind( sector.THREE_solid, sector );
-		sector.faceGradient = titleFaceGradient
-		sector.edgeGradient = titleEdgeGradient
+		sector.THREE_solid.onBeforeRender = sector.solid_geometry.updateUniforms.bind( sector.THREE_solid, {
+				faceGradient : titleFaceGradient,
+				edgeGradient : titleEdgeGradient
+			} );
+
 
 		//sector.THREE_solid.matrix.Translate( -800, +offset, 0 );
 		sector.THREE_solid.position.add( new THREE.Vector3(-1, line+offset, 0 ));
@@ -295,21 +297,26 @@ function initVoxelarium() {
 		line -= 10*detailsize;
 	}
 	function renderVoxelWords( string, xofs, offset, size ) {
-		var words1 = voxelUniverse.createTextCluster( string, Voxelarium.Voxels.BlackRockType, basicMesher, Voxelarium.Fonts.TI99, size );
-		clusters.push( words1 );
-		words1.SectorList.forEach( (sector)=>{
-			basicMesher.MakeSectorRenderingData( sector );
-			scene2.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShaderMono ) )
-			sector.THREE_solid.onBeforeRender = sector.solid_geometry.updateUniforms.bind( sector.THREE_solid, sector );
-			sector.solid_geometry.geometry.uniforms.in_FaceColor = new THREE.Vector4( 0, 0, 0, 1 );
-			sector.faceGradient = blackGradient
-			sector.edgeGradient = greenGlow
-	
-			sector.solid_geometry.geometry.uniforms.edge_only = 0;
-			//sector.THREE_solid.matrix.Translate( xofs, offset, 0 );
-			sector.THREE_solid.position.add( new THREE.Vector3(xofs, offset, 0) );
-		})
-		return words1;
+
+		var phrase = voxelUniverse.createDynamicTextCluster( string, {
+				type:Voxelarium.Voxels.BlackRockType, 
+				mesher:basicMesher, 
+				shader:geometryShaderMono,
+				font:Voxelarium.Fonts.TI99, 
+				size:size,
+				faceGradient : blackGradient,
+				edgeGradient : greenGlow
+		} );
+		
+		scene2.add( phrase.object )
+		const info = phrase.object.userData;
+
+		for( let word of info.chars ) {
+			const sector = word.userData.sector;
+			word.onBeforeRender = sector.solid_geometry.updateUniforms.bind( word, sector );
+		}
+		phrase.object.position.add( new THREE.Vector3(xofs, offset, 0) );
+		return phrase;
 	}
 	}, 10)
 }

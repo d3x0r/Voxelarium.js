@@ -25,6 +25,14 @@ class Db  {
 	this_ = this;
 	onComplete = null;
 	connected = false;
+	events = {};
+	on(a,b){
+		if( "function" === typeof b ) {
+			events[a] = b;
+		} else {
+			events[a](b);
+		}
+	}
 	animate() {
 		// called every half second during animation loop
 		// this allows sending/retreiving external player positions.
@@ -89,6 +97,9 @@ class Db  {
 			} catch( err ) {
 				console.log( "Function compilation error:", err,"\n", msg.code );
 			}		
+		} else if( msg.op === "ident" ) {
+			l.name = msg.name;
++			db.on("name");
 		} else if( msg.op === "asdf" ) {
 		} else {
 		}

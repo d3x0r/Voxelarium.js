@@ -8,7 +8,7 @@ for( var mask = 0, n = 0; n <= 32; n++ )
 }
 
 
-Voxelarium.BitStream = function( base_buffer )
+function BitStream( base_buffer )
 {
     var stream =
 	{
@@ -97,7 +97,7 @@ Voxelarium.BitStream = function( base_buffer )
 
 
 
-Voxelarium.BitStream.GetMinBitsNeededForValue = function( value )
+BitStream.GetMinBitsNeededForValue = function( value )
 {
     var n;
    for( n = 1; n <= 32; n++ ) {
@@ -106,3 +106,5 @@ Voxelarium.BitStream.GetMinBitsNeededForValue = function( value )
    }
    return n;
 }
+
+export {BitStream}
