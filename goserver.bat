@@ -1,2 +1,2 @@
-node --experimental-modules server\testWsHttp.mjs
+node --experimental-modules server\server.mjs
 %0
