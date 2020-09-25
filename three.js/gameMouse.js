@@ -108,7 +108,10 @@ function controls( object, domElement ) {
       //mouse_ray_slope.addScaledVector( camera.matrix.forward, -0.47 );
       // 75 degree view and like 3/4 aspect
       //mouse_ray_slope.addScaledVector( camera.matrix.forward, -0.605 );//-Math.sqrt(1 - mouse_ray_slope.length()) );
-      mouse_ray_slope.addScaledVector( camera.matrix.backward, -1.304);//0.652 );//-Math.sqrt(1 - mouse_ray_slope.length()) );
+
+      // just need to point it backwards...
+      // using 'myPerspective' the calculation doesn't need magic values.
+      mouse_ray_slope.addScaledVector( camera.matrix.backward, -1.0);
 
       //mouse_ray_slope.unproject( camera );
 
