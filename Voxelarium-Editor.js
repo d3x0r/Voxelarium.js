@@ -149,16 +149,12 @@ var status_line;
   //		scene.add( light );
 
 		camera = Voxelarium.camera;
-		//Voxelarium.camera = camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
-
-
-		//myPerspective( camera.projectionMatrix, 90, window.innerWidth / window.innerHeight, 1, 10000 );
 		if( !Voxelarium.Settings.VR ) {
 
 			renderer = new THREE.WebGLRenderer();
                         renderer.autoClear = false;
 			renderer.setSize( window.innerWidth, window.innerHeight );
-			window.addEventListener( "resize", ()=>{ 
+			window.addEventListener( "resize", ()=>{
 				myPerspective( Voxelarium.camera.projectionMatrix, 90, window.innerWidth / window.innerHeight, 0.01, 10000 );
 				renderer.setSize( window.innerWidth, window.innerHeight ) 
 			} );
@@ -170,33 +166,30 @@ var status_line;
 			camera.position.y = 0.85;
 			camera.position.x = 0.5;
 			camera.position.z = 0.5;
-			//camera.matrix.origin.y = 33 * 0.0254;
-			//camera.matrix.origin.z = 20 * 0.0254;
-			//camera.matrix.origin.x = 16 * 0.0254;
-			//camera.matrixWorldNeedsUpdate = true;
+                        camera.matrix.origin.copy( camera.position );
 
-					if ( !renderer.extensions.get('WEBGL_depth_texture') ) {
+			if ( !renderer.extensions.get('WEBGL_depth_texture') ) {
 					          supportsExtension = false;
 					          document.querySelector('#error').style.display = 'block';
-					          return;
-					        }
+					         return;
+			}
 
-									if( !Voxelarium.Settings.use_basic_material ){
-													glow.makeComposers( renderer, scene
-														, ()=>{
-															clusters.forEach( (cluster)=>{ cluster.SectorList.forEach( (sector)=>{
-																sector.solid_geometry.geometry.uniforms.edge_only = 0;
-															})})
-														}
-														, scene2
-														, ()=>{
-															clusters.forEach( (cluster)=>{ cluster.SectorList.forEach( (sector)=>{
-																sector.solid_geometry.geometry.uniforms.edge_only = 1;
-															})})
-														}
-														, scene3
-													);
-											 }
+  			if( !Voxelarium.Settings.use_basic_material ){
+  							glow.makeComposers( renderer, scene
+  								, ()=>{
+  									clusters.forEach( (cluster)=>{ cluster.SectorList.forEach( (sector)=>{
+  										sector.solid_geometry.geometry.uniforms.edge_only = 0;
+  									})})
+  								}
+  								, scene2
+  								, ()=>{
+  									clusters.forEach( (cluster)=>{ cluster.SectorList.forEach( (sector)=>{
+  										sector.solid_geometry.geometry.uniforms.edge_only = 1;
+  									})})
+  								}
+  								, scene3
+  							);
+  					 }
 		}
 		else {
                        // is VR...
@@ -259,9 +252,7 @@ var status_line;
 
 
 		if( !Voxelarium.Settings.VR ) {
-
 			scene.add( Voxelarium.controls.game.casting.mesh );
-
 			camera.matrixAutoUpdate = false;
 			//controls = Voxelarium.controls.natural;
 		}
@@ -469,38 +460,9 @@ function initVoxelarium() {
 
 			scene2.add( Voxelarium.selector.meshGlow );
 			scene3.add( Voxelarium.selector.mesh );
-
-	/*
-			var inventory_geometryShader = Voxelarium.Settings.use_basic_material
-					? new THREE.MeshBasicMaterial()
-					: Voxelarium.GeometryShader();
-
-			inventory_geometryShader.depthTest = false;
-			inventory_geometryShader.depthWrite = false;
-			inventory_geometryShader.transparent = false;
-			inventory_geometryShader.vertexColors = THREE.VertexColors;
-			inventory_geometryShader.map = Voxelarium.TextureAtlas.texture;
-			if( inventory_geometryShader.uniforms )
-				inventory_geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
-			inventory_geometryShader.needsUpdate = true;
-			//inventory_geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
-
-			 inventory = Voxelarium.Inventory(inventory_geometryShader,renderer&&renderer.domElement);
-*/
-			 //inventory.THREE_solid.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
-			 //if( Voxelarium.Settings.AltSpace )
- 			//	inventory.THREE_solid.userData.altspace = { collider: { enabled: false } };
 			scene3.add( Voxelarium.inventory.THREE_solid );
-			//scene3.add( inventory.selector.THREE_solid );
-			//sector.THREE_solid.matrix.Translate( -16*20, 16*20, -16*20 );
-			//camera.matrix.Translate( 16*20, -16*20, 16*20 );
 
-
-			//window.addEventListener( 'keydown', master_onKeyDown, false );
-			//window.addEventListener( 'keyup', master_onKeyUp, false );
-			//stats.begin();
-			//if( !Voxelarium.Settings.AltSpace )
-				requestAnimationFrame( animate );
+			requestAnimationFrame( animate );
 		});
 	//});
 

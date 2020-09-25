@@ -333,6 +333,7 @@ function onTouchEnd( e ) {
     	//window.removeEventListener( 'keyup', onKeyUp, false );	
 	}
     }
+    let firstEnable = true;
     this.enable = function() {
 	enabled = true;
 	if( scope.domElement ) {
@@ -340,16 +341,19 @@ function onTouchEnd( e ) {
     	scope.domElement.addEventListener( 'mousedown', onMouseDown, false );
 	scope.domElement.addEventListener( 'mousemove', onMouseMove, false );
     	scope.domElement.addEventListener( 'mousewheel', onMouseWheel, false );
-      scope.domElement.addEventListener( 'touchstart', onTouchStart, false );
-      scope.domElement.addEventListener( 'touchmove', onTouchMove, false );
-      scope.domElement.addEventListener( 'touchend', onTouchEnd, false );
+      	scope.domElement.addEventListener( 'touchstart', onTouchStart, false );
+	scope.domElement.addEventListener( 'touchmove', onTouchMove, false );
+      	scope.domElement.addEventListener( 'touchend', onTouchEnd, false );
 
 
     	scope.domElement.addEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
     	//window.addEventListener( 'keydown', onKeyDown, false );
     	//window.addEventListener( 'keyup', onKeyUp, false );
 	}
-        	this.object.matrix.origin.copy( this.object.position );
+        if( firstEnable )  {
+	        this.object.matrix.origin.copy( this.object.position );
+                firstEnable = false;
+        }
     }
 
 };
@@ -357,4 +361,5 @@ function onTouchEnd( e ) {
 //THREE.NaturalCamera.
 
 controls.prototype = Object.create( THREE.EventDispatcher.prototype );
+
 export {controls}
