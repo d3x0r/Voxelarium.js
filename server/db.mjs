@@ -65,18 +65,21 @@ class Pawn {
 	}
 	handleMessage( msg ) {	
 		if( msg.op === "init" ) {
-			console.log( "Load this client's state?" );
-			l.storage.get( this.id ).then( (pawn)=>{
-				//const pawn = new Pawn(ws );
-				this.send( { op:"init", code:code, id:this.id } );
-			
-			} ).catch( ()=>{
+			const pawn = this;
+			console.log( "Load this client's state?", this );
+			if( this.id ) 
+				l.storage.get( this.id ).then( (pawn)=>{
+					//const pawn = new Pawn(ws );
+					this.send( { op:"init", code:code, id:this.id } );
+				} ).catch( initPawn );
+			else initPawn();
+			function initPawn(){
 				console.log( "User object doesn't exist yet? ");
-				l.storage.put( this, {id:this.id} ).then((id)=>{
+				l.storage.put( pawn, {id:pawn.id} ).then((id)=>{
 					console.log( "cannot write ID?", id );
 				} );
-				this.send( { op:"init", code:code, id:this.id } );
-			} );
+				pawn.send( { op:"init", code:code, id:this.id } );
+			}
 		} else if( msg.op === "asdf" ) {
 		} else {
 		}
@@ -89,7 +92,7 @@ class Pawn {
 }
 
 function pawnEncode(stringifer){
-	this.encode(stringifer);
+	return this.encode(stringifer);
 }
 
 
@@ -159,7 +162,7 @@ class Db  {
 
 		const id = ws.url.split("~");
 		let pawn = null;		
-		if( id )
+		if( id ) {
 			l.storage.get( id[1] ).then( pawn_=>{
 				console.log( "Reloaded pawn:", pawn_ );
 				if( !pawn_ ) {
@@ -171,7 +174,7 @@ class Db  {
 			} ).catch(err=>{
 				console.log( "Error getting object:", err );
 			} );
-		else {
+		} else {
 			pawn = createPawn(db)
 		}
 
@@ -184,7 +187,6 @@ class Db  {
 			return pawn;
 		}
 		function finishConnect(db,p) {
-			console.log( "Not a pawn", p );	
 			p.connect(ws);
 			pawns.set( p.id, p );
 			ws.on("message", db.handleMessage.bind(db, p ) );

@@ -45,41 +45,32 @@ Voxelarium.World = function() {
 		const v = opts.type;
 		const mesher = opts.mesher;
 		const font = opts.font;
-		const voxelUnitSize = opts.size;
+		const voxelUnitSize = opts.size || 1;
 
 		let voxelTypeCache = typeCache.get(v);
 		if( !voxelTypeCache ) typeCache.set(v,voxelTypeCache = {});
 		const charCache = voxelTypeCache.chars;
 		const pos = { x:0, y:0};
-		let xofs = 0;
-		for( var n = 0; n < text.length; n++ ) {
-                        var ch = text.codePointAt(n);
-			xofs = n*8;
-			if( !voxelTypeCache[ch] ) {
-			        var cluster = Voxelarium.Cluster(8,8,1);
-	                	cluster.mesher = mesher;
-	                	cluster.voxelUnitSize = voxelUnitSize || 1;
-        			cluster.getGeometryBuffer = Voxelarium.GeometryBufferMono;
-	                        fonts.drawCharacter( cluster, pos, v, ch, font )
-				
-				voxelTypeCache[ch] = [];//{ cluster: cluster, sector:sector, threeObject:threeObject };
-				cluster.SectorList.forEach( (sector)=>{
-					mesher.MakeSectorRenderingData( sector );
-					voxelTypeCache[ch].push( { cluster: cluster, sector:sector, chars:[] } );
-				} );
-			}
+
+		function renderChar( ch ) {
+		        var cluster = Voxelarium.Cluster(8,8,1);
+			cluster.mesher = mesher;
+	        	cluster.voxelUnitSize = voxelUnitSize;
+        		cluster.getGeometryBuffer = Voxelarium.GeometryBufferMono;
+	        	fonts.drawCharacter( cluster, {x:0,y:0}, v, ch, font )
+		
+			voxelTypeCache[ch] = [];//{ cluster: cluster, sector:sector, threeObject:threeObject };
+			cluster.SectorList.forEach( (sector)=>{
+				mesher.MakeSectorRenderingData( sector );
+				voxelTypeCache[ch].push( { cluster: cluster, sector:sector, chars:[] } );
+			} );
 		}
 
-		const newWord = new THREE.Object3D();
-		const objectData = {
-			chars : [],
-			
-		};
 
-		newWord.userData = objectData;
-		for( var n = 0; n < text.length; n++ ) {
-			var ch = text.codePointAt(n);
-			xofs = n*8;
+
+		const newWord = new THREE.Object3D();
+
+		function putch(word, xofs, ch ) {
 			// reuse the same cached geometry for the character.
 			for( const data of voxelTypeCache[ch] ) {
 				const threeObject = new THREE.Mesh( data.sector.solid_geometry.geometry, opts.shader );
@@ -87,20 +78,41 @@ Voxelarium.World = function() {
 					cluster:data.cluster,
 					sector:data.sector
 				}
-				objectData.chars.push( threeObject );
+				threeObject.onBeforeRender = data.sector.solid_geometry.updateUniforms.bind( threeObject, opts );
+				//objectData.chars.push( threeObject );
 				//threeObject.onBeforeRender = data.sector.solid_geometry.updateUniforms.bind( data.sector.THREE_solid, opts );
 				threeObject.position.add( new THREE.Vector3( xofs, 0, 0 ) );
-				newWord.add( threeObject );
+				word.add( threeObject );
 			}
 		}
+
 	
-		// so it can be added to the scene?
-		return {
+		const resultPhrase =  {
 			object: newWord,
 			
 			setText(text){
+				const o = this.object;
+				for( var i = o.children.length - 1; i >= 0; i--) {
+					o.remove(o.children[i]);
+				}
+
+
+				//newWord.userData = objectData;
+				for( var n = 0; n < text.length; n++ ) {
+					var ch = text.codePointAt(n);
+					if( !voxelTypeCache[ch] ) {
+						renderChar(ch);
+					}
+					putch( o, n*(8*voxelUnitSize), ch );
+				}
+
+				
 			}
 		}
+
+		resultPhrase.setText( text );
+		return resultPhrase;
+		// so it can be added to the scene?
 	}
 
     }

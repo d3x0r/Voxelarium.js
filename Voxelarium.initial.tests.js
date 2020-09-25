@@ -129,13 +129,17 @@ var nFrame = 0;
 var nTarget = 60;
 var nTarget2 = 120;
 
+let testWord;
+
 function animate() {
 	var delta = clock.getDelta();
 
 		Voxelarium.controls.update(delta);
 		TimeGradient.update(delta);
 
-
+		if( testWord ) {
+			testWord.setText( ''+new Date() + Date.now() );
+		}
 		tests.forEach( (test)=>{ test.animate(); } )
 
 
@@ -273,7 +277,8 @@ function initVoxelarium() {
 	line -= 4/25.0;
 
 	var detailsize = (1.0/80.0)*0.25;
-	const word = renderVoxelWords( "Inventory", -1, line +offset, detailsize );
+	testWord = renderVoxelWords( "Inventory", -1, line +offset, detailsize );
+	
 	line -= 4/25.0;
 	
 	line = -4/25.0;
@@ -299,10 +304,6 @@ function initVoxelarium() {
 		scene2.add( phrase.object )
 		const info = phrase.object.userData;
 
-		for( let word of info.chars ) {
-			const sector = word.userData.sector;
-			word.onBeforeRender = sector.solid_geometry.updateUniforms.bind( word, sector );
-		}
 		phrase.object.position.add( new THREE.Vector3(xofs, offset, 0) );
 		return phrase;
 	}
