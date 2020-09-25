@@ -108,7 +108,10 @@ function controls( object, domElement ) {
       //mouse_ray_slope.addScaledVector( camera.matrix.forward, -0.47 );
       // 75 degree view and like 3/4 aspect
       //mouse_ray_slope.addScaledVector( camera.matrix.forward, -0.605 );//-Math.sqrt(1 - mouse_ray_slope.length()) );
-      mouse_ray_slope.addScaledVector( camera.matrix.backward, -1.304);//0.652 );//-Math.sqrt(1 - mouse_ray_slope.length()) );
+
+      // just need to point it backwards...
+      // using 'myPerspective' the calculation doesn't need magic values.
+      mouse_ray_slope.addScaledVector( camera.matrix.backward, -1.0);
 
       //mouse_ray_slope.unproject( camera );
 
@@ -152,45 +155,7 @@ function controls( object, domElement ) {
                 Voxelarium.selector.currentAddVoxel = cluster.getVoxelRef( false, result.PredPointedVoxel.x, result.PredPointedVoxel.y, result.PredPointedVoxel.z )
               Voxelarium.selector.currentVoxel = result.ref;
           }
-          /* this was another way of getting voxels... raycast is the routine for this now?
-            rayCast projects a line through each plane going going out, and is more accurate than this.
-            Plus rayCast can return the side of detection. */
-          if( false ){
-
-                var vox = o.clone().addScaledVector( scope.mouseRay.n, cursorDistance ).delete()
-
-                var vrTo = Voxelarium.VoxelRef( cluster, null
-                    , Math.floor(vox.x/cluster.voxelUnitSize)
-                    , Math.floor(vox.y/cluster.voxelUnitSize)
-                    , Math.floor(vox.z/cluster.voxelUnitSize) );
-                var vrFrom = Voxelarium.VoxelRef( cluster, null
-                        , Math.floor(o.x/cluster.voxelUnitSize)
-                        , Math.floor(o.y/cluster.voxelUnitSize)
-                        , Math.floor(o.z/cluster.voxelUnitSize) );
-                //console.log( "things are ", vrTo, vrFrom )
-                //this.casting.reset();
-                //console.log( "---------- new set ----------- ")
-                var ref = vrFrom.forEach( vrTo, false, (ref)=>{
-                    //this.casting.addRef( ref );
-                  //console.log( `check at `, ref.wx, ref.wy, ref.wz )
-                  if( ref.voxelType && !ref.voxelType.properties.Is_PlayerCanPassThrough )
-                    return ref;
-                  return null;
-                })
-                //if( ref ) {
-                //    this.casting.geometry.computeBoundingSphere();
-                //    this.casting.geometry.setDrawRange( 0, (this.casting.cubes-1)*24 );
-                //}
-                if( ref ) {
-                  Voxelarium.selector.currentVoxel = ref;
-                } else {
-                  Voxelarium.selector.currentVoxel = cluster.getVoxelRef( true, vox.x, vox.y, vox.z );
-                }
-                vrTo.delete();
-                vrFrom.delete();
-            }
         }
-
         if( scope.mouseEvents ) {
             var mEvent = scope.mouseEvents.shift();
             if( mEvent ) {
@@ -222,11 +187,6 @@ function controls( object, domElement ) {
 
         break;
      }
-      /*
-      scope.object.matrix.rotateRelative( -phiDelta, thetaDelta, 0 );
-      scope.object.matrix.rotateRelative( 0, 0, -scope.object.matrix.roll );
-      scope.object.matrixWorldNeedsUpdate = true;
-      */
   }
 
 function mouseEvent( x, y, b, down ) {
@@ -236,7 +196,6 @@ function mouseEvent( x, y, b, down ) {
         delta : scope.mouseClock.getDelta(),
         down : down
     }
-
     scope.mouseEvents.push( ev );
 }
 
@@ -358,6 +317,7 @@ function onTouchCancel(event) {
 
   this.enable = function() {
 	this.enabled = true;
+    scope.object.matrixWorldNeedsUpdate = true;
 	if( scope.domElement ){
 		if( !inventory  ){
 			var inventory_geometryShader = Voxelarium.Settings.use_basic_material
@@ -672,5 +632,4 @@ function  rayCast(cluster, o, forward )
 }
 
 
-//THREE.GameMouse = 
 export {controls}

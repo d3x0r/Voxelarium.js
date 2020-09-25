@@ -50,19 +50,7 @@ var screen = { width:window.innerWidth, height:window.innerHeight };
 	var clock = new THREE.Clock()
 
 
-
-function setMode1(){
-}
-
-
-function setMode2() {
-}
-
-
-function setMode3() {
-}
-
-var status_line;
+	var status_line;
 	function init() {
 		console.log( "init?" );
 
@@ -322,6 +310,8 @@ function initVoxelarium() {
 }
 
 
-init();
-animate();
-                                                   })})
+		init();
+		animate();
+
+	})
+})

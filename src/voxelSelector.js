@@ -135,3 +135,4 @@ Voxelarium.selector.update = function() {
     geometry.verticesNeedUpdate = true;
     geometry.colorsNeedUpdate = true;
 }
+
