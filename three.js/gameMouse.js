@@ -672,5 +672,4 @@ function  rayCast(cluster, o, forward )
 }
 
 
-//THREE.GameMouse = 
 export {controls}
