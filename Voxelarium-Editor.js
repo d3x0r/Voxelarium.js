@@ -56,28 +56,6 @@ var stats = new Voxelarium.Stats();
 
 
 
-function setMode1(){
-}
-
-
-function setMode2() {
-}
-
-
-function setMode3() {
-}
-
-function setControls1() {
-	Voxelarium.controls.core.setMode( 1 );
-}
-function setControls2() {
-	Voxelarium.controls.core.setMode( 2 );
-}
-
-function setControls3() {
-	Voxelarium.controls.core.setMode( 0 );
-}
-
 function setupViveControls( scene ) {
 		// update camera poosition from VR inputs...
 		if( Voxelarium.Settings.AltSpace ) {
@@ -149,12 +127,6 @@ function setupViveControls( scene ) {
 
 var status_line;
 	function init() {
-	var x = document.getElementById( "controls1");
-	if(x)	x.onclick = setControls1;
-	var x = document.getElementById( "controls2");
-	if(x)		x.onclick = setControls2;
-	var x = document.getElementById( "controls3");
-	if(x)		x.onclick = setControls3;
 
 	if( !sceneRoot )
 		sceneRoot = new THREE.Scene();
@@ -287,21 +259,11 @@ var status_line;
 
 
 		if( !Voxelarium.Settings.VR ) {
-			//Voxelarium.controls.controlNatural = new Voxelarium.controls.natural( camera, renderer.domElement );
-			Voxelarium.controls.natural.enable();
-			Voxelarium.controls.natural.setMPS(1);
-
-			/* auto enables; make sure to disable before enabling something else... */
-			//Voxelarium.controls.controlOrbit = new Voxelarium.controls.orbit( camera, renderer.domElement );
-			Voxelarium.controls.orbit.disable();
-
-			//Voxelarium.controls.controlGame = new Voxelarium.controls.game( camera, renderer.domElement );
-			Voxelarium.controls.game.disable();
 
 			scene.add( Voxelarium.controls.game.casting.mesh );
 
 			camera.matrixAutoUpdate = false;
-			controls = Voxelarium.controls.natural;
+			//controls = Voxelarium.controls.natural;
 		}
 		initVoxelarium();
 
@@ -401,7 +363,7 @@ if( delta > 0.033 || (now - start) > 50 )
 	start = now;
 	db_delta += delta;
 		if( !Voxelarium.db.player.positionUpdate ) {
-			controls.update( delta );
+			Voxelarium.controls.update( delta );
 			if( db_delta > 0.500 ) {
 				Voxelarium.db.animate();
 				db_delta = 0;

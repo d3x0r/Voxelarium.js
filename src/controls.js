@@ -4,7 +4,7 @@ import {consts,Vector4Pool,Vector3Pool} from "../three.js/personalFill.js"
 
 function controls( object, domElement ) {
     this.object = object;
-	let mode = 1;
+	let mode = 0; // default to game cursor
 	this.domElement = domElement ;
   this.camera = null;
   var scope = this;
@@ -16,6 +16,8 @@ function controls( object, domElement ) {
   this.mouseEvents = [];
   this.setDOM = (dom)=>{
 	scope.domElement = dom;
+	  scope.domElement.addEventListener( "pointerlockchange", pointerLockChanged );
+	  scope.domElement.addEventListener( "pointerlockcerror", pointerLockError );
    	if( scope.enabled ) scope.enable();
   }
   var mouseButtonCount = 0;
@@ -41,6 +43,15 @@ function controls( object, domElement ) {
 		}
 			
   }
+
+function pointerLockChanged( evt ) {
+    	console.log( "*shrug* got pointer lock." );
+
+    }
+function pointerLockError( evt ) {
+    	console.log( "*shrug* got pointer lock." );
+
+    }
 
 function mouseEvent( x, y, b, down ) {
     var ev = { x : x,
@@ -147,10 +158,13 @@ function onTouchCancel(event) {
 				tabDown = true;
 				switch(mode ) {
 				case 0:
+                                    	document.exitPointerLock();
 					Voxelarium.controls.game.enable();
 					Voxelarium.controls.natural.disable();
 					break;
 				case 1:
+                                    	if( scope.domElement )
+                                    	scope.domElement.requestPointerLock();
 					Voxelarium.controls.natural.enable();
 					Voxelarium.controls.game.disable();
 					break;
@@ -166,6 +180,7 @@ function onTouchCancel(event) {
 			Voxelarium.controls.natural.onKeyDown(event);
 			break;
 		}
+
 	}
         
     function onMouseWheel( event ) {

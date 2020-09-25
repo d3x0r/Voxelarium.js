@@ -315,6 +315,8 @@ function initVoxelarium() {
 }
 
 
-init();
-animate();
-                                                   })})
+		init();
+		animate();
+
+	})
+})

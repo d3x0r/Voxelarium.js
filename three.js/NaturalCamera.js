@@ -131,8 +131,13 @@ let moveSpeed = ( 1*kmph ) /runScalar ;
 
 		event.preventDefault();
 
-    rotateEnd.set( event.clientX, event.clientY );
+                if( "movementX" in event ) {
+		rotateDelta.set( event.movementX, event.movementY );
+
+               }else      {
+		rotateEnd.set( event.clientX, event.clientY );
 		rotateDelta.subVectors( rotateEnd, rotateStart );
+                }
 
         rotateDelta.x = 16 * (rotateDelta.x / window.innerWidth)
         rotateDelta.y = 16 * (rotateDelta.y / window.innerHeight)
@@ -187,27 +192,33 @@ let moveSpeed = ( 1*kmph ) /runScalar ;
 	this.onKeyDown = onKeyDown;
 	this.onKeyUp = onKeyUp;
 	function onKeyDown( event ) {
-	         event.preventDefault();
+	         //event.preventDefault();
 		if ( enabled === false ) return;
 		if ( scope.userPan === false ) return;
     
 		switch ( event.keyCode ) {
             case scope.keys.SPACE:
+	    	event.preventDefault();
                 scope.object.matrix.motion.speed.y = moveSpeed;
                 break;
             case scope.keys.C:
+	    	event.preventDefault();
                 scope.object.matrix.motion.speed.y = -moveSpeed;
                 break;
             case scope.keys.A:
+	    	event.preventDefault();
                 scope.object.matrix.motion.speed.x = -moveSpeed;
 				break;
 			case scope.keys.W:
+	    	event.preventDefault();
                 scope.object.matrix.motion.speed.z = moveSpeed;
 				break;
 			case scope.keys.S:
+	    	event.preventDefault();
                 scope.object.matrix.motion.speed.z = -moveSpeed;
 				break;
 			case scope.keys.D:
+	    	event.preventDefault();
                 scope.object.matrix.motion.speed.x = moveSpeed;
 				break;
 		}
@@ -315,6 +326,7 @@ function onTouchEnd( e ) {
 	if( scope.domElement ) {
     	scope.domElement.removeEventListener( 'contextmenu', ignore, false );
     	scope.domElement.removeEventListener( 'mousedown', onMouseDown, false );
+	scope.domElement.removeEventListener( 'mousemove', onMouseMove, false );
     	scope.domElement.removeEventListener( 'mousewheel', onMouseWheel, false );
     	scope.domElement.removeEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
     	//window.removeEventListener( 'keydown', onKeyDown, false );
@@ -326,6 +338,7 @@ function onTouchEnd( e ) {
 	if( scope.domElement ) {
     	scope.domElement.addEventListener( 'contextmenu', ignore, false );
     	scope.domElement.addEventListener( 'mousedown', onMouseDown, false );
+	scope.domElement.addEventListener( 'mousemove', onMouseMove, false );
     	scope.domElement.addEventListener( 'mousewheel', onMouseWheel, false );
       scope.domElement.addEventListener( 'touchstart', onTouchStart, false );
       scope.domElement.addEventListener( 'touchmove', onTouchMove, false );
