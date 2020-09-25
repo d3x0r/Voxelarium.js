@@ -158,14 +158,22 @@ Voxelarium.Inventory = function( geometryShader,domElement ) {
         }
     }
 	const types = Voxelarium.Voxels;
-    types.types.forEach( (voxel)=>{
-        var item;
-        inventory.items.push( item = InventoryItem( voxel ) );
-        inventory.THREE_solid.add( item.THREE_solid = new THREE.Mesh( item.geometry.geometry, geometryShader ) );
-        item.THREE_solid.frustumCulled = false;
-        item.THREE_solid.item = item;
-        item.THREE_solid.matrixAutoUpdate = false;
-    })
+	types.on( "new", addVoxel );
+	
+	types.types.forEach( addVoxel );
+
+	const addVoxel = (voxel)=>{
+		voxel.on("load", setGeometry );
+		function setGeometry() {
+			const item = InventoryItem( voxel );
+			inventory.items.push( item );
+			inventory.THREE_solid.add( item.THREE_solid = new THREE.Mesh( item.geometry.geometry, geometryShader ) );
+			item.THREE_solid.frustumCulled = false;
+			item.THREE_solid.item = item;
+			item.THREE_solid.matrixAutoUpdate = false;
+		}
+	}
+
     inventory.updatePositions();
     inventory.THREE_solid.matrixAutoUpdate = false;
     inventory.THREE_solid.visible = false;
@@ -203,9 +211,11 @@ Voxelarium.Inventory = function( geometryShader,domElement ) {
 
     inventory.THREE_solid.add( inventory.selector.THREE_solid );
 
+    const pointOrder = [0,1,1,3,3,2,2,0,4,5,5,7,7,6,6,4,0,4,1,5,2,6,3,7];
+
 
     function updateSelector() {
-        var color = new THREE.Color( 0.8, 0, 0 );
+        const color = new THREE.Color( 0.8, 0, 0 );
         var unit = 0.8;
         var x = 0
         var y = 0
@@ -223,69 +233,24 @@ Voxelarium.Inventory = function( geometryShader,domElement ) {
         var origin = currentRef.object.matrix.origin;
         //console.log( `inventory at ${origin.x} ${origin.y} ${origin.z}`)
         for( var n = 0; n < 1; n++ ) {
-            x = origin.x  - unit/2 - 0.1
-            y = origin.y  - unit/2 - 0.1
-            z = origin.z  - unit/2 - 0.1
-          unit += 0.2;
-        var P = [new THREE.Vector3( x, y, z )
-            , new THREE.Vector3( x + unit, y, z )
-            , new THREE.Vector3( x, y + unit, z )
-            , new THREE.Vector3( x + unit, y + unit, z )
-            , new THREE.Vector3( x, y, z + unit )
-            , new THREE.Vector3( x + unit, y, z + unit )
-            , new THREE.Vector3( x, y + unit, z + unit )
-            , new THREE.Vector3( x + unit, y + unit, z + unit )
-            ]
-        geometry.colors.push( color );
-        geometry.vertices.push( P[0] );
-        geometry.colors.push( color );
-        geometry.vertices.push( P[1] );
-        geometry.colors.push( color );
-        geometry.vertices.push( P[1] );
-        geometry.colors.push( color );
-        geometry.vertices.push( P[3] );
-        geometry.colors.push( color );
-        geometry.vertices.push( P[3] );
-        geometry.colors.push( color );
-        geometry.vertices.push( P[2] );
-        geometry.colors.push( color );
-        geometry.vertices.push( P[2] );
-        geometry.colors.push( color );
-        geometry.vertices.push( P[0] );
-
-        geometry.colors.push( color );
-        geometry.vertices.push( P[4] );
-        geometry.colors.push( color );
-        geometry.vertices.push( P[5] );
-        geometry.colors.push( color );
-        geometry.vertices.push( P[5] );
-        geometry.colors.push( color );
-        geometry.vertices.push( P[7] );
-        geometry.colors.push( color );
-        geometry.vertices.push( P[7] );
-        geometry.colors.push( color );
-        geometry.vertices.push( P[6] );
-        geometry.colors.push( color );
-        geometry.vertices.push( P[6] );
-        geometry.colors.push( color );
-        geometry.vertices.push( P[4] );
-
-        geometry.colors.push( color );
-        geometry.vertices.push( P[0] );
-        geometry.colors.push( color );
-        geometry.vertices.push( P[4] );
-        geometry.colors.push( color );
-        geometry.vertices.push( P[1] );
-        geometry.colors.push( color );
-        geometry.vertices.push( P[5] );
-        geometry.colors.push( color );
-        geometry.vertices.push( P[2] );
-        geometry.colors.push( color );
-        geometry.vertices.push( P[6] );
-        geometry.colors.push( color );
-        geometry.vertices.push( P[3] );
-        geometry.colors.push( color );
-        geometry.vertices.push( P[7] );
+                x = origin.x  - unit/2 - 0.1
+                y = origin.y  - unit/2 - 0.1
+                z = origin.z  - unit/2 - 0.1
+                unit += 0.2;
+                const P = [new THREE.Vector3( x, y, z )
+                    , new THREE.Vector3( x + unit, y, z )
+                    , new THREE.Vector3( x, y + unit, z )
+                    , new THREE.Vector3( x + unit, y + unit, z )
+                    , new THREE.Vector3( x, y, z + unit )
+                    , new THREE.Vector3( x + unit, y, z + unit )
+                    , new THREE.Vector3( x, y + unit, z + unit )
+                    , new THREE.Vector3( x + unit, y + unit, z + unit )
+                    ]
+                
+		for( let point of pointOrder ) {	
+		        geometry.colors.push( color );
+                	geometry.vertices.push( P[point] );
+		}
 
         }
         //color.delete();

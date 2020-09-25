@@ -1,11 +1,13 @@
 import {Voxelarium} from "./Voxelarium.core.js"
 
+const voxelEvents = {};
 
 const voxels = {
 	types : [],
-	add : function( type, properties,reaction ) {
+	add( type, properties,reaction ) {
         	//this.types.push(
-						this[type] = {
+			const voxelEvents = {};
+			const proto = {
 						 ID : this.types.length
                 		, name : type
                 		, properties : properties
@@ -17,12 +19,40 @@ const voxels = {
 				, texture : null
 				, codeData : null
 				, textureData : null
+				, on(event,arg) {
+					if( "function" === typeof arg ) {
+						if( event in voxelEvents ) {
+							voxelEvents[event].push( arg );
+						}else {
+							voxelEvents[event] = [arg];
+						}
+					} else {
+						if( event in voxelEvents ) {
+							voxelEvents[event].forEach( cb=>cb(arg) );
+						}
+					}
+				}
 			}
-		  //);
+			this[type] = proto;
+
 			if( typeof properties.DrawInfo === "undefined" )
 				properties.DrawInfo = Voxelarium.ZVOXEL_DRAWINFO_DRAWFULLVOXELOPACITY;
+			this.on( "new", proto );
 			return this[type];
+	},
+	on(event,arg) {
+		if( "function" === typeof arg ) {
+			if( event in voxelEvents ) {
+				voxelEvents[event].push( arg );
+			}else {
+				voxelEvents[event] = [arg];
+			}
+		} else {
+			if( event in voxelEvents ) {
+				voxelEvents[event].forEach( cb=>cb(arg) );
+			}
 		}
+	}
 /*
 Is_PlayerCanPassThrough = false;
 Draw_TransparentRendering = false;
@@ -173,6 +203,7 @@ function loadAVoxel( n, cb, req ) {
 							t.image.onload = ()=> {
 								 //console.log( "Waited until load to setup coords", t)
 							   t.textureCoords = Voxelarium.TextureAtlas.add( t.image )
+							   t.on( "load", t );
 							}
 						} else {
 							//console.log( "don't have to delay load?")
