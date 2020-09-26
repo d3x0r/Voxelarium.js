@@ -2,7 +2,7 @@
 import {sack} from "sack.vfs";
 import {BloomNHash} from  "./common/bloomNHash.mjs" ;
 
-import {World} from "./world.mjs";
+import {World} from "./World.mjs";
 import {Inventory} from "./Inventory.mjs"
 
 const l = {
