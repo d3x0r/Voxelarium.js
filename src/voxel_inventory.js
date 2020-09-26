@@ -92,30 +92,28 @@ Voxelarium.Inventory = function( geometryShader,domElement ) {
             if( !camera )return;
             if( !inventory.enabled) return;
             var o;
-			var inventoryO;
+	    var inventoryO;
             var f;
 
             ( inventoryO = this.THREE_solid.matrix.origin/*position*/  ).copy( camera.matrix.origin );
             //f = camera.matrix.forward
 
-			o = inventory.raycaster.ray.origin.clone();
-			f = inventory.raycaster.ray.direction;
+	    o = inventory.raycaster.ray.origin.clone();
+	    f = inventory.raycaster.ray.direction;
 
-            o.addScaledVector( f, 11 );
+            o.addScaledVector( f, 1 );
 
-			var tmpdel = f.dot( camera.matrix.forward.delete() );
-			inventoryO.addScaledVector( camera.matrix.forward.delete(),  11 / tmpdel );
+	    var tmpdel = f.dot( camera.matrix.forward.delete() );
+	    inventoryO.addScaledVector( camera.matrix.forward.delete(),  8 / tmpdel );
 
             var m = this.THREE_solid.matrix;
-            var away = camera.matrix.origin.clone().addScaledVector( o, 2 )
+            var away = camera.matrix.origin.clone().addScaledVector( o, 1 )
             m.lookAt( o, camera.matrix.origin, camera.matrix.up )
             m.rotateOrtho( Math.PI, 0, 2 );
             //var d = camera.matrix.down;
             inventoryO.addScaledVector( m.down.delete(), (this.y_max-this.y_inc)/2 );
             inventoryO.addScaledVector( m.right.delete(), (this.x_max-this.x_inc)/2 );
 
-
-			//inventoryO.copy( o );
 
             this.THREE_solid.matrixWorldNeedsUpdate = true;
 
@@ -143,13 +141,6 @@ Voxelarium.Inventory = function( geometryShader,domElement ) {
 
             }
             updateSelector();
-            //if( inventory.selector.currentVoxel )
-            //    inventory.selector.currentVoxel.object.visible = false;
-            //for ( var i = 0; i < inventory.last_intersects.length; i++ ) {
-                //console.log( inventory.last_intersects[i])
-        		//intersects[ i ].object.material.color.set( 0xff0000 );
-
-        	//}
         }
     }
 	const types = Voxelarium.Voxels;
@@ -307,12 +298,7 @@ Voxelarium.Inventory = function( geometryShader,domElement ) {
                   inventory.selector.currentVoxel = inventory.last_intersects[i];
                   break;
               }
-              //inventory.selector.currentVoxel = intersects[i];
-              //inventory.selector.currentVoxel = intersects[i].object.item
-              //intersects[ i ].object.material.color.set( 0xff0000 );
-
           }
-
       }
 
       function onMouseUp(event) {
@@ -328,8 +314,8 @@ Voxelarium.Inventory = function( geometryShader,domElement ) {
 
         function onMouseWheel( event ) {
             event.preventDefault();
-            mouseScrollX += event.wheelDeltaX;
-            mouseScrollY += event.wheelDeltaY;
+            //mouseScrollX += event.wheelDeltaX;
+            //mouseScrollY += event.wheelDeltaY;
         }
 
       function ignore(event) {
