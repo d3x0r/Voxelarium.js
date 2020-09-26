@@ -114,17 +114,6 @@ function controls( object, domElement ) {
       // using 'myPerspective' the calculation doesn't need magic values.
       mouse_ray_slope.addScaledVector( camera.matrix.backward, -1.0);
 
-      //mouse_ray_slope.unproject( camera );
-
-      //var mouse_ray_target = THREE.Vector3Zero.clone().addScaledVector( THREE.Vector3Forward, 1000 );
-      //mouse_ray_target.addScaledVector( THREE.Vector3Left,  camera.aspect*1000*x );
-      //mouse_ray_target.addScaledVector( THREE.Vector3Up, -(1000)*y );
-
-      //mouse_ray_origin.applyMatrix4( camera.matrix );
-      //mouse_ray_target.applyMatrix4( camera.matrix );
-
-      //var mouse_ray_slope = mouse_ray_target.clone().sub( mouse_ray_origin );
-      //mouse_ray_slope.sub(camera.matrix.origin);
   	  mouse_ray_slope.normalize();
       //mouse_ray_origin.delete();
       scope.mouseRay.n.delete();

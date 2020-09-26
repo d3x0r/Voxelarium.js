@@ -19,9 +19,6 @@ var geometryShader;
 var geometryShaderMono;
 //var words1 = voxelUniverse.createTextCluster( "Hello World" );
 
-var controlNatural;
-var controlOrbit;
-
 	var scene;
 	var scene2;
 	var scene3;

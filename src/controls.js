@@ -7,6 +7,9 @@ function controls( object, domElement ) {
 	let mode = 0; // default to game cursor
 	this.domElement = domElement ;
   this.camera = null;
+
+  this.nameEntryField = document.getElementById( 'playerNameEntry' );
+
   var scope = this;
   let tabDown = false;
   this.voxelSelector = null;
@@ -165,6 +168,8 @@ function onTouchCancel(event) {
 		        event.preventDefault();
 			break;
 		}
+                const ev = new KeyboardEvent( event );
+                scope.nameEntryField.dispatchEvent( ev );
 	}
 
 	function onKeyDown( event ) {
@@ -199,7 +204,9 @@ function onTouchCancel(event) {
 			Voxelarium.controls.natural.onKeyDown(event);
 			break;
 		}
-
+                const ev = new KeyboardEvent( event );
+                scope.nameEntryField.focus();
+                scope.nameEntryField.dispatchEvent( ev );
 	}
         
     function onMouseWheel( event ) {
