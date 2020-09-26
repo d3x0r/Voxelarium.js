@@ -1,5 +1,18 @@
 import {Voxelarium} from "./Voxelarium.core.js"
 
+const keys = { LEFT: 37, UP: 38, RIGHT: 39, BOTTOM: 40
+		, A: 'A'.codePointAt(0)
+                , S:83
+                , D:68, W:87, SPACE:32, C:67
+	    	, I : 73, ESCAPE : 27 }
+
+
+for( let i = 65; i <= 65+26; i++ ) {
+   keys[String.fromCodePoint( i )] = i;
+}
+
+export {keys}
+
 Voxelarium.D = function( valname, value ) {
     if( typeof valname == "object" ) {
         Object.keys(valname).forEach( (key)=>{

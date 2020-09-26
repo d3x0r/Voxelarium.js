@@ -179,7 +179,7 @@ function animate() {
 
 function initVoxelarium() {
 
-	Voxelarium.TextureAtlas.init( 32, 64 );
+	//Voxelarium.TextureAtlas.init( 32, 64 );
   Voxelarium.db.init( ()=>{
 //	Voxelarium.Voxels.load( ()=>{
 	console.log( "db init finish?" );

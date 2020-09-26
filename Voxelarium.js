@@ -142,6 +142,8 @@ import( "./src/voxel_inventory.js")  // must be after voxels
 function tick() {
 	if( Voxelarium.World && Voxelarium.Inventory  && Voxelarium.db && Voxelarium.Voxels)
         {
+            Voxelarium.TextureAtlas.init( 32, 64 );
+
             if( readies.length ) readies[0]();
         } else setTimeout( tick, 100 );
 }tick();

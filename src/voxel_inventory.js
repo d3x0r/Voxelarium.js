@@ -2,11 +2,7 @@
 import * as THREE from "../three.js/build/three.module.js"
 import {Voxelarium} from "./Voxelarium.core.js"
 import {consts} from "../three.js/personalFill.js"
-
-
-var keys = { LEFT: 37, UP: 38, RIGHT: 39, BOTTOM: 40
-	, A:65, S:83, D:68, W:87, SPACE:32, C:67
-    , I : 73, ESCAPE : 27 };
+import {keys} from "./constants.js"
 
 
 function InventoryItem ( voxelType ) {
@@ -19,7 +15,6 @@ function InventoryItem ( voxelType ) {
 
     }
     item.geometry.makeVoxCube( 0.25, voxelType );
-
     return item;
 }
 
@@ -158,21 +153,42 @@ Voxelarium.Inventory = function( geometryShader,domElement ) {
         }
     }
 	const types = Voxelarium.Voxels;
-	types.on( "new", addVoxel );
-	
-	types.types.forEach( addVoxel );
 
 	const addVoxel = (voxel)=>{
 		voxel.on("load", setGeometry );
 		function setGeometry() {
 			const item = InventoryItem( voxel );
+                        // a new texture , might have changes prior UVs
+                        inventory.items.forEach( i=>i.geometry.updateVoxCube( i.voxelType ) )
+
 			inventory.items.push( item );
 			inventory.THREE_solid.add( item.THREE_solid = new THREE.Mesh( item.geometry.geometry, geometryShader ) );
 			item.THREE_solid.frustumCulled = false;
 			item.THREE_solid.item = item;
 			item.THREE_solid.matrixAutoUpdate = false;
+			inventory.updatePositions();
 		}
 	}
+
+	types.on( "new", addVoxel );
+	
+	types.types.forEach( addVoxel );
+
+    Voxelarium.controls.core.addBinding( "Inventory",
+               {
+                 // { code: 123, ctrl: true, shift:true, alt:true }
+                   modeLock : true,
+                   defaultKeys : [ {code:keys.I} ],
+                   ownMouse : mouseUpdateCallback,
+                   bindings : {
+                    	["Exit Inventory"] : { defaultKeys: [{code:keys.ESCAPE},
+                                  {code:keys.I}] }
+                   }
+               }
+     );
+
+    function mouseUpdateCallback(evt) {
+    }
 
     inventory.updatePositions();
     inventory.THREE_solid.matrixAutoUpdate = false;
@@ -321,9 +337,7 @@ Voxelarium.Inventory = function( geometryShader,domElement ) {
       }
 
       function onKeyDown( event ) {
-
-
-      	switch ( event.keyCode ) {
+     	switch ( event.keyCode ) {
             case keys.ESCAPE:
       		case keys.I:
       			inventory.deactivate();

@@ -24,6 +24,25 @@ function controls( object, domElement ) {
   var mouseScrollX = 0;
   var mouseScrollY = 0;
   var cursorDistance = 650;
+  this.bindings = new Map();
+
+  // "Inventory",
+  // {
+  //   // { code: 123, ctrl: true, shift:true, alt:true }
+  //   defaultKeys : [ {code:123} , {code:56}]
+  //   ownMouse : mouseUpdateCallback - (evt)
+  //   bindings : {
+  //		"Exit Inventory" : { defaultKeys: [{code:27}] }
+  //   }
+  // }
+
+  this.createBinding = function( name, callback ) {
+
+  }
+  this.addBinding= function( name, options ) {
+	this.bindings.set( name, options );
+
+  }
 
   this.setCurrentType = function( type ) {
       this.currentAddType = type;

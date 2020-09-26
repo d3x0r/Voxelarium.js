@@ -408,7 +408,7 @@ function initVoxelarium() {
 			? new THREE.MeshBasicMaterial()
 	    : Voxelarium.GeometryShader();
 
-	Voxelarium.TextureAtlas.init( 32, 64 );
+	//Voxelarium.TextureAtlas.init( 32, 64 );
 
 		Voxelarium.db.init( ()=>{
 			//geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;

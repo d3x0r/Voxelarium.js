@@ -148,12 +148,42 @@ Voxelarium.GeometryBuffer = function () {
      buffer.addSimpleQuadTex = function( quad, uvs, norm, pow ) {
          var min = 0;
          var max = 1.0;
-         this.addPoint( quad[0], uvs, 0, white, white, norm, pow, 255, false, false, [min,min] );
-         this.addPoint( quad[1], uvs, 2, white, white, norm, pow, 255, false, false, [max,min] );
-         this.addPoint( quad[2], uvs, 4, white, white, norm, pow, 255, false, false, [min,max] );
-         this.addPoint( quad[1], uvs, 2, white, white, norm, pow, 255, false, false, [max,min] );
-         this.addPoint( quad[3], uvs, 6, white, white, norm, pow, 255, false, false, [max,max] );
-         this.addPoint( quad[2], uvs, 4, white, white, norm, pow, 255, false, false, [min,max] );
+         return [this.addPoint( quad[0], uvs, 0, white, white, norm, pow, 255, false, false, [min,min] )
+         	,this.addPoint( quad[1], uvs, 2, white, white, norm, pow, 255, false, false, [max,min] )
+         	,this.addPoint( quad[2], uvs, 4, white, white, norm, pow, 255, false, false, [min,max] )
+         	,this.addPoint( quad[1], uvs, 2, white, white, norm, pow, 255, false, false, [max,min] )
+         	,this.addPoint( quad[3], uvs, 6, white, white, norm, pow, 255, false, false, [max,max] )
+         	,this.addPoint( quad[2], uvs, 4, white, white, norm, pow, 255, false, false, [min,max] )
+                ];
+     }
+
+     buffer.updateVoxCube = function( voxelType ) {
+         // this shouldn't change anyway....
+         //return;
+        if( voxelType && voxelType.image
+	  && (( voxelType.properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_SHADER ) == 0 )
+           ) {
+            //var in_uvs = voxelType.textureCoords.uvs;
+            var uvs = voxelType.textureCoords.uv_array;
+            const tBase = [0,2,4,2,6,4];
+            let changed = false;
+            for( let v = 0; v < this.used/6; v++ ) {
+            for( let face = 0; face < 6; face++ ) {
+                const u2 = (v*6+face)*2
+                    if( buffer.uv[u2+0] !== uvs[tBase[face]+0] ||
+                       buffer.uv[u2+1] !== uvs[tBase[face]+1] ) {
+         console.log( "changing UVS:", uvs );
+	            	buffer.uv[u2+0] = uvs[tBase[face]+0];
+        	    	buffer.uv[u2+1] = uvs[tBase[face]+1];
+                    	changed = true;
+                    }
+            }
+            }
+            if( changed ) {
+            	console.log( "Actuallyupdated" );
+           	 buffer.markDirty();
+            }
+        }
      }
 
      buffer.makeVoxCube = function( size, voxelType ) {
@@ -167,10 +197,9 @@ Voxelarium.GeometryBuffer = function () {
         var v8 = new THREE.Vector3(-1,-1,-1);
         var quad;
         if( voxelType && voxelType.image
-				   && (( voxelType.properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_SHADER ) == 0 )
+	  && (( voxelType.properties.DrawInfo & Voxelarium.ZVOXEL_DRAWINFO_SHADER ) == 0 )
            ) {
-            var in_uvs = voxelType.textureCoords.uvs;
-            var uvs = voxelType.textureCoords.uv_array;
+            const uvs = voxelType.textureCoords.uv_array;
             buffer.addSimpleQuadTex( quad=[v1.clone().multiplyScalar(size),v2.clone().multiplyScalar(size),v3.clone().multiplyScalar(size),v4.clone().multiplyScalar(size)]
                 , uvs
                 , THREE.Vector3Forward
@@ -178,27 +207,27 @@ Voxelarium.GeometryBuffer = function () {
                 quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
 
             buffer.addSimpleQuadTex( quad = [v6.clone().multiplyScalar(size),v5.clone().multiplyScalar(size),v8.clone().multiplyScalar(size),v7.clone().multiplyScalar(size)]
-                , voxelType.textureCoords.uvs
+                , uvs
                 , THREE.Vector3Backward
                 , 200 )
                 quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
             buffer.addSimpleQuadTex( quad = [v5.clone().multiplyScalar(size),v6.clone().multiplyScalar(size),v1.clone().multiplyScalar(size),v2.clone().multiplyScalar(size)]
-                    , voxelType.textureCoords.uvs
+                    , uvs
                     , THREE.Vector3Up
                     , 200 )
                     quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
             buffer.addSimpleQuadTex( quad = [v3.clone().multiplyScalar(size),v4.clone().multiplyScalar(size),v7.clone().multiplyScalar(size),v8.clone().multiplyScalar(size)]
-                    , voxelType.textureCoords.uvs
+                    , uvs
                     , THREE.Vector3Down
                     , 200 )
                     quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
             buffer.addSimpleQuadTex( quad = [v5.clone().multiplyScalar(size),v1.clone().multiplyScalar(size),v7.clone().multiplyScalar(size),v3.clone().multiplyScalar(size)]
-                    , voxelType.textureCoords.uvs
+                    , uvs
                     , THREE.Vector3Right
                     , 200 )
                     quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
             buffer.addSimpleQuadTex( quad = [v2.clone().multiplyScalar(size),v6.clone().multiplyScalar(size),v4.clone().multiplyScalar(size),v8.clone().multiplyScalar(size)]
-                    , voxelType.textureCoords.uvs
+                    , uvs
                     , THREE.Vector3Left
                     , 200 )
                     quad[0].delete(); quad[1].delete(); quad[2].delete(); quad[3].delete();
