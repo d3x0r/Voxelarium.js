@@ -1,6 +1,7 @@
 import * as THREE from "./build/three.module.js"
 import {consts,Vector4Pool,Vector3Pool} from "./personalFill.js"
 
+
 var casting = {
     reset: function() { this.cubes = 0; },
     material : new THREE.LineBasicMaterial({color:'blue',linewidth:3}),
@@ -135,9 +136,13 @@ function controls( object, domElement ) {
   this.update = function() {
     if( !scope.clusters )
       return;
+	if( !Voxelarium.inventory.enabled ){
+	}
+
      switch( scope.mode )
      {
-     case 0:
+     case 0: // game mouse
+
         var cluster = scope.clusters[0];
         if( mouseScrollY ) {
             cursorDistance += ( mouseScrollY / 120 ) * cluster.voxelUnitSize;
@@ -262,8 +267,8 @@ function onTouchCancel(event) {
     	if ( scope.enabled === false ) return;
 
     	event.preventDefault();
-
-        scope.setMouseRay( Voxelarium.camera, event );
+	if( !Voxelarium.inventory.enabled )
+	        scope.setMouseRay( Voxelarium.camera, event );
 
     }
 
@@ -295,22 +300,20 @@ function onTouchCancel(event) {
     //window.removeEventListener( 'keyup', onKeyUp, false );
   }
 
-			 let inventory = null;
-
 	this.onKeyDown = onKeyDown;
-	let inventoryShowing = false;
 	function onKeyDown(event){
-		if( event.keyCode === 73 ) {
-			if( !inventoryShowing ){
-				inventoryShowing = true;
-				Voxelarium.inventory.activate();
-				event.preventDefault();
-			}else {
-				inventoryShowing = false;
+		if( event.keyCode === 27 ) {
+			if( Voxelarium.inventory.enabled )
 				Voxelarium.inventory.deactivate();
-				event.preventDefault();
+		}
+		if( event.keyCode === 73 ) {
+			if( !Voxelarium.inventory.enabled ){
+				Voxelarium.inventory.activate();
+			}else {
+				Voxelarium.inventory.deactivate();
 			}
 
+			event.preventDefault();
 		}
 		
 	}
@@ -319,7 +322,7 @@ function onTouchCancel(event) {
 	this.enabled = true;
     scope.object.matrixWorldNeedsUpdate = true;
 	if( scope.domElement ){
-		if( !inventory  ){
+		if( !Voxelarium.inventory  ){
 			var inventory_geometryShader = Voxelarium.Settings.use_basic_material
 					? new THREE.MeshBasicMaterial()
 					: Voxelarium.GeometryShader();
