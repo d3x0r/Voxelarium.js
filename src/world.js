@@ -7,7 +7,7 @@ import {fonts} from "./voxel.fonts.js";
 const typeCache = new Map();
 
 Voxelarium.World = function() {
-    return {
+    const world = {
         clusters : [],
 
         createCluster( mesher, voxelUnitSize ) {
@@ -17,16 +17,16 @@ Voxelarium.World = function() {
             cluster.getGeometryBuffer = Voxelarium.Settings.use_basic_material
                 ? Voxelarium.GeometryBasicBuffer
                 : Voxelarium.GeometryBuffer;
-            this.clusters.push( cluster );
+            world.clusters.push( cluster );
             return cluster;
         },
 
         createTextCluster( text, v, mesher, font, voxelUnitSize ) {
-            var cluster = Voxelarium.Cluster(256*8,8,1);
+            var cluster = Voxelarium.Cluster(120*8,8,1);
             cluster.mesher = mesher;
             cluster.voxelUnitSize = voxelUnitSize || 20;
             cluster.getGeometryBuffer = Voxelarium.GeometryBufferMono;
-            this.clusters.push( cluster );
+            world.clusters.push( cluster );
             //var sector = cluster.createSector( 0, 0, 0 );
             var pos = { x:0, y:0};
 
@@ -86,7 +86,7 @@ Voxelarium.World = function() {
 			}
 		}
 
-	
+
 		const resultPhrase =  {
 			object: newWord,
 			
@@ -107,6 +107,9 @@ Voxelarium.World = function() {
 				}
 
 				
+			},
+                        mouseOver( ray ) {
+				console.log( "detect if the mouse is voer this?" );
 			}
 		}
 
@@ -116,4 +119,5 @@ Voxelarium.World = function() {
 	}
 
     }
+	return world;
 }

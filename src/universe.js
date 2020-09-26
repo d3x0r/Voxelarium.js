@@ -11,7 +11,6 @@ Voxelarium.Universe = function(  ) {
         //internal VoxelTypeManager VoxelTypeManager;
         //internal SectorLoader SectorLoader;
 
-        internal TextureAtlas TextureAtlas;
 
     }
     return newUniverse;

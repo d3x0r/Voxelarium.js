@@ -3,6 +3,7 @@
 
 import * as THREE from "../three.js/build/three.module.js"
 import {TimeGradient} from "./src/TimeGradient.js"
+import {myPerspective} from './three.js/my_perspective.js'
 window.THREE = THREE;
 import ( "./Voxelarium.js" ).then ( (V)=>{
 const Voxelarium = V.Voxelarium;
@@ -31,6 +32,8 @@ var geometryShaderMono;
 
 	var tests = [];
 
+Voxelarium.controls.game.clusters= clusters;
+
 var screen = { width:window.innerWidth, height:window.innerHeight };
 
 	//const totalUnit = Math.PI/(2*60);
@@ -50,6 +53,10 @@ var screen = { width:window.innerWidth, height:window.innerHeight };
 	var status_line;
 	function init() {
 		console.log( "init?" );
+		window.addEventListener( "resize", ()=>{
+		       myPerspective( Voxelarium.camera.projectionMatrix, 90, window.innerWidth / window.innerHeight, 0.01, 10000 );
+		       renderer.setSize( window.innerWidth, window.innerHeight )
+		} );
 
 		scene = new THREE.Scene();
 		scene2 = new THREE.Scene();
@@ -212,6 +219,8 @@ function initVoxelarium() {
 	const whiteGradient = new TimeGradient( TimeGradient.arrayScalar )
 			.addStage( 1, [1,1,1] );
 
+	const tealGradient = new TimeGradient( TimeGradient.arrayScalar )
+			.addStage( 1, [0.2,0.8,0.8] );
 	const blueGlow = new TimeGradient( TimeGradient.arrayScalar )
 			.addStage( 0.25, [0,0.6,0.8] )
 			.addStage( 0.5, [0,0.2,0.4] )
@@ -232,9 +241,11 @@ function initVoxelarium() {
 			.addStage( 1, [1,0,0] )
 			;
 
+	scene2.add(words1.THREE_solid );
+        words1.THREE_solid.position.add( new THREE.Vector3(-1, line, 0 ));
 	words1.SectorList.forEach( (sector)=>{
 		basicMesher.MakeSectorRenderingData( sector );
-		scene2.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShaderMono ) )
+		words1.THREE_solid.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShaderMono ) )
 		sector.THREE_solid.onBeforeRender = sector.solid_geometry.updateUniforms.bind( sector.THREE_solid, {
 				faceGradient : titleFaceGradient,
 				edgeGradient : titleEdgeGradient
@@ -242,40 +253,57 @@ function initVoxelarium() {
 
 
 		//sector.THREE_solid.matrix.Translate( -800, +offset, 0 );
-		sector.THREE_solid.position.add( new THREE.Vector3(-1, line+offset, 0 ));
+		sector.THREE_solid.position.add( new THREE.Vector3(0, offset, 0 ));
 	})
 	line -= 4/25.0;
 
 	var words1 = voxelUniverse.createTextCluster( "Blackvoxel", Voxelarium.Voxels.BlackRockType, basicMesher, Voxelarium.Fonts.TI99, 1.0/80.0 );
 	clusters.push( words1 );
+	scene2.add(words1.THREE_solid );
+        words1.THREE_solid.position.add( new THREE.Vector3(-1, line, 0 ));
 	words1.SectorList.forEach( (sector)=>{
 		basicMesher.MakeSectorRenderingData( sector );
-		scene2.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShaderMono ) )
+		words1.THREE_solid.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShaderMono ) )
 		sector.faceGradient = blackGradient
 		sector.edgeGradient = blueGlow
 		sector.THREE_solid.onBeforeRender = sector.solid_geometry.updateUniforms.bind( sector.THREE_solid, sector );
-		sector.THREE_solid.position.add( new THREE.Vector3( -1, line+offset, 0 ));
+		sector.THREE_solid.position.add( new THREE.Vector3( 0, offset, 0 ));
 	})
 	line -= 4/25.0;
 
 	var words1 = voxelUniverse.createTextCluster( "Play Game", Voxelarium.Voxels.BlackRockType, basicMesher, Voxelarium.Fonts.TI99, 1.0/80.0 );
 	clusters.push( words1 );
+        words1.on( "mouseover", (cluster)=>{
+		for( let sector of cluster.SectorList ) {
+			//sector.faceGradient = rainGlow
+			sector.edgeGradient = tealGradient;
+                }
+		
+	} );
+        words1.on( "blur", (cluster)=>{
+		for( let sector of cluster.SectorList ) {
+			//sector.faceGradient = rainGlow
+			sector.edgeGradient = whiteGradient;
+                }
+		
+	} );
+	scene2.add(words1.THREE_solid );
+        words1.THREE_solid.position.add( new THREE.Vector3(-1, line, 0 ));
 	words1.SectorList.forEach( (sector)=>{
 		basicMesher.MakeSectorRenderingData( sector );
-		scene2.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShaderMono ) )
+		words1.THREE_solid.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShaderMono ) )
 		sector.THREE_solid.onBeforeRender = sector.solid_geometry.updateUniforms.bind( sector.THREE_solid, sector );
 		sector.faceGradient = rainGlow
 		sector.edgeGradient = whiteGradient
 
 		sector.solid_geometry.geometry.uniforms.in_FaceColor = new THREE.Vector4( 0.4, 0.8, 1, 1 );
 		sector.solid_geometry.geometry.uniforms.edge_only = 0;
-		sector.THREE_solid.position.add( new THREE.Vector3( -1, line+offset, 0 ));
+		sector.THREE_solid.position.add( new THREE.Vector3( 0, offset, 0 ));
 	})
 	line -= 4/25.0;
 
 	var detailsize = (1.0/80.0)*0.25;
 	testWord = renderVoxelWords( "Inventory", -1, line +offset, detailsize );
-	
 	line -= 4/25.0;
 	
 	line = -4/25.0;
