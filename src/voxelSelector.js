@@ -1,6 +1,7 @@
 import * as THREE from "../three.js/build/three.module.js"
 import {Voxelarium} from "./Voxelarium.core.js"
 
+const edges=[0,1,1,3,3,2,2,0,4,5,5,7,7,6,6,4,0,4,1,5,2,6,3,7];
 
 var currentRef;
 var currentAddRef;
@@ -70,65 +71,19 @@ Voxelarium.selector.update = function() {
 
           }
     var P = [new THREE.Vector3( x, y, z )
-        , new THREE.Vector3( x + unit, y, z )
-        , new THREE.Vector3( x, y + unit, z )
-        , new THREE.Vector3( x + unit, y + unit, z )
-        , new THREE.Vector3( x, y, z + unit )
-        , new THREE.Vector3( x + unit, y, z + unit )
-        , new THREE.Vector3( x, y + unit, z + unit )
-        , new THREE.Vector3( x + unit, y + unit, z + unit )
-        ]
-    geometry.colors.push( color );
-    geometry.vertices.push( P[0] );
-    geometry.colors.push( color );
-    geometry.vertices.push( P[1] );
-    geometry.colors.push( color );
-    geometry.vertices.push( P[1] );
-    geometry.colors.push( color );
-    geometry.vertices.push( P[3] );
-    geometry.colors.push( color );
-    geometry.vertices.push( P[3] );
-    geometry.colors.push( color );
-    geometry.vertices.push( P[2] );
-    geometry.colors.push( color );
-    geometry.vertices.push( P[2] );
-    geometry.colors.push( color );
-    geometry.vertices.push( P[0] );
+	        , new THREE.Vector3( x + unit, y, z )
+	        , new THREE.Vector3( x, y + unit, z )
+	        , new THREE.Vector3( x + unit, y + unit, z )
+	        , new THREE.Vector3( x, y, z + unit )
+	        , new THREE.Vector3( x + unit, y, z + unit )
+	        , new THREE.Vector3( x, y + unit, z + unit )
+	        , new THREE.Vector3( x + unit, y + unit, z + unit )
+	        ]
 
-    geometry.colors.push( color );
-    geometry.vertices.push( P[4] );
-    geometry.colors.push( color );
-    geometry.vertices.push( P[5] );
-    geometry.colors.push( color );
-    geometry.vertices.push( P[5] );
-    geometry.colors.push( color );
-    geometry.vertices.push( P[7] );
-    geometry.colors.push( color );
-    geometry.vertices.push( P[7] );
-    geometry.colors.push( color );
-    geometry.vertices.push( P[6] );
-    geometry.colors.push( color );
-    geometry.vertices.push( P[6] );
-    geometry.colors.push( color );
-    geometry.vertices.push( P[4] );
-
-    geometry.colors.push( color );
-    geometry.vertices.push( P[0] );
-    geometry.colors.push( color );
-    geometry.vertices.push( P[4] );
-    geometry.colors.push( color );
-    geometry.vertices.push( P[1] );
-    geometry.colors.push( color );
-    geometry.vertices.push( P[5] );
-    geometry.colors.push( color );
-    geometry.vertices.push( P[2] );
-    geometry.colors.push( color );
-    geometry.vertices.push( P[6] );
-    geometry.colors.push( color );
-    geometry.vertices.push( P[3] );
-    geometry.colors.push( color );
-    geometry.vertices.push( P[7] );
-
+	    for( let edge of edges ) {
+		    geometry.colors.push( color );
+		    geometry.vertices.push( P[edge] );
+	    }
     }
     //color.delete();
     geometry.computeBoundingSphere();

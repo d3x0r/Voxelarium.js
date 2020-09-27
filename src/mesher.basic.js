@@ -1,7 +1,6 @@
 "use strict";
 import * as THREE from "../three.js/build/three.module.js"
 import  "./constants.js"
-import {voxels} from  "./voxels.js"
 
 
 Voxelarium.BasicMesher = function(  ) {

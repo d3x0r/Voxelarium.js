@@ -8,8 +8,6 @@ import {myPerspective} from './three.js/my_perspective.js'
 //var words1 = voxelUniverse.createTextCluster( "Hello World" );
 //var glow = require( './glow.renderer.js' );
 
-var controlNatural, controlGame, controlOrbit;
-
 var controls;
 var sceneRoot;
 	var scene;
@@ -163,9 +161,9 @@ var status_line;
 			Voxelarium.controls.setDOM( renderer.domElement );
 
 			camera.matrixAutoUpdate = false;
-			camera.position.y = 0.85;
-			camera.position.x = 0.5;
-			camera.position.z = 0.5;
+			camera.position.y = 3.3;
+			camera.position.x = 1.5;
+			camera.position.z = 1.5;
                         camera.matrix.origin.copy( camera.position );
 
 			if ( !renderer.extensions.get('WEBGL_depth_texture') ) {
@@ -254,7 +252,6 @@ var status_line;
 		if( !Voxelarium.Settings.VR ) {
 			scene.add( Voxelarium.controls.game.casting.mesh );
 			camera.matrixAutoUpdate = false;
-			//controls = Voxelarium.controls.natural;
 		}
 		initVoxelarium();
 
@@ -425,7 +422,7 @@ function initVoxelarium() {
 			//geometryShaderMono = Voxelarium.GeometryShaderMono();
 			//scene2.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
 
-			var cluster = voxelUniverse.createCluster( basicMesher, 0.0254 );
+			var cluster = voxelUniverse.createCluster( basicMesher, 0.1 );
 			cluster.THREE_solid = new THREE.Object3D();
 			if( Voxelarium.Settings.AltSpace )
 				cluster.THREE_solid.userData.altspace = { collider: { enabled: false } };
