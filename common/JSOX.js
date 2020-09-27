@@ -1569,7 +1569,10 @@ JSOX.begin = function( cb, reviver ) {
 								if( val.value_type == VALUE_UNSET ) {
 									if( word != WORD_POS_RESET ) {
 										recoverIdent( cInt );
-									} else val.string += str;
+									} else {
+										word = WORD_POS_END;
+										val.string += str;
+									}
 								} else {
 									if( parse_context == CONTEXT_OBJECT_FIELD ) {
 										throwError( "Multiple values found in field name", cInt );
