@@ -75,10 +75,11 @@ class Pawn {
 			else initPawn();
 			function initPawn(){
 				console.log( "User object doesn't exist yet? ");
+                                //const newPawn = 
 				l.storage.put( pawn, {id:pawn.id} ).then((id)=>{
 					console.log( "cannot write ID?", id );
 				} );
-				pawn.send( { op:"init", code:code, id:this.id } );
+				pawn.send( { op:"init", code:code, id:pawn.id } );
 			}
 		} else if( msg.op === "asdf" ) {
 		} else {
@@ -96,15 +97,21 @@ function pawnEncode(stringifer){
 }
 
 
-function pawnDecode(a) {
+function pawnDecode() {
+	const a = this;
 	const p = new Pawn();
+        if( !a ) {
+        	console.log("Decode pawn null?" );
+                return p;
+        }
 	p.name = a.name;
-	p.x = a.pos.x;
-	p.y = a.pos.y;
-	p.z = a.pos.z;
-	p.X = a.pos.X;
-	p.Y = a.pos.Y;
-	p.Z = a.pos.Z;
+        
+	p.x = a.x;
+	p.y = a.y;
+	p.z = a.z;
+	p.X = a.X;
+	p.Y = a.Y;
+	p.Z = a.Z;
 	p.world_id = a.world;
 	if( p.world_id )
 		l.storage.get( p.world_id ).then( world=>{	
@@ -114,6 +121,7 @@ function pawnDecode(a) {
 			console.log( "Error, world no longer exists?" );
 			
 		} );
+        return p;
 }
 
 function onLoadConfig() {
@@ -162,7 +170,7 @@ class Db  {
 
 		const id = ws.url.split("~");
 		let pawn = null;		
-		if( id ) {
+		if( id.length === 2 ) {
 			l.storage.get( id[1] ).then( pawn_=>{
 				console.log( "Reloaded pawn:", pawn_ );
 				if( !pawn_ ) {
