@@ -181,6 +181,42 @@ function animate() {
 
 }
 
+const titleFaceGradient = new TimeGradient( TimeGradient.arrayScalar )
+.addStage( 1, [0.4,0.8,1.0] )
+.addStage( 1, [0,0,0] );
+
+const titleEdgeGradient = new TimeGradient( TimeGradient.arrayScalar )
+.addStage( 1, [0,0,0] )
+.addStage( 1.2, [0.4,0.8,1.0] )
+;
+
+const blackGradient = new TimeGradient( TimeGradient.arrayScalar )
+.addStage( 1, [0,0,0] );
+const whiteGradient = new TimeGradient( TimeGradient.arrayScalar )
+.addStage( 1, [1,1,1] );
+
+const tealGradient = new TimeGradient( TimeGradient.arrayScalar )
+.addStage( 1, [0.2,0.8,0.8] );
+const blueGlow = new TimeGradient( TimeGradient.arrayScalar )
+.addStage( 0.25, [0,0.6,0.8] )
+.addStage( 0.5, [0,0.2,0.4] )
+;
+
+const greenGlow = new TimeGradient( TimeGradient.arrayScalar )
+.addStage( 0.5, [0,0.8,0] )
+.addStage( 0.5, [0,0.4,0] )
+;
+
+const rainGlow = new TimeGradient( TimeGradient.arrayScalar )
+.addStage( 1, [1,0,0] )
+.addStage( 1, [0.5,0.3,0] )
+.addStage( 1, [0.8,0.8,0] )
+.addStage( 1, [0.0,0.8,0] )
+.addStage( 1, [0,1,0.5] )
+.addStage( 1, [0.8,0,1] )
+.addStage( 1, [1,0,0] )
+;
+
 function initVoxelarium() {
 
 	//Voxelarium.TextureAtlas.init( 32, 64 );
@@ -190,56 +226,14 @@ function initVoxelarium() {
 	geometryShader.map = Voxelarium.TextureAtlas.texture;
 	geometryShader.needsUpdate = true;
 
-	 var geometryMaterial = Voxelarium.GeometryBasicBuffer();
-
-	// geometryMaterial.makeVoxCube(  400, Voxelarium.Voxels.BlackRockType );
-	// scene2.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
-
-	 //geometryMaterial.makeVoxCube(  200, Voxelarium.Voxels.BlackRockType );
-	 //scene2.add( new THREE.Mesh( geometryMaterial.geometry, geometryShader) );
-
-
 	var basicMesher = Voxelarium.BasicMesher(  );
 	let line = 0.5;
+
 
 	var words1 = voxelUniverse.createTextCluster( "Voxelarium", Voxelarium.Voxels.BlackRockType, basicMesher, Voxelarium.Fonts.TI99, 1.0/80.0 );
 	clusters.push( words1 );
 	var offset = 0;
-	const titleFaceGradient = new TimeGradient( TimeGradient.arrayScalar )
-			.addStage( 1, [0.4,0.8,1.0] )
-			.addStage( 1, [0,0,0] );
 
-	const titleEdgeGradient = new TimeGradient( TimeGradient.arrayScalar )
-			.addStage( 1, [0,0,0] )
-			.addStage( 1.2, [0.4,0.8,1.0] )
-			;
-
-	const blackGradient = new TimeGradient( TimeGradient.arrayScalar )
-			.addStage( 1, [0,0,0] );
-	const whiteGradient = new TimeGradient( TimeGradient.arrayScalar )
-			.addStage( 1, [1,1,1] );
-
-	const tealGradient = new TimeGradient( TimeGradient.arrayScalar )
-			.addStage( 1, [0.2,0.8,0.8] );
-	const blueGlow = new TimeGradient( TimeGradient.arrayScalar )
-			.addStage( 0.25, [0,0.6,0.8] )
-			.addStage( 0.5, [0,0.2,0.4] )
-			;
-
-	const greenGlow = new TimeGradient( TimeGradient.arrayScalar )
-			.addStage( 0.5, [0,0.8,0] )
-			.addStage( 0.5, [0,0.4,0] )
-			;
-
-	const rainGlow = new TimeGradient( TimeGradient.arrayScalar )
-			.addStage( 1, [1,0,0] )
-			.addStage( 1, [0.5,0.3,0] )
-			.addStage( 1, [0.8,0.8,0] )
-			.addStage( 1, [0.0,0.8,0] )
-			.addStage( 1, [0,1,0.5] )
-			.addStage( 1, [0.8,0,1] )
-			.addStage( 1, [1,0,0] )
-			;
 
 	scene2.add(words1.THREE_solid );
         words1.THREE_solid.position.add( new THREE.Vector3(-1, line, 0 ));
@@ -252,7 +246,6 @@ function initVoxelarium() {
 			} );
 
 
-		//sector.THREE_solid.matrix.Translate( -800, +offset, 0 );
 		sector.THREE_solid.position.add( new THREE.Vector3(0, offset, 0 ));
 	})
 	line -= 4/25.0;
@@ -271,27 +264,27 @@ function initVoxelarium() {
 	})
 	line -= 4/25.0;
 
-	var words1 = voxelUniverse.createTextCluster( "Play Game", Voxelarium.Voxels.BlackRockType, basicMesher, Voxelarium.Fonts.TI99, 1.0/80.0 );
-	clusters.push( words1 );
-        words1.on( "mouseover", (cluster)=>{
+	const menuItem_PlayGame = voxelUniverse.createTextCluster( "Play Game", Voxelarium.Voxels.BlackRockType, basicMesher, Voxelarium.Fonts.TI99, 1.0/80.0 );
+	clusters.push( menuItem_PlayGame );
+        menuItem_PlayGame.on( "mouseover", (cluster)=>{
 		for( let sector of cluster.SectorList ) {
-			//sector.faceGradient = rainGlow
-			sector.edgeGradient = tealGradient;
+			sector.faceGradient = whiteGradient
+			sector.edgeGradient = rainGlow;
                 }
 		
 	} );
-        words1.on( "blur", (cluster)=>{
+        menuItem_PlayGame.on( "blur", (cluster)=>{
 		for( let sector of cluster.SectorList ) {
-			//sector.faceGradient = rainGlow
+			sector.faceGradient = rainGlow
 			sector.edgeGradient = whiteGradient;
-                }
+		}
 		
 	} );
-	scene2.add(words1.THREE_solid );
-        words1.THREE_solid.position.add( new THREE.Vector3(-1, line, 0 ));
-	words1.SectorList.forEach( (sector)=>{
+	scene2.add(menuItem_PlayGame.THREE_solid );
+    menuItem_PlayGame.THREE_solid.position.add( new THREE.Vector3(-1, line, 0 ));
+	menuItem_PlayGame.SectorList.forEach( (sector)=>{
 		basicMesher.MakeSectorRenderingData( sector );
-		words1.THREE_solid.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShaderMono ) )
+		menuItem_PlayGame.THREE_solid.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShaderMono ) )
 		sector.THREE_solid.onBeforeRender = sector.solid_geometry.updateUniforms.bind( sector.THREE_solid, sector );
 		sector.faceGradient = rainGlow
 		sector.edgeGradient = whiteGradient
@@ -303,10 +296,77 @@ function initVoxelarium() {
 	line -= 4/25.0;
 
 	var detailsize = (1.0/80.0)*0.25;
-	testWord = renderVoxelWords( "Inventory", -1, line +offset, detailsize );
+
+	menuItem_PlayGame.THREE_solid.visible = false;
+	Voxelarium.controls.core.lockTextEntry( (text)=>{
+		if( text === null ) {
+			cursor.THREE_solid.visible = false;
+			menuItem_PlayGame.THREE_solid.visible = true;
+			menuItem_EnterName.THREE_solid.visible = false;
+		}else {
+			playerName.setText( text )
+			cursor.THREE_solid.position.x = -1 + (1/80)*8*text.length;
+		}
+		//cursor.THREE_solid.matrix.origin.x = -1 + (1/80)*8*text.length;
+	}  )
+
+	var menuItem_EnterName = voxelUniverse.createTextCluster( "Enter Player Name:", Voxelarium.Voxels.BlackRockType, basicMesher, Voxelarium.Fonts.TI99, 1.0/80.0 );
+	clusters.push( menuItem_EnterName );
+    menuItem_EnterName.on( "mouseover", (cluster)=>{
+		for( let sector of cluster.SectorList ) {
+			sector.faceGradient = whiteGradient
+			sector.edgeGradient = rainGlow;
+                }
+		
+	} );
+        menuItem_EnterName.on( "blur", (cluster)=>{
+		for( let sector of cluster.SectorList ) {
+			sector.faceGradient = rainGlow
+			sector.edgeGradient = whiteGradient;
+		}
+		
+	} );
+	scene2.add(menuItem_EnterName.THREE_solid );
+        menuItem_EnterName.THREE_solid.position.add( new THREE.Vector3(-1, line, 0 ));
+	menuItem_EnterName.SectorList.forEach( (sector)=>{
+		basicMesher.MakeSectorRenderingData( sector );
+		menuItem_EnterName.THREE_solid.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShaderMono ) )
+		sector.THREE_solid.onBeforeRender = sector.solid_geometry.updateUniforms.bind( sector.THREE_solid, sector );
+		sector.faceGradient = rainGlow
+		sector.edgeGradient = whiteGradient
+
+		sector.solid_geometry.geometry.uniforms.in_FaceColor = new THREE.Vector4( 0.4, 0.8, 1, 1 );
+		sector.solid_geometry.geometry.uniforms.edge_only = 0;
+		sector.THREE_solid.position.add( new THREE.Vector3( 0, offset, 0 ));
+	})
+	line -= 4/25.0;
+
+	const playerName = renderVoxelWords( "Player One", -1, line +offset, 1/80 );
+
+	const cursor = voxelUniverse.createTextCursor( { font:Voxelarium.Fonts.TI99
+		, mesher: basicMesher
+		   , voxelType :Voxelarium.Voxels.BlackRockType
+		   , voxelUnitSize : 1.0/80.0
+		  })
+	cursor.SectorList.forEach( (sector)=>{
+	basicMesher.MakeSectorRenderingData( sector );
+	cursor.THREE_solid.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShaderMono ) )
+	sector.THREE_solid.onBeforeRender = sector.solid_geometry.updateUniforms.bind( sector.THREE_solid, {
+	faceGradient : blackGradient,
+	edgeGradient : blueGlow
+	} );
+
+//sector.THREE_solid.position.add( new THREE.Vector3( (1/80)*8*10, offset, 0 ));
+})
+cursor.THREE_solid.position.add( new THREE.Vector3(-1 + (1/80)*8*10, line - 1/80, + 2/80 ));
+scene2.add(cursor.THREE_solid );
+
+
 	line -= 4/25.0;
 	
-	line = -4/25.0;
+	testWord = renderVoxelWords( "Inventory", -1, line +offset, detailsize );
+	line -= 4/25.0;
+
 	// test layout works...
 	for( var n = 0; n < 1; n++ ) {
 		renderVoxelWords( "Server Name Goes here" , -1                    ,line+offset, detailsize );
@@ -314,6 +374,8 @@ function initVoxelarium() {
 		renderVoxelWords( "Ping 333"              , -1 + 40 * 8*detailsize,line+offset, detailsize );
 		line -= 10*detailsize;
 	}
+
+
 	function renderVoxelWords( string, xofs, offset, size ) {
 
 		var phrase = voxelUniverse.createDynamicTextCluster( string, {

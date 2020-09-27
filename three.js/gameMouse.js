@@ -100,7 +100,6 @@ function controls( object, domElement ) {
     if( !scope.clusters )
       return;
 	if( !Voxelarium.inventory.enabled ){
-	}
 
         switch( scope.mode )
         {
@@ -116,17 +115,23 @@ function controls( object, domElement ) {
            }
            	const o = new THREE.Vector3();
            	
-           	o.x = scope.mouseRay.o.x - cluster.THREE_solid.matrix.elements[12];
-           	o.y = scope.mouseRay.o.y - cluster.THREE_solid.matrix.elements[13];
-           	o.z = scope.mouseRay.o.z - cluster.THREE_solid.matrix.elements[14];
-               result = cluster.rayCast( o, scope.mouseRay.n )
+           	  o.x = scope.mouseRay.o.x - cluster.THREE_solid.matrix.elements[12];
+           	  o.y = scope.mouseRay.o.y - cluster.THREE_solid.matrix.elements[13];
+              o.z = scope.mouseRay.o.z - cluster.THREE_solid.matrix.elements[14];
+             
+              result = cluster.zoneCast( o, scope.mouseRay.n )
+               // if( result )
+                //  console.log( "Result at ", scope.mouseRay.o, scope.mouseRay.n, result )
 
-               if( Voxelarium.selector.currentVoxel )
-                 Voxelarium.selector.currentVoxel.delete();
+               if( result && result.PredPointedVoxel ) {
 
-               if( result ) {
-                   Voxelarium.selector.currentAddVoxel = cluster.getVoxelRef( false, result.PredPointedVoxel.x, result.PredPointedVoxel.y, result.PredPointedVoxel.z )
-                   Voxelarium.selector.currentVoxel = result.ref;
+               //if( Voxelarium.selector.currentVoxel )
+               //  Voxelarium.selector.currentVoxel.delete();
+
+               Voxelarium.selector.currentAddVoxel = cluster.getVoxelRef( false, result.PredPointedVoxel.x, result.PredPointedVoxel.y, result.PredPointedVoxel.z )
+                  Voxelarium.selector.currentVoxel = result.ref;
+                  // Voxelarium.selector.currentAddVoxel = cluster.getVoxelRef( false, result.PredPointedVoxel.x, result.PredPointedVoxel.y, result.PredPointedVoxel.z )
+                   //Voxelarium.selector.currentVoxel = result.ref;
                    break;
                }
            }
@@ -137,7 +142,10 @@ function controls( object, domElement ) {
 	               cluster.on( "mouseover", cluster );
                        scope.priorMouseOver = cluster;
               	}
-           //}
+
+
+
+                //}
            if( scope.mouseEvents ) {
                var mEvent = scope.mouseEvents.shift();
                if( mEvent ) {
@@ -176,7 +184,8 @@ function controls( object, domElement ) {
                         }
                }
            break;
-     }
+      }
+    }
   }
 
 function mouseEvent( x, y, b, down ) {
@@ -253,10 +262,10 @@ function onTouchCancel(event) {
     	if ( scope.enabled === false ) return;
 
     	event.preventDefault();
-	if( !Voxelarium.inventory.enabled )
+	    if( !Voxelarium.inventory.enabled )
 	        scope.setMouseRay( Voxelarium.camera, event );
 
-    }
+      }
 
     function onMouseWheel( event ) {
         event.preventDefault();
