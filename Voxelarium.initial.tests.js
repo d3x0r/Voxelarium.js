@@ -298,16 +298,16 @@ function initVoxelarium() {
 	var detailsize = (1.0/80.0)*0.25;
 
 	menuItem_PlayGame.THREE_solid.visible = false;
-	Voxelarium.controls.core.lockTextEntry( (text)=>{
+	Voxelarium.controls.core.lockTextEntry( (text,cursorPos)=>{
 		if( text === null ) {
 			cursor.THREE_solid.visible = false;
 			menuItem_PlayGame.THREE_solid.visible = true;
 			menuItem_EnterName.THREE_solid.visible = false;
 		}else {
 			playerName.setText( text )
-			cursor.THREE_solid.position.x = -1 + (1/80)*8*text.length;
+			cursor.THREE_solid.position.x = -1 + (1/80)*8*cursorPos;
 		}
-		//cursor.THREE_solid.matrix.origin.x = -1 + (1/80)*8*text.length;
+		//cursor.THREE_solid.matrix.origin.x = -1 + (1/80)*8*cursorPos;
 	}  )
 
 	var menuItem_EnterName = voxelUniverse.createTextCluster( "Enter Player Name:", Voxelarium.Voxels.BlackRockType, basicMesher, Voxelarium.Fonts.TI99, 1.0/80.0 );

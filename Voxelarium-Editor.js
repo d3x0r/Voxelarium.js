@@ -460,7 +460,7 @@ function initVoxelarium() {
 			scene3.add( Voxelarium.inventory.THREE_solid );
 
 			requestAnimationFrame( animate );
-		});
+		}, 8);
 	//});
 
 

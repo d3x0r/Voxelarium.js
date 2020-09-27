@@ -13,13 +13,26 @@ function controls( object, domElement ) {
 	this.nameEntryField.style.border = "none";
 	this.nameEntryField.style.width = 0;
 	this.nameEntryField.value = "Player One";
-	
+	let wasAt = this.nameEntryField.selectionStart;
 	this.nameEntryField.addEventListener( "input", (evt)=>{
 		if( lockInput )
-			lockInput( scope.nameEntryField.value );
+			lockInput( scope.nameEntryField.value, scope.nameEntryField.selectionStart );
 		 
 	});
-
+	this.nameEntryField.addEventListener( "position", (evt)=>{
+		if( lockInput )
+			lockInput( scope.nameEntryField.value, scope.nameEntryField.selectionStart );
+	} );
+        function checkCursor() {
+        	const isAt = scope.nameEntryField.selectionStart;
+                if( isAt != wasAt ) {
+                	wasAt = isAt;
+			lockInput( scope.nameEntryField.value, scope.nameEntryField.selectionStart );
+                }
+		if( lockInput )
+	                setTimeout( checkCursor, 100 );
+        	
+        }
 	var scope = this;
 	let tabDown = false;
 	let lockInput = null;
@@ -62,7 +75,8 @@ function controls( object, domElement ) {
 			this.currentAddType = type;
 	}
 	this.lockTextEntry = function( cb ) {
-			lockInput = cb;
+		lockInput = cb;
+                setTimeout( checkCursor, 100 );
 	}
 	this.setMode = function(mode_){
 	mode = mode_;
@@ -171,6 +185,7 @@ function onTouchCancel(event) {
 			const ev = new KeyboardEvent( event );
 			scope.nameEntryField.focus();
 			scope.nameEntryField.dispatchEvent( ev );
+                        
 			return;
 		}
 		if( event.keyCode === 9 ) {
