@@ -12,6 +12,21 @@ console.log( "serving on " + serverOpts.port );
 
 db.init( );
 
+const pending = [];
+let busy = 0;
+function tickPendingMsg() {
+	if( pending.length ) {
+        	if( busy != pending.length ) {
+                	busy = pending.length
+                } else {
+	        	const msg = pending.join( ", " );
+        	        console.log( "Requests: ", msg );
+        		pending.length = 0;
+                }
+        }
+        setTimeout( tickPendingMsg, 500 );
+}
+tickPendingMsg();
 
 server.onrequest( function( req, res ) {
 
@@ -21,7 +36,9 @@ server.onrequest( function( req, res ) {
 		 req.connection.socket.remoteAddress;
 	//ws.clientAddress = ip;
 
-	console.log( "Received request:", req.url );
+	pending.push( req.url );
+        
+	//console.log( "Received request:", req.url );
 	if( req.url === "/" ) req.url = "/index.html";
 	var filePath = "." + unescape(req.url);
 	var extname = path.extname(filePath);

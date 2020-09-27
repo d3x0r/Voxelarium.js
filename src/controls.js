@@ -1,9 +1,10 @@
 import * as THREE from "../three.js/build/three.module.js"
 import {consts,Vector4Pool,Vector3Pool} from "../three.js/personalFill.js"
-
+import {db} from "./Voxelarium.db.js"
 
 function controls( object, domElement ) {
 		this.object = object;
+	var scope = this;
 	let mode = 0; // default to game cursor
 	this.domElement = domElement ;
 	this.camera = null;
@@ -12,28 +13,29 @@ function controls( object, domElement ) {
 	this.nameEntryField.style.fontSize = "1%";
 	this.nameEntryField.style.border = "none";
 	this.nameEntryField.style.width = 0;
-	this.nameEntryField.value = "Player One";
+	this.nameEntryField.value = db.player.name;
+        db.player.on( "name", (name) =>{
+		scope.nameEntryField.value = db.player.name;
+		if( lockInput )
+			lockInput( scope.nameEntryField.value, scope.nameEntryField.selectionStart );
+        	
+        } );
 	let wasAt = this.nameEntryField.selectionStart;
 	this.nameEntryField.addEventListener( "input", (evt)=>{
 		if( lockInput )
 			lockInput( scope.nameEntryField.value, scope.nameEntryField.selectionStart );
 		 
 	});
-	this.nameEntryField.addEventListener( "position", (evt)=>{
-		if( lockInput )
-			lockInput( scope.nameEntryField.value, scope.nameEntryField.selectionStart );
-	} );
         function checkCursor() {
-        	const isAt = scope.nameEntryField.selectionStart;
-                if( isAt != wasAt ) {
-                	wasAt = isAt;
-			lockInput( scope.nameEntryField.value, scope.nameEntryField.selectionStart );
-                }
-		if( lockInput )
+		if( lockInput ) {
+	        	const isAt = scope.nameEntryField.selectionStart;
+        	        if( isAt != wasAt ) {
+                		wasAt = isAt;
+				lockInput( scope.nameEntryField.value, scope.nameEntryField.selectionStart );
+	                }
 	                setTimeout( checkCursor, 100 );
-        	
+                }
         }
-	var scope = this;
 	let tabDown = false;
 	let lockInput = null;
 	this.voxelSelector = null;
@@ -228,8 +230,9 @@ function onTouchCancel(event) {
 			}
 						event.preventDefault();
 		} else if( event.keyCode === 13 ) {
+                	Voxelarium.db.player.setName( scope.nameEntryField.value );
 			if( lockInput ) {
-				lockInput( null );
+				lockInput( null, -1 );
 			}
 			lockInput = null;
 		} else {

@@ -63,32 +63,45 @@ class Pawn {
 		const msg_ = JSOX.stringify( msg );
 		this.ws.send( msg_ );
 	}
+        setName(name ) {
+        	this.name = name;
+                this.store();
+        }
+        store() {
+        	console.log( "storing pawn...", this );
+        	return l.storage.put( this, {id:this.id} )
+        }
 	handleMessage( msg ) {	
+       		const pawn = this;
 		if( msg.op === "init" ) {
-			const pawn = this;
-			console.log( "Load this client's state?", this );
+			//console.log( "Load this client's state?", this );
 			if( this.id ) 
 				l.storage.get( this.id ).then( (pawn)=>{
 					//const pawn = new Pawn(ws );
-					this.send( { op:"init", code:code, id:this.id } );
+					this.send( { op:"init", code:code, name:this.name, id:this.id } );
 				} ).catch( initPawn );
-			else initPawn();
+			else 
+                        	initPawn();
 			function initPawn(){
 				console.log( "User object doesn't exist yet? ");
                                 //const newPawn = 
 				l.storage.put( pawn, {id:pawn.id} ).then((id)=>{
-					console.log( "cannot write ID?", id );
+					console.log( "got back same ID?", id, pawn.id );
 				} );
-				pawn.send( { op:"init", code:code, id:pawn.id } );
+				pawn.send( { op:"init", code:code, name:this.name, id:pawn.id } );
 			}
+		} else if( msg.op === "setName" ) {
+                	pawn.setName( msg.name );
 		} else if( msg.op === "asdf" ) {
 		} else {
 		}
 	}
 	encode(s){
-		return `pwn{name:${s.stringify(this.name)}
+        	const z = `pwn{id:${s.stringify(this.id)},name:${s.stringify(this.name)}
 				,world:${s.stringify(this.world_id)}
-				,pos:{x:${this.x},y:${this.y},z:${this.z}},rot:{x:${this.X},y:${this.Y},z:${this.Z}}}`;
+				,pos:{x:${this.x},y:${this.y},z:${this.z}},rot:{x:${this.X},y:${this.Y},z:${this.Z}}}`
+        	//console.log( "WTF?", this, z );
+		return z;
 	}
 }
 
@@ -97,31 +110,36 @@ function pawnEncode(stringifer){
 }
 
 
-function pawnDecode() {
-	const a = this;
-	const p = new Pawn();
-        if( !a ) {
-        	console.log("Decode pawn null?" );
-                return p;
+function pawnDecode( c, b) {
+	switch( true ) {
+	case c === "name":
+        	this.name = b;
+        	return this;
+	case c === "pos":
+        	this.x = b.x;
+        	this.y = b.y;
+        	this.z = b.z;
+        	return this;
+	case c === "rot":
+        	this.x = b.x;
+        	this.y = b.y;
+        	this.z = b.z;
+        	return this;
+	case c === "world":
+        	console.log( "WOrld not recovered..." );
+        	//this.world_id = b;
+        	return this;
+	case c === "id":
+        	console.log( "THIS should have a vlaid ID:", b );
+        	this.id = b;
+        	return this;
+        case c === undefined:
+        	// final chance - get to replace the whole object.
+        	return this;
+        default:
+        	console.log( "Didn't handle field:", c, b );
         }
-	p.name = a.name;
-        
-	p.x = a.x;
-	p.y = a.y;
-	p.z = a.z;
-	p.X = a.X;
-	p.Y = a.Y;
-	p.Z = a.Z;
-	p.world_id = a.world;
-	if( p.world_id )
-		l.storage.get( p.world_id ).then( world=>{	
-			p.world = world;
-			
-		} ).catch( ()=>{
-			console.log( "Error, world no longer exists?" );
-			
-		} );
-        return p;
+	console.log( "DECODE:", this, c, b );
 }
 
 function onLoadConfig() {
@@ -171,8 +189,9 @@ class Db  {
 		const id = ws.url.split("~");
 		let pawn = null;		
 		if( id.length === 2 ) {
+                	console.log( "Attempting to reload pawn?", id );
 			l.storage.get( id[1] ).then( pawn_=>{
-				console.log( "Reloaded pawn:", pawn_ );
+				//console.log( "Reloaded pawn:", pawn_ );
 				if( !pawn_ ) {
 					pawn = createPawn(db)
 				} else {
@@ -183,13 +202,16 @@ class Db  {
 				console.log( "Error getting object:", err );
 			} );
 		} else {
+                	console.log( "No connection identifier..." );
 			pawn = createPawn(db)
 		}
 
 		function createPawn(db) {
 			const pawn = new Pawn();
-			l.storage.put( pawn ).then( id=>{
+                        pawn.store().then( id=>{
 				pawn.id = id
+                                console.log( "Got the ID, can now write the id..." );
+                                pawn.store();  // write again... 
 				finishConnect( db,pawn );
 			} );
 			return pawn;
@@ -203,7 +225,7 @@ class Db  {
 	}
 	onObject( msg ) {
 		const pawn = db.reading;
-		if( msg.op === "init" ){
+		if( msg.op === "init" || 1 ){
 			console.log( "Remote wants to do something" );
 			pawn.handleMessage( msg );
 		} else {

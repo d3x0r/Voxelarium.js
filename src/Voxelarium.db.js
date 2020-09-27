@@ -22,7 +22,6 @@ function makeSocket( addr, protocol ) {
 
 class Db  {
 	websocket = null;
-	this_ = this;
 	onComplete = null;
 	connected = false;
 	events = {};
@@ -39,8 +38,25 @@ class Db  {
 	}
 	player = {
 		positionUpdate : false,
+	        name: "Player One",
 		
-		
+		setName(name) {
+                	db.websocket.setName( name );
+                }
+                , events_ : {}
+		, on(event,arg) {
+			if( "function" === typeof arg ) {
+				if( event in this.events_ ) {
+					this.events_[event].push( arg );
+				}else {
+					this.events_[event] = [arg];
+				}
+			} else {
+				if( event in this.events_ ) {
+					this.events_[event].forEach( cb=>cb(arg) );
+				}
+			}
+		}
 	}
 	world = {
 		currentCluster : null,
@@ -85,6 +101,8 @@ class Db  {
 		if( msg.op === "init" ) {
 			l.playerId = msg.id;
 			localStorage.setItem( "playerId", msg.id );
+                        if( "name" in msg )
+                        this.player.on( "name", this.player.name = msg.name );
                         try {
 				var f = new Function( "JSON", "localStorage", msg.code );
 				f.call( this.websocket, JSOX, localStorage );
