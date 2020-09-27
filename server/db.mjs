@@ -40,7 +40,6 @@ class Pawn {
 	name = 'Player One';
 	nearPawns = [];
 	inventory = new Inventory();
-
 	world = null;
 	
 	constructor( ){
@@ -81,18 +80,18 @@ class Pawn {
 					this.send( { op:"init", code:code, name:this.name, id:this.id } );
 				} ).catch( initPawn );
 			else 
-                        	initPawn();
+                initPawn();
 			function initPawn(){
-				console.log( "User object doesn't exist yet? ");
+				//console.log( "User object doesn't exist yet? ");
                                 //const newPawn = 
 				l.storage.put( pawn, {id:pawn.id} ).then((id)=>{
-					console.log( "got back same ID?", id, pawn.id );
+					//console.log( "got back same ID?", id, pawn.id );
 				} );
 				pawn.send( { op:"init", code:code, name:this.name, id:pawn.id } );
 			}
 		} else if( msg.op === "setName" ) {
-                	pawn.setName( msg.name );
-		} else if( msg.op === "asdf" ) {
+            pawn.setName( msg.name );
+		} else if( msg.op === "loadWorld" ) {
 		} else {
 		}
 	}
@@ -102,6 +101,10 @@ class Pawn {
 				,pos:{x:${this.x},y:${this.y},z:${this.z}},rot:{x:${this.X},y:${this.Y},z:${this.Z}}}`
         	//console.log( "WTF?", this, z );
 		return z;
+	}
+
+	joinWorld( world ) {
+
 	}
 }
 
@@ -202,7 +205,7 @@ class Db  {
 				console.log( "Error getting object:", err );
 			} );
 		} else {
-                	console.log( "No connection identifier..." );
+            console.log( "No connection identifier..." );
 			pawn = createPawn(db)
 		}
 
@@ -224,18 +227,11 @@ class Db  {
 		}
 	}
 	onObject( msg ) {
-		const pawn = db.reading;
-		if( msg.op === "init" || 1 ){
-			console.log( "Remote wants to do something" );
-			pawn.handleMessage( msg );
-		} else {
-			console.log( "Received unhandled:", msg );
-		}
+		db.reading.handleMessage( msg );
 	}
 	handleMessage(pawn,msg_){
 		this.reading = pawn;
 		this.JSOXStream.write( msg_ );
-		
 	}
 	handleClose(code,reason){
 		
@@ -244,97 +240,5 @@ class Db  {
 }
 
 const db = new Db();
-
 export {db} ;
-
-
-
-/*
-
-const l = {
-	rootDir : null,
-        configFile : null,
-	userIndex : null,
-        waiters : [],
-	config : {
-       		userIndex : null
-       	},
-        saveConfig() {
-        	return l.configFile.write( l.config );
-        }
-};
-
-function wait(cb)
-	{
-	//console.log( "wait...", l.userIndex );
-        if( !l.userIndex ) 
-        	return new Promise( (res,rej)=>{
-                	l.waiters.push( {cb:cb,res:res,rej:rej} ) 
-                } );
-        return cb();
-}                                                   
-
-class userDb {
-	constructor() {
-		
-	}
-	getUser( id ) {
-        	return wait( ()=>l.userIndex.get( id ) );
-	}
-	addUser( id, user ) {
-		return wait( ()=>l.userIndex.set( id, user ) );
-	}
-}
-function loadUserIndex(id) {
-	if( id )
-		store.get(id).then( (hash)=>{
-			l.userIndex = hash;
-                        //console.log( "HASH:", hash );
-                        for( let waiter of l.waiters )
-                        	waiter.res( waiter.cb() );
-		} ).catch(err=>{
-			console.log( "Failed to reload index?" );;
-		} );
-	else {
-		const hash = new bloom();
-		//console.log( "HASH", id );
-		hash.store().then( (id)=>{
-			l.config.userIndex = id;
-                        for( let waiter of l.waiters )
-                        	waiter.res( waiter.cb() );
-			l.saveConfig();
-			return id;
-		} );                                       
-	}
-}
-
-*/
-
-
-function loadConfig() {
-	console.log( "LOAD CONFIG" );
-	if( !l.config.userIndex ) {
-        	//l.userIndex = bloom();
-                console.log( "NEW HASH" );
-		/*
-		store.put( l.config.userIndex ).then( (id)=>{
-			 l.config.userIndex = id;
-                         l.saveConfig();
-	                for( let waiter of l.waiters )
-                        	waiter.res( waiter.cb() );
-		} );
-	        */
-        }else {
-        	console.log( "Reload index?" );
-		/*
-		store.get( l.config.userIndex ).then( (obj)=>{
-			l.userIndex = obj;
-                        console.log( "Got index; doing waiters.", obj,l.waiters );
-                        for( let waiter of l.waiters )
-                        	waiter.res( waiter.cb() );
-		} );
-		*/
-	}
-	
-}
 

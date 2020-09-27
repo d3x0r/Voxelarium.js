@@ -8,14 +8,13 @@ const l= {
 function init(storage) {
 	storage.addEncoders( [ { tag:"wld", p:null, f:encodeWorld } ] );
 	storage.addDecoders( [ { tag:"wld", p:null, f:decodeWorld } ] );
-
 }
 
 function encodeWorld( stringifier ) {
-	this.encode(stringifer );
+	this.encode(stringifier );
 }
 
-function decodeWorld( a ) {
+function decodeWorld( a ) {	
 }
 
 class World {
@@ -25,9 +24,11 @@ class World {
 	{
 
 	}
-	encode() {
+	encode(s) {
 		return `wld` + stringifier.stringify( {sectorIndex:this.sectors} );
 	}
 }
+
+World.init = init;
 
 export {World}

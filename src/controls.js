@@ -216,13 +216,13 @@ function onTouchCancel(event) {
 				tabDown = true;
 				switch(mode ) {
 				case 0:
-																			document.exitPointerLock();
+					document.exitPointerLock();
 					Voxelarium.controls.game.enable();
 					Voxelarium.controls.natural.disable();
 					break;
 				case 1:
-																			if( scope.domElement )
-																			scope.domElement.requestPointerLock();
+					if( scope.domElement )
+						scope.domElement.requestPointerLock();
 					Voxelarium.controls.natural.enable();
 					Voxelarium.controls.game.disable();
 					break;
@@ -230,7 +230,7 @@ function onTouchCancel(event) {
 			}
 						event.preventDefault();
 		} else if( event.keyCode === 13 ) {
-                	Voxelarium.db.player.setName( scope.nameEntryField.value );
+           	Voxelarium.db.player.setName( scope.nameEntryField.value );
 			if( lockInput ) {
 				lockInput( null, -1 );
 			}

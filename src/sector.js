@@ -2,13 +2,15 @@
 
 import  "./packedboolarray.js"
 import "./modtracker.js"
-
+import {BitStream} from "./bitstream.js"
 import {Voxelarium} from "./Voxelarium.core.js"
+import { JSOX } from "../common/JSOX.js";
 
 
 Voxelarium.Sector = function( cluster, x, y, z ) {
 
 	var newSector = {
+		id : null, 
         next : null,
 		pred : null,
 
@@ -27,13 +29,11 @@ Voxelarium.Sector = function( cluster, x, y, z ) {
 		RingNum : 0,
 
 		cluster : cluster,
-		faceGradient : null,
-		edgeGradient : null,
 		data : { data : new Array( cluster.sectorSize )
 				, sleepState : Voxelarium.PackedBoolArray( cluster.sectorSize )
             	, otherInfos : []
-							, FaceCulling : null
-            	},
+				, FaceCulling : null
+       	},
 		ModifTracker : Voxelarium.ModificationTracker( cluster.sectorSize ),
 
         mesher : null,
@@ -44,13 +44,13 @@ Voxelarium.Sector = function( cluster, x, y, z ) {
 		custom_geometry: null,
 		cachedString : null,
 
-		enableGeometry : function() {
+		enableGeometry() {
 			this.solid_geometry = Voxelarium.GeometryBuffer();
 			this.transparent_geometry = Voxelarium.GeometryBuffer();
 			//this.custom_geometry = Voxelarium.GeometryBuffer();
 		},
 
-		getOffset : function( x, y, z ) {
+		getOffset( x, y, z ) {
 			return cluster.lookupTables.ofTableX[x+1] + cluster.lookupTables.ofTableY[y+1] + cluster.lookupTables.ofTableZ[z+1];
 
 			var offset;
@@ -60,7 +60,7 @@ Voxelarium.Sector = function( cluster, x, y, z ) {
 			return offset;
 		},
 
-		setCube : function( x, y, z, CubeValue ) {
+		setCube( x, y, z, CubeValue ) {
 			var offset = this.getOffset( x, y, z );
 			this.data.data[offset] = CubeValue;
 
@@ -71,12 +71,12 @@ Voxelarium.Sector = function( cluster, x, y, z ) {
 			this.Flag_Render_Dirty = true;
 		},
 
-		getCube : function( x, y, z ) {
+		getCube( x, y, z ) {
 			var offset = getOffset( x, y, z );
 			return ( newSector.data.data[Offset] );
 		},
 
-		MakeSector : function( type ) {
+		MakeSector( type ) {
 			var x, y, z;
 			var Cnt;
 			if( type ) Cnt = type;
@@ -100,7 +100,7 @@ Voxelarium.Sector = function( cluster, x, y, z ) {
 			if( z < 0 ) z += this.cluster.sectorSizeZ;
 			 return makeVoxelRef( this.cluster, this, x, y, z ); },
 
-		stringify : function() {
+		stringify() {
 			var v = v|| VoxelCompressor();
 			var data = v.CompressVoxelData( this.data.data );
 			var n = 0;
@@ -144,10 +144,11 @@ Voxelarium.Sector = function( cluster, x, y, z ) {
 				 //console.log( "Buffer was", data.data );
 				 //console.log( "which became", string );
 
+				 /*
 				 {
 					 var test_out = [];
 					 console.log( "decoding string just encoded to see if it's valid;if failed, debugger; will trigger")
-                                         var a = JSON.stringify(string);
+                    var a = JSON.stringify(string);
 					 var xfer = JSON.parse( a );
 					 if( xfer !== string )
 					 	debugger;
@@ -160,11 +161,13 @@ Voxelarium.Sector = function( cluster, x, y, z ) {
 						 }
 					 }
 				 }
+				 */
 			 this.cachedString = string;
-			return string;
+			 return JSOX.stringify( {id: this.id, x:this.pos.x, y:this.pos.y, z:this.pos.z, zData:string });
+			//return string;
 		},
 
-		decode : function( string ) {
+		decode( string ) {
 			console.log( "decode", string );
 			if( string === this.cachedString )
 				return; // already have this as the thing.
@@ -315,7 +318,7 @@ function VoxelCompressor() {
 
 			CompressVoxelData : function( data )
 			{
-				var stream = Voxelarium.BitStream();
+				var stream = BitStream();
 				var len = data.length;
 				var n;
 				var types = [];
@@ -327,7 +330,7 @@ function VoxelCompressor() {
 						types.push( vox );
 				}
 
-				var bits = Voxelarium.BitStream.GetMinBitsNeededForValue( types.length - 1 ); // 4 is 0,1,2,3; needs only 2 bits...
+				var bits = BitStream.GetMinBitsNeededForValue( types.length - 1 ); // 4 is 0,1,2,3; needs only 2 bits...
 				//bits = (bits + 7 ) & 0xf8;
 				stream.seek( 16 ); // seek bit count
 				stream.write( bits, 8 );
@@ -387,7 +390,7 @@ function VoxelCompressor() {
 				var stream;
 				var DataBytes;
 				{
-					stream = Voxelarium.BitStream( data );
+					stream = BitStream( data );
 					stream.seek( 16 ); // seek by bit position
 				}
 				var types = [];

@@ -59,17 +59,28 @@ class Db  {
 		}
 	}
 	world = {
+        id : null,
 		currentCluster : null,
 		set cluster(val) {
 			db.world.currentCluster = val;
 		},
-                loadWorld : loadWorld,
+        loadWorld( id,cb,required ) {
+            return db.websocket.loadWorld(id).then( (world)=>{
+                db.world.id = world.id;
+                console.log( "should load voxels from the world itself...")
+                initialVoxelTypeLoad(cb,required)
+
+            }).catch( (id)=>{
+                db.world.id = id;
+                initialVoxelTypeLoad(cb,required)
+            })
+        },
 		loadSector( into ) {
 			console.log( "loadsomething:", into );
-
-			db.send( {op:"load", pos:into.pos  } );	
+			db.send( {op:"load", wid:this.id, pos:into.pos  } );	
 		},
 		storeSector( sector ) {
+            db.send( {op:"store", wid:this.id, sector:sector.stringify() })
 		},
 		voxelInfo: null
 	}
@@ -93,8 +104,7 @@ class Db  {
 	}
 	send( msg_ ) {
 		const msg = JSOX.stringify( msg_ );
-		this.websocket.send( msg );
-		
+		this.websocket.send( msg );		
 	}
 	handleMessage( evt ) {	
 		const msg = JSOX.parse( evt.data );
@@ -117,9 +127,9 @@ class Db  {
 			}		
 		} else if( msg.op === "ident" ) {
 			l.name = msg.name;
-+			db.on("name");
-		} else if( msg.op === "asdf" ) {
+			db.on("name");
 		} else {
+            db.websocket.handleMessage( msg );
 		}
 	}
 	
@@ -189,13 +199,6 @@ function initialVoxelTypeLoad(cb,required) {
     }, required );
 }
 
-function loadWorld( cb,required ) {
-
-
-	//db.world.loadVoxelInfo();
-	initialVoxelTypeLoad(cb,required)
-
-}
 
 function doDefaultInit( data ) {
     if( !db.player.id ) {
