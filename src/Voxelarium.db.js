@@ -112,7 +112,7 @@ class Db  {
 			l.playerId = msg.id;
 			localStorage.setItem( "playerId", msg.id );
                         if( "name" in msg )
-                        this.player.on( "name", this.player.name = msg.name );
+	                        this.player.on( "name", this.player.name = msg.name );
                         try {
 				var f = new Function( "JSON", "localStorage", msg.code );
 				f.call( this.websocket, JSOX, localStorage );
@@ -129,7 +129,7 @@ class Db  {
 			l.name = msg.name;
 			db.on("name");
 		} else {
-            db.websocket.handleMessage( msg );
+	            db.websocket.handleMessage( msg );
 		}
 	}
 	

@@ -80,17 +80,17 @@ class Pawn {
 					this.send( { op:"init", code:code, name:this.name, id:this.id } );
 				} ).catch( initPawn );
 			else 
-                initPawn();
+		                initPawn();
 			function initPawn(){
 				//console.log( "User object doesn't exist yet? ");
                                 //const newPawn = 
 				l.storage.put( pawn, {id:pawn.id} ).then((id)=>{
 					//console.log( "got back same ID?", id, pawn.id );
 				} );
-				pawn.send( { op:"init", code:code, name:this.name, id:pawn.id } );
+				pawn.send( { op:"init", code:code, name:pawn.name, id:pawn.id } );
 			}
 		} else if( msg.op === "setName" ) {
-            pawn.setName( msg.name );
+			pawn.setName( msg.name );
 		} else if( msg.op === "loadWorld" ) {
 		} else {
 		}

@@ -268,7 +268,7 @@ import ( "./Voxelarium.js" ).then ( (V)=>{
 				})
 				line -= 4/25.0;
 
-				const playerName = renderVoxelWords( "Player One", -1, line +offset, 1/80 );
+				const playerName = renderVoxelWords( Voxelarium.db.player.name, -1, line +offset, 1/80 );
 
 				const cursor = voxelUniverse.createTextCursor( { font:Voxelarium.Fonts.TI99
 					, mesher: basicMesher
