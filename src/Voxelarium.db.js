@@ -90,7 +90,7 @@ class Db  {
 	}
 
 	constructor() {
-		this.websocket = makeSocket( (location.protocol==="https:"?"wss://":"ws://") + location.host + "/" + (l.playerId? '/~'+ l.playerId:'')  , "VOXDB2" );
+		this.websocket = makeSocket( (location.protocol==="https:"?"wss://":"ws://") + location.host + "/" + (l.playerId? '/~'+ l.playerId:'')  , "VOXDB" );
 		this.websocket.onmessage = this.handleMessage.bind(this);
 		this.websocket.onopen = this.onOpen.bind(this);
 		this.websocket.onerror = (err)=>{
