@@ -1,7 +1,7 @@
 "use strict";
 
 
-import * as THREE from "three.js/build/three.module.js"
+import * as THREE from "./three.js/build/three.module.js"
 import {TimeGradient} from "./src/TimeGradient.js"
 import {myPerspective} from './three.js/my_perspective.js'
 window.THREE = THREE;
