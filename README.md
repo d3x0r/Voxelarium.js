@@ -12,7 +12,7 @@ cd Voxelarium.js
 npm install 
 npm start
 ```
-Shold report that it is serving on port 8080.
+Should report that it is serving on port 8080.
 
 Connect with a browser to localhost:8080.
 
