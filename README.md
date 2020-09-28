@@ -17,6 +17,28 @@ Should report that it is serving on port 8080.
 Connect with a browser to localhost:8080.
 
 
+## Serverless Demo
+
+ - [Intro Page](https://d3x0r.github.io/Voxelarium.js/index.html) - Just a quick test of dynamic text entry, mouseover selection... 
+ - [Sector Editor](https://d3x0r.github.io/Voxelarium.js/index2.html) - Edits a single sector... 
+
+### Demo Controls
+
+While the introduction page is prompting for a name, all keys are forwarded to a background text entry field, which is used to get the value to display.  Once the `Enter` key has been presed
+the keys are free to be used for navigation.
+
+|Key|Action|
+|---|---|
+| I | Show/Hide Inventory page - allows selcting a voxel to output in edit mode; some voxel types are actually transparent, and transparent rendering is not enabled.  (water, lava, slime....) |
+| W | Forward |
+| S | Backward | 
+| A | Left |
+| D | Right |
+| C | Down (Crouch)|
+|Space | Up (Jump)|
+|Tab| Toggle between mouse lock mode, which also enables WSAD keys which allows looking around, moving, and Edit mode which allows Inventory selection and deleting/setting voxels. |
+
+
 
 ## Other resources
 
