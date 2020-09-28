@@ -10,6 +10,7 @@ const l = {
 }
 
 function makeSocket( addr, protocol ) {
+	try {
 	const ws = new WebSocket( addr, protocol
 			, protocol
 			,{
@@ -18,6 +19,9 @@ function makeSocket( addr, protocol ) {
 			}
 		);
 	return ws;
+	}catch(err) {
+		console.log( "Is this errror?", err );
+	}
 }
 
 class Db  {
@@ -86,9 +90,18 @@ class Db  {
 	}
 
 	constructor() {
-		this.websocket = makeSocket( (location.protocol==="https:"?"wss://":"ws://") + location.host + "/" + (l.playerId? '/~'+ l.playerId:'')  , "VOXDB" );
+		this.websocket = makeSocket( (location.protocol==="https:"?"wss://":"ws://") + location.host + "/" + (l.playerId? '/~'+ l.playerId:'')  , "VOXDB2" );
 		this.websocket.onmessage = this.handleMessage.bind(this);
 		this.websocket.onopen = this.onOpen.bind(this);
+		this.websocket.onerror = (err)=>{
+		console.log( "GER ERROR?" );
+			l.playerId = "none";
+			this.connected = true;
+			this.player.on("name", this.player.name = "No Server..." );
+				if( this.onComplete ) {
+					this.onComplete();
+				}			
+		};
 
 	}
 	onOpen() {
@@ -96,7 +109,6 @@ class Db  {
 	}
 	init(cb,required) {
 		if( required ) l.requiredLoad = required;
-		console.log( "INIT?", cb );
 		if( this.connected )
 			initialVoxelTypeLoad(cb,required);
 		else
