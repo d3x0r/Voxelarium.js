@@ -1,16 +1,33 @@
 # Voxelarium.js
 
+### Dependancies  
+
+ - [sack.vfs](https://npmjs.com/package/sack.vfs)
+ - Uses three.js, includes prebuilt version (101?)
+
+
+```
+git clone https://github.com/d3x0r/Voxelarium.js
+cd Voxelarium.js
+npm install 
+npm start
+```
+Shold report that it is serving on port 8080.
+
+Connect with a browser to localhost:8080.
+
+
+
+## Other resources
+
+I'm not really here much...
+
 [![Join the chat at https://gitter.im/d3x0r/Voxelarium.js](https://badges.gitter.im/d3x0r/Voxelarium.js.svg)](https://gitter.im/d3x0r/Voxelarium.js?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 Game inspired by/based on Blackvoxel; in javascript
 
-requires 
-   https://github.com/d3x0r/three.js/tree/matrix_relative_rotation_addition
-   
-could use these directly I guess in  index.html  (or not... github returns them as plain/text and browser gives an error it's not a script)
 
-   https://raw.githubusercontent.com/d3x0r/three.js/matrix_relative_rotation_addition/build/three.min.js
-   https://raw.githubusercontent.com/d3x0r/three.js/matrix_relative_rotation_addition/build/three.js
-   
+
+
 To launch load index.html
 
 
