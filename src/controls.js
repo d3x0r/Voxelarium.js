@@ -183,7 +183,7 @@ function onTouchCancel(event) {
 
 		}
 	function onKeyUp( event ) {
-		if( lockInput ) {
+		if( mode === 0 && lockInput ) {
 			const ev = new KeyboardEvent( event );
 			scope.nameEntryField.focus();
 			scope.nameEntryField.dispatchEvent( ev );
