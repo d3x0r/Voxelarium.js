@@ -183,16 +183,16 @@ function onTouchCancel(event) {
 
 		}
 	function onKeyUp( event ) {
-		if( mode === 0 && lockInput ) {
+		if( event.keyCode === 9 ) {
+			tabDown = false;
+			event.preventDefault();
+		}
+		else if( mode === 0 && lockInput ) {
 			const ev = new KeyboardEvent( event );
 			scope.nameEntryField.focus();
 			scope.nameEntryField.dispatchEvent( ev );
                         
 			return;
-		}
-		if( event.keyCode === 9 ) {
-			tabDown = false;
-			event.preventDefault();
 		}
 		else switch( mode ) {
 		case 0:
