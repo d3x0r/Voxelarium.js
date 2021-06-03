@@ -37,10 +37,29 @@ server.onrequest( function( req, res ) {
 	//ws.clientAddress = ip;
 
 	pending.push( req.url );
-        
+
+        const parts = unescape(req.url).split('/');
+        if( parts.length == 2 ) {
+        }else if( parts.length > 2 ) {
+            if( parts[1] === 'node_modules' ) {
+                switch( parts[1] ) {
+                case "@d3x0r":
+                case "jsox":
+                	break;
+		default:
+			res.writeHead( 404 );
+			res.end( "<HTML><HEAD><title>404</title></HEAD><BODY>404</BODY></HTML>");
+                        return;
+                }
+            }
+        }
+        if( parts[parts.length-1] == "" ) {
+            parts[parts.length-1] = 'index.html';
+        }
 	//console.log( "Received request:", req.url );
-	if( req.url === "/" ) req.url = "/index.html";
-	var filePath = "." + unescape(req.url);
+	//if( req.url === "/" ) req.url = "/index.html";
+	
+	var filePath = "." + parts.join('/');
 	var extname = path.extname(filePath);
 	var contentType = 'text/html';
 	//console.log( ":", extname, filePath )
@@ -81,7 +100,7 @@ server.onrequest( function( req, res ) {
 	} else {
 		console.log( "Failed request: ", req.url );
 		res.writeHead( 404 );
-		res.end( "<HTML><HEAD>404</HEAD><BODY>404</BODY></HTML>");
+		res.end( "<HTML><HEAD><title>404</title></HEAD><BODY>404</BODY></HTML>");
 	}
 } );
 

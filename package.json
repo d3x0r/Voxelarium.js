@@ -15,7 +15,9 @@
   "test": "echo \"Error: no test specified\" && exit 1"
  },
  "dependencies": {
-  "sack.vfs": "latest"
+  "sack.vfs": "latest",
+  "jsox": "latest",
+  "@d3x0r/popups": "latest"
  },
  "devDependencies": {
   "rollup": "^0.34.13",
