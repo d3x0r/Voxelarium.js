@@ -5,6 +5,25 @@ import path from "path";
 
 import {db} from "./db.mjs"
 
+const AsyncFunction = Object.getPrototypeOf( async function() {} ).constructor;
+
+const loginServiceSource = sack.HTTP.get( {method:"GET",hostname:"localhost", port:8089, path:"/serviceLogin.mjs" } );
+const serviceLoginInit = new AsyncFunction( "Import", loginServiceSource.content );
+const loginService = serviceLoginInit.call( this, (i)=>import(i) );
+
+loginService.then( (loginService)=>{
+	loginService.open( "org.d3x0r.games", "Voxelarium", {
+		expect(client) { // callback on-expect
+                },
+
+        } );
+
+	console.log( "Login imported and initialized", loginService );
+} );
+
+//import {UserDb} from "http://localhost:8089/serviceLogin.js";
+
+
 var serverOpts;
 var server = sack.WebSocket.Server( serverOpts = { port: Number(process.argv[2])||8080 } )
 var disk = sack.Volume();
@@ -28,12 +47,31 @@ function tickPendingMsg() {
 }
 tickPendingMsg();
 
-server.onrequest( function( req, res ) {
 
-	var ip = ( req.headers && req.headers['x-forwarded-for'] ) ||
+
+const mimeTypes = {
+	'.js'  :'text/javascript',
+	'.mjs' :'text/javascript',
+	'.css' :'text/css',
+	'.json':'application/json',
+	'.png' :'image/png',
+	'.jpg' :'image/jpg',
+	'.wav' :'audio/wav',
+	'.crt' :'application/x-x509-ca-cert',
+	'.pem' :'application/x-pem-file',
+	'.wasm':'application/wasm',
+	'.asm' :'application/wasm',
+};
+
+
+
+server.onrequest( function( req, res ) {
+	/*
+	const ip = ( req.headers && req.headers['x-forwarded-for'] ) ||
 		 req.connection.remoteAddress ||
 		 req.socket.remoteAddress ||
 		 req.connection.socket.remoteAddress;
+	*/
 	//ws.clientAddress = ip;
 
 	pending.push( req.url );
@@ -42,7 +80,7 @@ server.onrequest( function( req, res ) {
         if( parts.length == 2 ) {
         }else if( parts.length > 2 ) {
             if( parts[1] === 'node_modules' ) {
-                switch( parts[1] ) {
+                switch( parts[2] ) {
                 case "@d3x0r":
                 case "jsox":
                 	break;
@@ -59,40 +97,13 @@ server.onrequest( function( req, res ) {
 	//console.log( "Received request:", req.url );
 	//if( req.url === "/" ) req.url = "/index.html";
 	
-	var filePath = "." + parts.join('/');
-	var extname = path.extname(filePath);
+	const filePath = "." + parts.join('/');
+	const extname = path.extname(filePath);
 	var contentType = 'text/html';
 	//console.log( ":", extname, filePath )
-	switch (extname) {
-		  case '.js':
-		  case '.mjs':
-			  contentType = 'text/javascript';
-			  break;
-		  case '.css':
-			  contentType = 'text/css';
-			  break;
-		  case '.json':
-			  contentType = 'application/json';
-			  break;
-		  case '.png':
-			  contentType = 'image/png';
-			  break;
-		  case '.jpg':
-			  contentType = 'image/jpg';
-			  break;
-		  case '.wav':
-			  contentType = 'audio/wav';
-			  break;
-                case '.crt':
-                        contentType = 'application/x-x509-ca-cert';
-                        break;
-                case '.pem':
-                        contentType = 'application/x-pem-file';
-                        break;
-                  case '.wasm': case '.asm':
-                  	contentType = 'application/wasm';
-                        break;
-	}
+        if( extname in mimeTypes )
+            contentType = mimeTypes[extname];
+
 	if( disk.exists( filePath ) ) {
 		res.writeHead(200, { 'Content-Type': contentType });
 		//console.log( "Read:", "." + req.url );
@@ -109,8 +120,9 @@ server.onaccept( function ( ws ) {
 	console.log( "Connection received with : ", protocol );
 	if( protocol === "VOXDB" ) {
 		this.accept();
-	} else
+	} else {
 		this.reject();
+        }
 	return;
 } );
 

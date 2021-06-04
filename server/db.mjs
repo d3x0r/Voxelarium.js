@@ -21,7 +21,19 @@ const l = {
 //console.log( "sack:", sack );
 const JSOX = sack.JSOX
 
-const code = sack.Volume.readAsString( "server/remoteMethods.js" );
+function loadRemote() {
+    try {
+        return sack.Volume.readAsString( "server/remoteMethods.js" );
+    } catch(err ) {
+        try {
+	        return sack.Volume.readAsString( "remoteMethods.js" );
+        }catch(err2) {
+            console.log( "failed:", err, err2 );
+       	}
+    }
+}
+
+const code = loadRemote();
 
 const pawns = new Map();
 
@@ -182,6 +194,11 @@ class Db  {
 						}
 					} );
                                 } ).catch( (err)=>{
+		                	root.create( "dbConfig.jsox" ).then( file=>{
+		                                l.configFile = file;
+						console.log( "open always works?" );
+	                       	        	file.write( l.config );
+					} );
 					console.log( "Fatal.", err );
         			} );
 			});
