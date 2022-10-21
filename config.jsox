@@ -1,0 +1,7 @@
+{
+	login: {
+		host:"localhost",
+		port:7880,
+		script:"/serviceLogin.mjs",
+	},
+}

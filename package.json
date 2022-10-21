@@ -12,12 +12,14 @@
   "build-closure": "rollup -c  && java -jar utils/build/compiler/closure-compiler-v20160713.jar --warning_level=VERBOSE --jscomp_off=globalThis --jscomp_off=checkTypes --externs utils/build/externs.js --language_in=ECMASCRIPT6_STRICT --language_out=ES5 --js build/three.js --js_output_file build/three.min.js",
   "dev": "rollup -c -w",
   "start": "node --experimental-modules server/server.mjs",
-  "test": "echo \"Error: no test specified\" && exit 1"
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "link": "npm link sack.vfs jsox @d3x0r/popups @d3x0r/user-database @d3x0r/srg2"
  },
  "dependencies": {
   "sack.vfs": "latest",
   "jsox": "latest",
-  "@d3x0r/popups": "latest"
+  "@d3x0r/popups": "latest",
+  "@d3x0r/user-database": "latest"
  },
  "devDependencies": {
   "rollup": "^0.34.13",
