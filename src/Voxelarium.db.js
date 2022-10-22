@@ -6,13 +6,13 @@ import {JSOX} from "../common/JSOX.js"
 
 const l = {
 	playerId : localStorage.getItem( "playerId" ),
+	serviceId : null,
 	requiredLoad : 0,
 }
 
 function makeSocket( addr, protocol ) {
 	try {
 	const ws = new WebSocket( addr, protocol
-			, protocol
 			,{
 				perMessageDeflate: false,
 				//ca : config.caRoot
@@ -90,22 +90,31 @@ class Db  {
 	}
 
 	constructor() {
-		this.websocket = makeSocket( (location.protocol==="https:"?"wss://":"ws://") + location.host + "/" + (l.playerId? '/~'+ l.playerId:'')  , "VOXDB" );
-		this.websocket.onmessage = this.handleMessage.bind(this);
-		this.websocket.onopen = this.onOpen.bind(this);
-		this.websocket.onerror = (err)=>{
-		console.log( "GER ERROR?" );
-			l.playerId = "none";
-			this.connected = true;
-			this.player.on("name", this.player.name = "No Server..." );
-				if( this.onComplete ) {
-					this.onComplete();
-				}			
-		};
-
+		//
+		l.playerId = "none";
+		if( this.websocket ) {
+			this.connect( this.websocket );
+		}
+	}
+	connect(  info ) {
+		console.log( "can use info?", info );
+		const ws = this.websocket = makeSocket( (location.protocol==="https:"?"wss://":"ws://") + location.host + "/" + (l.playerId? '/~'+ l.playerId:'')  , "VOXDB" );
+		l.serviceId = info.key;
+		if( ws ) {
+			ws.onmessage = this.handleMessage.bind(this);
+			ws.onopen = this.onOpen.bind(this);
+			ws.onerror = (err)=>{
+				console.log( "GER ERROR?" );
+				this.connected = true;
+				this.player.on("name", this.player.name = "No Server..." );
+					if( this.onComplete ) {
+						this.onComplete();
+					}			
+			};
+		}
 	}
 	onOpen() {
-		this.send( {op:"init" } );
+		this.send( {op:"init", sid:l.serviceId } );
 	}
 	init(cb,required) {
 		if( required ) l.requiredLoad = required;

@@ -183,6 +183,9 @@ function onTouchCancel(event) {
 
 		}
 	function onKeyUp( event ) {
+		if( event.target !== domElement ){
+			return
+		}
 		if( event.keyCode === 9 ) {
 			tabDown = false;
 			event.preventDefault();
@@ -207,6 +210,9 @@ function onTouchCancel(event) {
 	}
 
 	function onKeyDown( event ) {
+		if( event.target !== domElement ){
+			return
+		}
 
 		if( event.keyCode === 82 && event.ctrlKey ) {
 			return;

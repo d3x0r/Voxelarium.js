@@ -11,6 +11,7 @@ const l = {
 	configFile : null,
         waiters : [],
 	dbs : [],
+	expectations : new Map(),
 	config : {
        		userIndex : null, // reference of the index root
        	},
@@ -79,27 +80,37 @@ class Pawn {
                 this.store();
         }
         store() {
-        	console.log( "storing pawn...", this );
+        	//console.log( "storing pawn...", this );
         	return l.storage.put( this, {id:this.id} )
         }
 	handleMessage( msg ) {	
-       		const pawn = this;
+       	const pawn = this;
 		if( msg.op === "init" ) {
-			//console.log( "Load this client's state?", this );
+			const expect = l.expectations.get( msg.sid );
+			if( !expect ) {
+				console.log( "This is not an expected connection! Protocol negotiation failure." );
+			}else {
+				console.log( "Server Init side connecting to login info...", expect, msg );
+				this.id = expect.user;
+				l.expectations.delete( msg.sid );
+
+			}
+
+			console.log( "Load this client's state?", msg );
 			if( this.id ) 
 				l.storage.get( this.id ).then( (pawn)=>{
 					//const pawn = new Pawn(ws );
 					this.send( { op:"init", code:code, name:this.name, id:this.id } );
 				} ).catch( initPawn );
 			else 
-		                initPawn();
+		        initPawn();
 			function initPawn(){
 				//console.log( "User object doesn't exist yet? ");
                                 //const newPawn = 
 				l.storage.put( pawn, {id:pawn.id} ).then((id)=>{
 					//console.log( "got back same ID?", id, pawn.id );
 				} );
-				pawn.send( { op:"init", code:code, name:pawn.name, id:pawn.id } );
+				this.send( { op:"init", code:code, name:pawn.name, id:pawn.id } );
 			}
 		} else if( msg.op === "setName" ) {
 			pawn.setName( msg.name );
@@ -108,7 +119,7 @@ class Pawn {
 		}
 	}
 	encode(s){
-        	const z = `pwn{id:${s.stringify(this.id)},name:${s.stringify(this.name)}
+        	const z = `{id:${s.stringify(this.id)},name:${s.stringify(this.name)}
 				,world:${s.stringify(this.world_id)}
 				,pos:{x:${this.x},y:${this.y},z:${this.z}},rot:{x:${this.X},y:${this.Y},z:${this.Z}}}`
         	//console.log( "WTF?", this, z );
@@ -209,8 +220,8 @@ class Db  {
 		const id = ws.url.split("~");
 		let pawn = null;		
 		if( id.length === 2 ) {
-                	console.log( "Attempting to reload pawn?", id );
-			l.storage.get( id[1] ).then( pawn_=>{
+            //console.log( "Attempting to reload pawn?", id );
+			const connectPawn = pawn_=>{
 				//console.log( "Reloaded pawn:", pawn_ );
 				if( !pawn_ ) {
 					pawn = createPawn(db)
@@ -218,8 +229,10 @@ class Db  {
 					pawn = pawn_;
 				}
 				finishConnect( db, pawn );
-			} ).catch(err=>{
-				console.log( "Error getting object:", err );
+			};
+			l.storage.get( id[1] ).then( connectPawn ).catch(err=>{				
+				console.log( "Error getting object:", err );              		
+				pawn = createPawn(db);
 			} );
 		} else {
             console.log( "No connection identifier..." );
@@ -228,11 +241,13 @@ class Db  {
 
 		function createPawn(db) {
 			const pawn = new Pawn();
-                        pawn.store().then( id=>{
+			// reinit.
+            pawn.store().then( id=>{
 				pawn.id = id
-                                console.log( "Got the ID, can now write the id..." );
-                                pawn.store();  // write again... 
+				console.log( "Got the ID, can now write the id...",id );
+				pawn.store();  // write again... 
 				finishConnect( db,pawn );
+				pawn.send( { op:"init", code:code, name:pawn.name, id:pawn.id } );
 			} );
 			return pawn;
 		}
@@ -242,6 +257,9 @@ class Db  {
 			ws.on("message", db.handleMessage.bind(db, p ) );
 			ws.on("close", db.handleClose.bind(db ) );
 		}
+	}
+	userDbConnect( ws ) {
+		ws.on( "expect", db.addExpectation );		
 	}
 	onObject( msg ) {
 		db.reading.handleMessage( msg );
@@ -253,7 +271,9 @@ class Db  {
 	handleClose(code,reason){
 		
 	}	
-	
+	addExpectation( sid, user ) {
+		l.expectations.set( sid, user );
+	}	
 }
 
 const db = new Db();
