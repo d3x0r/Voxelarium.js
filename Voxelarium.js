@@ -1,7 +1,10 @@
 import {Voxelarium} from "./src/Voxelarium.core.js"
+import {JSOX} from "/node_modules/jsox/lib/jsox.mjs"
+import {config} from "/config.jsox";
 
+const loginPort = config.login.port;
 
-import * as login from "http://localhost:7880/login/webSocketClient.js"
+const login = await import("http://localhost:"+loginPort+"/login/webSocketClient.js" );
 import {Popup,popups} from "/node_modules/@d3x0r/popups/popups.mjs"
 
 const style = document.createElement( "link" );
@@ -9,35 +12,52 @@ style.rel = "stylesheet";
 //style.href = "/node_modules/@d3x0r/popups/styles.css";
 style.href = "/node_modules/@d3x0r/popups/dark-styles.css";
 document.head.insertBefore( style, document.head.childNodes[0] || null );
-login.openSocket( "ws://localhost:7880" );
-const loginForm = popups.makeLoginForm( async (guest)=>{
-	console.log( "parameter is guest?:", guest );
+
+
+let loggedIn = false;
+const loginForm = popups.makeLoginForm( async (loginType)=>{
+	// type === 1 if created
+	// loginType === false if guest
+	// loginType === true if user login
+	console.log( "parameter is guest?:", loginType );
 	//console.log( "login form event" );
 	//debugger;
 	Voxelarium.login.hide();
 	const info = await login.connection.request( "d3x0r.org", "Voxelarium(js)" );
-	
-	//console.log( "service information:", info );
+	// info returns my name (as given from (the service?))
+	console.log( "service information:", info );
 	if( info ) {
-		Voxelarium.db.connect( info.svc );
-		/*
-		openSocket( info.addr, (ws)=>{
-			ws.onmessage = handleMessage;
-			ws.onclose = handleClose;
-			this.load();					
-		}, "VOXDB" );
-		*/
+		loggedIn = true;  // allow socket to close. (maybe even CLOSE it?)
+		Voxelarium.db.connect( info.svc ); // no port specified...  should have an expectation too
 	} else {
 		popups.Alert( "Service failed to be found" );
 		Voxelarium.login.show();
 	}
 
-} , { useForm:"http://localhost:7880/login/loginForm.html"
-	, useSashForm:null//"http://localhost:7880/login/pickSashForm.html"
-	, sashScript : null//"http://localhost:7880/login/pickSashForm.js"
+} , { useForm:"http://localhost:"+loginPort+"/login/loginForm.html"
+	, useSashForm:null//"http://localhost:"+loginPort+"/login/pickSashForm.html"
+	, sashScript : null//"http://localhost:"+loginPort+"/login/pickSashForm.js"
 	, wsLoginClient:login.connection} );
 
-Voxelarium.login = loginForm;
+const loginSocket = login.openSocket( "ws://localhost:"+loginPort+""/*, "login" */ );
+loginSocket.then( (ws)=>{
+
+	ws.on( "close", reconnect );
+	function reconnect(code,reason){
+		if( !loggedIn )
+		login.openSocket( "ws://localhost:"+loginPort+""/*, "login" */ ).then( (ws)=>{
+			//loginForm.setSocket( ws );
+			ws.on( "close", reconnect );
+			return ws;
+		})
+	}
+	
+		
+	Voxelarium.login = loginForm;
+
+})
+
+
 const readies = [];
 Voxelarium.onready = function(cb) {
 	readies.push(cb);

@@ -1,6 +1,7 @@
 
 import {Voxelarium} from "./Voxelarium.core.js"
 import {consts,Vector4Pool,Vector3Pool} from "../three.js/personalFill.js"
+import {Sector} from "./sector.js"
 
 import  "./constants.js";
 import  "./reactor.js" ;
@@ -49,7 +50,7 @@ Voxelarium.Cluster = function( x, y, z, props ) {
 		}
 	}
         ,createSector : function( x, y, z ) {
-            var sector = Voxelarium.Sector( cluster, x, y, z );
+            var sector = Sector.create( cluster, x, y, z );
             cluster.SectorList.push( sector );
 
             var hashOfs;
@@ -167,10 +168,10 @@ Voxelarium.Cluster = function( x, y, z, props ) {
         } )
 
 
-    cluster.WorkingFullSector = Voxelarium.Sector( cluster );
+    cluster.WorkingFullSector = Sector.create( cluster );
     cluster.WorkingFullSector.Pos_y = -1;
     cluster.WorkingFullSector.MakeSector( Voxelarium.Voxels.types[1] );
-    cluster.WorkingEmptySector= Voxelarium.Sector( cluster );
+    cluster.WorkingEmptySector= Sector.create( cluster );
     cluster.WorkingEmptySector.Pos_y = 0;
     cluster.WorkingEmptySector.MakeSector( Voxelarium.Voxels.types[0] );
 
@@ -429,7 +430,10 @@ function  rayCast(cluster, o, forward )
         NewCube_x = Math.floor((Collision_h.x + Norm_h.x) / cluster.voxelUnitSize);
         NewCube_y = Math.floor((Collision_h.y + Norm_h.y) / cluster.voxelUnitSize);
         NewCube_z = Math.floor((Collision_h.z + Norm_h.z) / cluster.voxelUnitSize);
-        if( ( ref = cluster.getVoxelRef( false, NewCube_x, NewCube_y, NewCube_z) ) && ref.sector && !ref.voxelType.properties.Is_PlayerCanPassThrough)
+        if( ( ref = cluster.getVoxelRef( false, NewCube_x, NewCube_y, NewCube_z) )
+             && ref.sector 
+             && ref.voxelType
+            && !ref.voxelType.properties.Is_PlayerCanPassThrough)
         {
             //console.log( `x check ${NewCube_x}  ${NewCube_y}  ${NewCube_z}    ${ActualCube_x} ${ActualCube_y} ${ActualCube_z}  ${MinW}  ${Collision_h.w}`)
             Out = { PredPointedVoxel : new THREE.Vector3( ActualCube_x, ActualCube_y, ActualCube_z ),
@@ -456,8 +460,10 @@ function  rayCast(cluster, o, forward )
         NewCube_y = Math.floor((Collision_s.y + Norm_s.y) / cluster.voxelUnitSize);
         NewCube_z = Math.floor((Collision_s.z + Norm_s.z) / cluster.voxelUnitSize);
         //console.log( `z check ${NewCube_x}  ${NewCube_y}  ${NewCube_z}  ${MinW}  ${Collision_s.w} `)
-        if( ( ref = cluster.getVoxelRef( false, NewCube_x, NewCube_y, NewCube_z) ) && ref.sector && !ref.voxelType.properties.Is_PlayerCanPassThrough)
-        {
+        if( ( ref = cluster.getVoxelRef( false, NewCube_x, NewCube_y, NewCube_z) )
+			       && ref.sector 
+             && ref.voxelType
+             && !ref.voxelType.properties.Is_PlayerCanPassThrough)        {
             //console.log( `z check ${NewCube_x}  ${NewCube_y}  ${NewCube_z}  ${MinW}  ${Collision_s.w} `)
           Out = { PredPointedVoxel : new THREE.Vector3( ActualCube_x, ActualCube_y, ActualCube_z ),
                   PointedVoxel : new THREE.Vector3( NewCube_x, NewCube_y, NewCube_z ),
@@ -482,7 +488,10 @@ function  rayCast(cluster, o, forward )
         NewCube_x = Math.floor((Collision_v.x + Norm_v.x) / cluster.voxelUnitSize);
         NewCube_y = Math.floor((Collision_v.y + Norm_v.y) / cluster.voxelUnitSize);
         NewCube_z = Math.floor((Collision_v.z + Norm_v.z) / cluster.voxelUnitSize);
-        if( ( ref = cluster.getVoxelRef( false, NewCube_x, NewCube_y, NewCube_z) ) && ref.sector && !ref.voxelType.properties.Is_PlayerCanPassThrough )
+        if( ( ref = cluster.getVoxelRef( false, NewCube_x, NewCube_y, NewCube_z) ) 
+            && ref.sector 
+            && ref.voxelType 
+            && !ref.voxelType.properties.Is_PlayerCanPassThrough )
         {
             //console.log( `y check ${NewCube_x}  ${NewCube_y}  ${NewCube_z}  ${MinW}  ${Collision_v.w} `)
           Out = { PredPointedVoxel : new THREE.Vector3( ActualCube_x, ActualCube_y, ActualCube_z ),

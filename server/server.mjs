@@ -11,30 +11,48 @@ import path from "path";
 
 import {db} from "./db.mjs"
 import {openServer} from "sack.vfs/apps/http-ws";
+import {uExpress} from "sack.vfs/apps/http-ws/uexpress";
 
-import {UserDbRemote} from "@d3x0r/user-database/serviceLogin"
+const app = uExpress();
 
+app.get( "/config.jsox", (req,res)=>{
+console.log( "express hook?", req.url ,res);
+	const headers = {
+		'Content-Type': "text/javascript",
+	}
+	res.writeHead( 200, headers );
+
+	const resultContent = "import {JSOX} from '/node_modules/jsox/lib/jsox.mjs';export const config = JSOX.parse( '" + JSOX.stringify(config) + "')";
+	res.end( resultContent );
+
+} ) 
+
+const myPort = Number(process.env.PORT) || config.serve.port ||5000;
 //const AsyncFunction = Object.getPrototypeOf( async function() {} ).constructor;
 
+
+import {UserDbRemote} from "@d3x0r/user-database/serviceLogin"
 
 process.env.LOGIN_PORT = config.login.port;
 const udb =  await import( "@d3x0r/user-database" );
 
 //console.log( "Got UDB:", udb );
-const dbx = await import( "@d3x0r/user-database/service" ); // start service locally
+//const dbx = await import( "@d3x0r/user-database/service" ); // start service locally
 //console.log( 'dbx =', dbx );
 
-udb.go.then( ()=>{
+//udb.go.then( ()=>{
+
 	UserDbRemote.open( {
 		configPath : nearPath + '/../',
 		server:"ws://localhost:"+config.login.port,
+		port : myPort,
 		connect(ws) {
 			console.log( "Voxelarium service registry....connected to login service" );
 			db.userDbConnect(ws);
 		}
 	})
-	server.addHandler( udb.UserDb.socketHandleRequest );
-} );
+
+//} );
 //		udb.server
 		
 
@@ -42,9 +60,12 @@ udb.go.then( ()=>{
 let serverOpts;
 const server = openServer(  serverOpts = { //npmPath:"../"
 		//, resourcePath:".."
-		port: Number(process.env.PORT) || Number(process.argv[2])||8080 }
-		, accept, connect );
+		port: myPort
+		, accept, connect } );
 
+	console.log( "is there a handler yet?", udb.UserDb.socketHandleRequest);
+	server.addHandler( app.handle );
+	server.addHandler( udb.UserDb.socketHandleRequest );
 console.log( "voxelarium serving on " + serverOpts.port );
 db.init( );
 

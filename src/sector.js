@@ -6,183 +6,197 @@ import {BitStream} from "./bitstream.js"
 import {Voxelarium} from "./Voxelarium.core.js"
 import { JSOX } from "../common/JSOX.js";
 
+export class Sector {
 
-Voxelarium.Sector = function( cluster, x, y, z ) {
+	id = null; 
+	next = null;
+	pred = null;
 
-	var newSector = {
-		id : null, 
-        next : null,
-		pred : null,
+	GlobalList_Next = null;
+	GlobalList_Pred = null;
 
-		GlobalList_Next : null,
-		GlobalList_Pred : null,
+	near_sectors = new Array(27); // can index with relativeOrds-1 (self is not in this array)
 
-		near_sectors : new Array(27), // can index with relativeOrds-1 (self is not in this array)
+	handle_x = 0; handle_y=0; handle_z = 0; // used in Genesis templates; 'origin' of this sector
+	pos = new THREE.Vector3( 0, 0, 0 );
 
-		handle_x : 0, handle_y:0, handle_z : 0, // used in Genesis templates; 'origin' of this sector
-		pos : new THREE.Vector3( x, y, z ),
+	// Version control : Added for handling better world evolution.
+	ZoneType = 0;     // The type of the zone.
+	ZoneVersion = 0;  // The version of the generator used for this zone.
+	GeneratorVersion = 0; // Main generator version. Updated at world change.
+	RingNum = 0;
 
-		// Version control : Added for handling better world evolution.
-		ZoneType : 0,     // The type of the zone.
-		ZoneVersion : 0,  // The version of the generator used for this zone.
-		GeneratorVersion : 0, // Main generator version. Updated at world change.
-		RingNum : 0,
+	cluster = null;
+	data = { data : null
+		   , mass : null
+		   , sleepState : null
+		  , otherInfos : []
+		  , FaceCulling : null
+		 };
+	ModifTracker = null;
 
-		cluster : cluster,
-		data : { data : new Array( cluster.sectorSize )
-				, sleepState : Voxelarium.PackedBoolArray( cluster.sectorSize )
-            	, otherInfos : []
-				, FaceCulling : null
-       	},
-		ModifTracker : Voxelarium.ModificationTracker( cluster.sectorSize ),
+	mesher = null;
 
-        mesher : null,
+	THREE_solid = null;
+	solid_geometry = null;
+	transparent_geometry= null;
+	custom_geometry= null;
+	cachedString = null;
 
-		THREE_solid : null,
-        solid_geometry : null,
-		transparent_geometry: null,
-		custom_geometry: null,
-		cachedString : null,
 
-		enableGeometry() {
-			this.solid_geometry = Voxelarium.GeometryBuffer();
-			this.transparent_geometry = Voxelarium.GeometryBuffer();
-			//this.custom_geometry = Voxelarium.GeometryBuffer();
-		},
+	constructor() {
 
-		getOffset( x, y, z ) {
-			return cluster.lookupTables.ofTableX[x+1] + cluster.lookupTables.ofTableY[y+1] + cluster.lookupTables.ofTableZ[z+1];
+	}
 
-			var offset;
-			offset = ( y % this.cluster.sectorSizeY )
-				+ ( ( x % this.cluster.sectorSizeX ) * this.cluster.sectorSizeY )
-				+ ( ( z % this.cluster.sectorSizeZ ) * ( this.cluster.sectorSizeY * this.cluster.sectorSizeX ) );
-			return offset;
-		},
+	static create( cluster, x, y, z ) {
+		const newSector = new Sector();
+		newSector.pos.set( x, y, z );
+		newSector.cluster = cluster;
+		newSector.data.data = new Array( cluster.sectorSize )
+		newSector.data.mass = new Array( cluster.sectorSize )
+		newSector.data.sleepState = Voxelarium.PackedBoolArray( cluster.sectorSize )
 
-		setCube( x, y, z, CubeValue ) {
-			var offset = this.getOffset( x, y, z );
-			this.data.data[offset] = CubeValue;
+		newSector.ModifTracker = Voxelarium.ModificationTracker( cluster.sectorSize );
+		return newSector;
+	}
 
-			if( CubeValue && CubeValue.extension )
-				this.data.otherInfos[offset] = CubeValue.extension();
-			else
-				this.data.otherInfos[offset] = null;
-			this.Flag_Render_Dirty = true;
-		},
+	enableGeometry() {
+		this.solid_geometry = Voxelarium.GeometryBuffer();
+		this.transparent_geometry = Voxelarium.GeometryBuffer();
+		//this.custom_geometry = Voxelarium.GeometryBuffer();
+	}
 
-		getCube( x, y, z ) {
-			var offset = getOffset( x, y, z );
-			return ( newSector.data.data[Offset] );
-		},
+	getOffset( x, y, z ) {
+		const cluster = this.cluster;
+		return cluster.lookupTables.ofTableX[x+1] + cluster.lookupTables.ofTableY[y+1] + cluster.lookupTables.ofTableZ[z+1];
+		const offset = ( y % this.cluster.sectorSizeY )
+			+ ( ( x % this.cluster.sectorSizeX ) * this.cluster.sectorSizeY )
+			+ ( ( z % this.cluster.sectorSizeZ ) * ( this.cluster.sectorSizeY * this.cluster.sectorSizeX ) );
+		return offset;
+	}
 
-		MakeSector( type ) {
-			var x, y, z;
-			var Cnt;
-			if( type ) Cnt = type;
-			else if( this.Pos_y < 0 ) { Cnt = Voxelarium.Voxels.types[0]; this.Flag_Void_Regular = false; this.Flag_Void_Transparent = true; }
-			else { Cnt = null; this.Flag_Void_Regular = true; this.Flag_Void_Transparent = true; }
-			for( z = 0; z < this.cluster.sectorSizeX; z++ )
+	setCube( x, y, z, CubeValue, mass ) {
+		var offset = this.getOffset( x, y, z );
+		this.data.data[offset] = CubeValue;
+		this.data.mass[offset] = mass;
+		if( CubeValue && CubeValue.extension )
+			this.data.otherInfos[offset] = CubeValue.extension();
+		else
+			this.data.otherInfos[offset] = null;
+		this.Flag_Render_Dirty = true;
+	}
+
+	getCube( x, y, z ) {
+		var offset = getOffset( x, y, z );
+		return { mass:this.data.data[offset], type:this.data.data[offset] };
+	}
+
+	MakeSector( type ) {
+		var x, y, z;
+		var Cnt;
+		if( type ) Cnt = type;
+		else if( this.Pos_y < 0 ) { Cnt = Voxelarium.Voxels.types[0]; this.Flag_Void_Regular = false; this.Flag_Void_Transparent = true; }
+		else { Cnt = null; this.Flag_Void_Regular = true; this.Flag_Void_Transparent = true; }
+		for( z = 0; z < this.cluster.sectorSizeX; z++ )
+		{
+			for( y = 0; y < this.cluster.sectorSizeY; y++ )
 			{
-				for( y = 0; y < this.cluster.sectorSizeY; y++ )
+				for( x = 0; x < this.cluster.sectorSizeZ; x++ )
 				{
-					for( x = 0; x < this.cluster.sectorSizeZ; x++ )
-					{
-						newSector.setCube( x, y, z, Cnt );
-					}
+					this.setCube( x, y, z, Cnt );
 				}
 			}
-		},
+		}
+	}
 
-		getVoxelRef : function(x,y,z) {
-			if( x < 0 ) x += this.cluster.sectorSizeX;
-			if( y < 0 ) y += this.cluster.sectorSizeY;
-			if( z < 0 ) z += this.cluster.sectorSizeZ;
-			 return makeVoxelRef( this.cluster, this, x, y, z ); },
-
+	getVoxelRef (x,y,z) {
+		if( x < 0 ) x += this.cluster.sectorSizeX;
+		if( y < 0 ) y += this.cluster.sectorSizeY;
+		if( z < 0 ) z += this.cluster.sectorSizeZ;
+		return makeVoxelRef( this.cluster, this, x, y, z ); 
+	}
 		stringify() {
-			var v = v|| VoxelCompressor();
-			var data = v.CompressVoxelData( this.data.data );
-			var n = 0;
-			var string = "";
-			//var sv = new StringView( data.data );
-			//var testString = sv.toString();
-			//var testString2 = '\u0008\u0000\u0000\u0001\u0002\u0033\u00ef'
-			for( n = 0; n < data.bytes_used; n++ ) {
-				var val = data.data[n];
-				if( !val )
-					string += "\\0";
-				else {
-					var out = String.fromCodePoint( val );
-					if( out === "\\" )
-						string += "\\/";
-					else if( out === "/" )
-						string += "\\|";
-					else
-						string += out;
-				}
+		var v = v|| VoxelCompressor();
+		var data = v.CompressVoxelData( this.data.data );
+		var massData = this.data.mass;
+		var n = 0;
+		var string = "";
+		//var sv = new StringView( data.data );
+		//var testString = sv.toString();
+		//var testString2 = '\u0008\u0000\u0000\u0001\u0002\u0033\u00ef'
+		for( n = 0; n < data.bytes_used; n++ ) {
+			var val = data.data[n];
+			if( !val )
+				string += "\\0";
+			else {
+				var out = String.fromCodePoint( val );
+				if( out === "\\" )
+					string += "\\/";
+				else if( out === "/" )
+					string += "\\|";
+				else
+					string += out;
 			}
-
+		}
 			var array = new ArrayBuffer(string.length);
-			var escape = false;
-			var out = 0;
-			for( n = 0; n < string.length; n++ )
-				{ var val = string.codePointAt( n );
-					if( escape ) {
-						if( val === 48 )
-							val = 0;
-						escape = false;
-					}else {
-						if( val == 92 ) {
-							escape = true;
-							continue;
-						}
+		var escape = false;
+		var out = 0;
+		for( n = 0; n < string.length; n++ )
+			{ var val = string.codePointAt( n );
+				if( escape ) {
+					if( val === 48 )
+						val = 0;
+					escape = false;
+				}else {
+					if( val == 92 ) {
+						escape = true;
+						continue;
 					}
-					array[out++] = val;
-					//console.log( val )
-				 };
-				 //console.log( "Buffer was", data.data );
-				 //console.log( "which became", string );
-
+				}
+				array[out++] = val;
+				//console.log( val )
+			 };
+			 //console.log( "Buffer was", data.data );
+			 //console.log( "which became", string );
 				 /*
-				 {
-					 var test_out = [];
-					 console.log( "decoding string just encoded to see if it's valid;if failed, debugger; will trigger")
-                    var a = JSON.stringify(string);
-					 var xfer = JSON.parse( a );
-					 if( xfer !== string )
-					 	debugger;
-					 decodeString( string, test_out );
-					 if( test_out.length === data.data.length ) {
-						 for( var n = 0; n < test_out.length; n++ ) {
-							 if( test_out[n] !== data.data[n] )
-							 	debugger;
-
+			 {
+				 var test_out = [];
+				 console.log( "decoding string just encoded to see if it's valid;if failed, debugger; will trigger")
+				var a = JSON.stringify(string);
+				 var xfer = JSON.parse( a );
+				 if( xfer !== string )
+					 debugger;
+				 decodeString( string, test_out );
+				 if( test_out.length === data.data.length ) {
+					 for( var n = 0; n < test_out.length; n++ ) {
+						 if( test_out[n] !== data.data[n] )
+							 debugger;
 						 }
-					 }
 				 }
-				 */
-			 this.cachedString = string;
-			 return JSOX.stringify( {id: this.id, x:this.pos.x, y:this.pos.y, z:this.pos.z, zData:string });
-			//return string;
-		},
+			 }
+			 */
+		 this.cachedString = string;
+		 return JSOX.stringify( {id: this.id, x:this.pos.x, y:this.pos.y, z:this.pos.z, zData:string });
+		//return string;
+	}
 
-		decode( string ) {
-			console.log( "decode", string );
-			if( string === this.cachedString )
-				return; // already have this as the thing.
-			this.cachedString = string;
-			decodeString( string, this.data.data )
-			this.Flag_Render_Dirty = true;
-			this.cluster.mesher.SectorUpdateFaceCulling( this, true )
-			//basicMesher.SectorUpdateFaceCulling_Partial( cluster, sector, Voxelarium.FACEDRAW_Operations.ALL, true )
-			this.cluster.mesher.MakeSectorRenderingData( this );
+	decode( string ) {
+		console.log( "decode", string );
+		if( string === this.cachedString )
+			return; // already have this as the thing.
+		this.cachedString = string;
+		decodeString( string, this.data.data )
+		this.Flag_Render_Dirty = true;
+		this.cluster.mesher.SectorUpdateFaceCulling( this, true )
+		//basicMesher.SectorUpdateFaceCulling_Partial( cluster, sector, Voxelarium.FACEDRAW_Operations.ALL, true )
+		this.cluster.mesher.MakeSectorRenderingData( this );
+	}
+	
+	
+	
+}
 
-			}
-
-
-
-    }
+Voxelarium.Sector = Sector.create;
 
 function decodeString( string, into ){
 	var bytes = 0;
@@ -215,10 +229,8 @@ function decodeString( string, into ){
 			var v = v|| VoxelCompressor();
 			var data = v.DecompressVoxelData( buffer, into );
 
-		}
 
-
-    return newSector;
+    //return newSector;
 }
 
 
@@ -477,87 +489,81 @@ function NearVoxelRef() {
 	 return result;
 }
 
-function VoxelRef( x, y, z ) {
-}
 
 var refPool = [];
 
 Voxelarium.VoxelRef = makeVoxelRef
 
 
-function makeVoxelRef( cluster, sector, x, y, z )
-{
-	var result;
-	result = refPool.pop();
-	if( !result ) {
-		result = { sector : sector
-				, offset : 0
-				, x : x, y : y, z : z
-			 	, wx : sector?(sector.pos.x * cluster.sectorSizeX + x):x
-				, wy : sector?(sector.pos.y * cluster.sectorSizeY + y):y
-				, wz : sector?(sector.pos.z * cluster.sectorSizeZ + z):z
-				, voxelType : null
-				, cluster : cluster
-				, voxelExtension : null
-				, forEach : forEach
-				, delete : function() { refPool.push( this ); }
-				, clone : function() { return this.sector.getVoxelRef( this.x, this.y, this.z ) }
-				, getNearVoxel : GetVoxelRef
-				 }
-		Object.seal( result );
-	}
-	else {
-		result.sector = sector;
-		result.offset = 0;
-		result.x = x;
-		result.y = y;
-		result.z = z;
-		result.wx = sector?(sector.pos.x * cluster.sectorSizeX + x):x
-		result.wy = sector?(sector.pos.y * cluster.sectorSizeY + y):y
-		result.wz = sector?(sector.pos.z * cluster.sectorSizeZ + z):z
-		result.voxelType = null;
-		result.cluster = cluster;
-		result.voxelExtension = null;
-	}
-    if( sector ) {
-		// wx coords will still be accurate even if the sub-range and origin sector move now.
-		if( result.x < 0 ) { result.x += cluster.sectorSizeX; result.sector = ( result.sector && result.sector.near_sectors[Voxelarium.RelativeVoxelOrds.RIGHT] || result.sector ) }
-		if( result.y < 0 ) { result.y += cluster.sectorSizeY; result.sector = ( result.sector && result.sector.near_sectors[Voxelarium.RelativeVoxelOrds.BELOW] || result.sector ) }
-		if( result.z < 0 ) { result.z += cluster.sectorSizeZ; result.sector = ( result.sector && result.sector.near_sectors[Voxelarium.RelativeVoxelOrds.AHEAD] || result.sector ) }
-		if( result.x >= cluster.sectorSizeX ) { result.x -= cluster.sectorSizeX; result.sector = ( result.sector && result.sector.near_sectors[Voxelarium.RelativeVoxelOrds.LEFT] || result.sector ) }
-		if( result.y >= cluster.sectorSizeY ) { result.y += cluster.sectorSizeY; result.sector = ( result.sector && result.sector.near_sectors[Voxelarium.RelativeVoxelOrds.ABOVE] || result.sector ) }
-		if( result.z >= cluster.sectorSizeZ ) { result.z += cluster.sectorSizeZ; result.sector = ( result.sector && result.sector.near_sectors[Voxelarium.RelativeVoxelOrds.BEHIND] || result.sector ) }
+class VoxelRef {
+	sector = null;
+	offset = 0;
+	x = 0; y = 0; z = 0;
+	wx = 0;
+	wy = 0;
+	wz = 0;
+	voxelType = null
+	cluster = null
+	voxelExtension = null
 
-		result.offset = ( result.x * cluster.sectorSizeY )  + result.y + ( result.z * ( cluster.sectorSizeY * cluster.sectorSizeX ) );
-		  result.voxelType = sector.data.data[result.offset]
-		  if( !result.voxelType )
-		  	return null;
-		  result.voxelExtension = sector.data.otherInfos[result.offset];
-    }
-	return result;
-}
+	set(cluster,sector,x,y,z){
+		this.cluster = cluster;
+		this.sector = sector;
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.offset = ( this.x * cluster.sectorSizeY )  + this.y + ( this.z * ( cluster.sectorSizeY * cluster.sectorSizeX ) );
+		if( sector ) {
+		      this.wx = sector.pos.x * cluster.sectorSizeX + x
+		      this.wy = sector.pos.y * cluster.sectorSizeY + y
+		      this.wz = sector.pos.z * cluster.sectorSizeZ + z
+				{
+					// wx coords will still be accurate even if the sub-range and origin sector move now.
+					if( this.x < 0 ) { this.x += cluster.sectorSizeX; this.sector = ( this.sector && this.sector.near_sectors[Voxelarium.RelativeVoxelOrds.RIGHT] || this.sector ) }
+					if( this.y < 0 ) { this.y += cluster.sectorSizeY; this.sector = ( this.sector && this.sector.near_sectors[Voxelarium.RelativeVoxelOrds.BELOW] || this.sector ) }
+					if( this.z < 0 ) { this.z += cluster.sectorSizeZ; this.sector = ( this.sector && this.sector.near_sectors[Voxelarium.RelativeVoxelOrds.AHEAD] || this.sector ) }
+					if( this.x >= cluster.sectorSizeX ) { this.x -= cluster.sectorSizeX; this.sector = ( this.sector && this.sector.near_sectors[Voxelarium.RelativeVoxelOrds.LEFT] || this.sector ) }
+					if( this.y >= cluster.sectorSizeY ) { this.y += cluster.sectorSizeY; this.sector = ( this.sector && this.sector.near_sectors[Voxelarium.RelativeVoxelOrds.ABOVE] || this.sector ) }
+					if( this.z >= cluster.sectorSizeZ ) { this.z += cluster.sectorSizeZ; this.sector = ( this.sector && this.sector.near_sectors[Voxelarium.RelativeVoxelOrds.BEHIND] || this.sector ) }
+	   		
+					this.voxelType = sector.data.data[this.offset]
+					if( !this.voxelType )
+					  	return null;
+					this.voxelExtension = sector.data.otherInfos[this.offset];
+				}
 
-	function forEach( voxelRef2, not_zero, callback )
+		} else {
+			this.voxelType  = null;
+			this.voxelExtension = null
+		      this.wx = x
+		      this.wy = y
+		      this.wz = z
+		}
+		return this;
+	}
+
+	// for each voxel between 'this' and the one specified (as a line span) perform callback.
+	forEach( voxelRef2, not_zero, callback )
 	{
-		var voxelRef1 = this;
+		const voxelRef1 = this;
 		//if( voxelRef1.sector == null || voxelRef2.sector == null )
 		//	return not_zero ? 1 : 0;
 		if( voxelRef1.cluster !== voxelRef2.cluster )
 			return not_zero ? 1 : 0;
-		var cluster = voxelRef1.cluster;
+		const cluster = voxelRef1.cluster;
 
-		var v1x = voxelRef1.wx;
-		var v1y = voxelRef1.wy;
-		var v1z = voxelRef1.wz;
-		var v2x = voxelRef2.wx;
-		var v2y = voxelRef2.wy;
-		var v2z = voxelRef2.wz;
-		var del_x = v2x - v1x;
-		var del_y = v2y - v1y;
-		var del_z = v2z - v1z;
-		var abs_x = del_x < 0 ? -del_x : del_x;
-		var abs_y = del_y < 0 ? -del_y : del_y;
-		var abs_z = del_z < 0 ? -del_z : del_z;
+		const v1x = voxelRef1.wx;
+		const v1y = voxelRef1.wy;
+		const v1z = voxelRef1.wz;
+		const v2x = voxelRef2.wx;
+		const v2y = voxelRef2.wy;
+		const v2z = voxelRef2.wz;
+		const del_x = v2x - v1x;
+		const del_y = v2y - v1y;
+		const del_z = v2z - v1z;
+		const abs_x = del_x < 0 ? -del_x : del_x;
+		const abs_y = del_y < 0 ? -del_y : del_y;
+		const abs_z = del_z < 0 ? -del_z : del_z;
 		// cannot use iterate if either end is undefined.
 		if( del_x != 0 )
 		{
@@ -942,6 +948,159 @@ function makeVoxelRef( cluster, sector, x, y, z )
 		}
 		return not_zero ? 1 : 0;
 	}
+
+
+
+	delete() { refPool.push( this ); }
+	clone() { return this.sector.getVoxelRef( this.x, this.y, this.z ) }
+	getNearVoxel = GetVoxelRef
+
+	getNearVoxel( direction )
+	{
+		that = this.clone();
+		switch( direction )
+		{
+		default:
+			throw new Error( "Creating voxel ref " + direction + " is not implemented " );
+			break;
+		case Voxelarium.RelativeVoxelOrds.LEFT:
+			that.wx--;
+			if( that.x > 0 )
+			{
+				that.x--;
+				that.Offset -= that.sector.Size_y;
+			}
+			else
+			{
+				that.sector = self.sector.near_sectors[direction - 1];
+				if( that.sector != null )
+				{
+					that.x = (byte)( that.sector.Size_x - 1 );
+					that.Offset += that.sector.Size_y * ( that.sector.Size_x - 2 );
+				}
+			}
+			break;
+		case Voxelarium.RelativeVoxelOrds.RIGHT:
+			that.wx++;
+			if( that.x < (that.sector.Size_x-1 ) )
+			{
+				that.x++;
+				that.Offset += that.sector.Size_y;
+			}
+			else
+			{
+				that.sector = self.sector.near_sectors[direction - 1];
+				if( that.sector != null )
+				{
+					that.x = 0;
+					that.Offset -= that.sector.Size_y * ( that.sector.Size_x - 2 );
+				}
+			}
+			break;
+		case Voxelarium.RelativeVoxelOrds.BEHIND:
+			that.wz--;
+			if( that.z > 0 )
+			{
+				that.z--;
+				that.Offset -= that.sector.Size_y*that.sector.Size_x;
+			}
+			else
+			{
+				that.sector = self.sector.near_sectors[direction - 1];
+				if( that.sector != null )
+				{
+					that.z = (byte)( that.sector.Size_z - 1 );
+					that.Offset += ( that.sector.Size_x * that.sector.Size_y * ( that.sector.Size_z - 2 ) );
+				}
+			}
+			break;
+		case Voxelarium.RelativeVoxelOrds.AHEAD:
+			that.wz++;
+			if( that.z < ( that.sector.Size_z - 1 ) )
+			{
+				that.z++;
+				that.Offset += that.sector.Size_y*that.sector.Size_x;
+			}
+			else
+			{
+				that.sector = self.sector.near_sectors[direction - 1];
+				if( that.sector != null )
+				{
+					that.z = 0;
+					that.Offset -= ( that.sector.Size_x * that.sector.Size_y * ( that.sector.Size_z - 2 ) );
+				}
+			}
+			break;
+		case Voxelarium.RelativeVoxelOrds.BELOW:
+			that.wy--;
+			if( that.y > 0 )
+			{
+				that.y--;
+				that.Offset--;
+			}
+			else
+			{
+				that.sector = self.sector.near_sectors[direction - 1];
+				if( that.sector != null )
+				{
+					that.y = (byte)( that.sector.Size_y - 1 );
+					that.Offset += ( that.sector.Size_y - 2 );
+				}
+			}
+			break;
+		case Voxelarium.RelativeVoxelOrds.ABOVE:
+			that.wy++;
+			if( that.y < ( that.sector.Size_y - 1 ) )
+			{
+				that.y++;
+				that.Offset++;
+			}
+			else
+			{
+				that.sector = self.sector.near_sectors[direction - 1];
+				if( that.sector != null )
+				{
+					that.y = 0;
+					that.Offset -= ( that.sector.Size_y - 2 );
+				}
+			}
+			break;
+		}
+		if( that.sector != null )
+		{
+			that.Type = that.sector.data.data[that.offset];
+			that.VoxelExtension = that.sector.data.otherInfos[that.offset];
+		}
+		else
+		{
+			that.Type = null;
+			that.VoxelExtension = null;
+		}
+		return that;
+	}
+
+
+	get mass() {
+		this.sector.data.mass[this.offset];
+	}
+
+	static make( cluster, sector, x, y, z ) {
+		let result = refPool.pop();
+		if( !result ) {
+			result = new VoxelRef();
+		}
+		result.set( cluster, sector, x, y, z );
+		return result;
+	}
+
+}
+
+
+function makeVoxelRef( cluster, sector, x, y, z )
+{
+	return VoxelRef.make( cluster, sector, x, y, z );
+}
+
 
 	function GetVoxelRefsA( nearOnly )
 	{

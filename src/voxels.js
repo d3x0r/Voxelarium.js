@@ -8,9 +8,9 @@ const voxels = {
         	//this.types.push(
 			const voxelEvents = {};
 			const proto = {
-						 ID : this.types.length
-                		, name : type
-                		, properties : properties
+				 ID : this.types.length
+			    , name : type
+			    , properties : properties
 				, reaction : reaction
 			 	, createVoxelExtension : null
 				, deleteVoxelExtension : null
@@ -145,14 +145,14 @@ Voxelarium.Voxels.getIndex = function( type ) {
 	return types.findIndex( (v)=>v === type );
 }
 
-Voxelarium.Voxels.load = function( cb, req ) {
+Voxelarium.Voxels.load = function( m, cb, req ) {
 	var n = 1
 	//xhrObj = new XMLHttpRequest();
 	//var xhrObj2 = new XMLHttpRequest();
-	loadAVoxel( n, cb, req );
+	loadAVoxel( n, m, cb, req );
 }
 
-function loadAVoxel( n, cb, req ) {
+function loadAVoxel( n, m, cb, req ) {
 	let xhrObj;
 
 	xhrObj = new XMLHttpRequest();
@@ -183,7 +183,7 @@ function loadAVoxel( n, cb, req ) {
 			xhrObj.responseType = "blob";
 			xhrObj.onerror = (err)=>{
 				console.log( "error:", err);
-				loadAVoxel( n+1, cb, req );
+				loadAVoxel( n+1, m, cb, req );
 			}
 			xhrObj.send(null);
 			xhrObj.onload = ()=>{
@@ -209,11 +209,11 @@ function loadAVoxel( n, cb, req ) {
 							//console.log( "don't have to delay load?")
 							//t.textureCoords = Voxelarium.TextureAtlas.add( t.image )
 				  	  	}
-						loadAVoxel( n+1, cb, req );
+						loadAVoxel( n+1, m, cb, req );
 					};
 					reader.readAsDataURL(xhrObj.response);
 				}else 								
-					loadAVoxel( n+1, cb, req );
+					loadAVoxel( n+1, m, cb, req );
 			}
 		}
 		else {

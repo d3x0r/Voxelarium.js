@@ -98,7 +98,7 @@ class Db  {
 	}
 	connect(  info ) {
 		console.log( "can use info?", info );
-		const ws = this.websocket = makeSocket( (location.protocol==="https:"?"wss://":"ws://") + location.host + "/" + (l.playerId? '/~'+ l.playerId:'')  , "VOXDB" );
+		const ws = this.websocket = makeSocket( (location.protocol==="https:"?"wss://":"ws://") + "["+info.addr.addr[0].address +"]:" + info.addr.port  + "/" + (l.playerId? '/~'+ l.playerId:'')  , "VOXDB" );
 		l.serviceId = info.key;
 		if( ws ) {
 			ws.onmessage = this.handleMessage.bind(this);
@@ -206,7 +206,7 @@ function loadVoxels(cb, val){
 
 function initialVoxelTypeLoad(cb,required) {
     console.log( "Loading initial voxels...")
-    Voxelarium.Voxels.load( ()=>{
+    Voxelarium.Voxels.load( 254, ()=>{
         var voxelTypes = {};
         var n = 0;
         Voxelarium.Voxels.types.forEach( (type)=>{

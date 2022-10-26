@@ -1,12 +1,10 @@
 {
 	port: 8089,
-	npmPath : "../..",
+	npmPath : ".",
 	winroot : "C:\\Program Files\\nodejs\\",
 	winsuffix: ".exe",
 	tasks: [
-/*****
-   Test to make sure log is sent in order
- ****/
+
 		{ name: "Login Service",
 		  bin: "node",
 		  work: "node_modules/@d3x0r/user-database",
@@ -19,7 +17,7 @@
 		  work: ".",
 		  args: ["--experimental-loader=sack.vfs/import.mjs"
                   	//, "--inspect-brk"
-                  	//, "--inspect"
+                  	, "--inspect"
                   	, "server/server.mjs"
                        ] ,
 		  restart: false,

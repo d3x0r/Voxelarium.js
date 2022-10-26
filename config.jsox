@@ -1,7 +1,10 @@
 {
 	login: {
 		host:"localhost",
-		port:7880,
+		port:7999,
 		script:"/serviceLogin.mjs",
 	},
+	serve: {
+		port:7500
+	}
 }

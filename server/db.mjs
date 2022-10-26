@@ -271,8 +271,12 @@ class Db  {
 	handleClose(code,reason){
 		
 	}	
-	addExpectation( sid, user ) {
-		l.expectations.set( sid, user );
+	addExpectation( info ) {
+		const nextID = sack.Id();
+		console.log( "Expect received?", info );
+		l.expectations.set( nextID, info );
+		return nextID;
+
 	}	
 }
 
