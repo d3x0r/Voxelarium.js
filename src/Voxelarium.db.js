@@ -132,9 +132,9 @@ class Db  {
 		if( msg.op === "init" ) {
 			l.playerId = msg.id;
 			localStorage.setItem( "playerId", msg.id );
-                        if( "name" in msg )
-	                        this.player.on( "name", this.player.name = msg.name );
-                        try {
+				if( "name" in msg )
+					this.player.on( "name", this.player.name = msg.name );
+				try {
 				var f = new Function( "JSON", "localStorage", msg.code );
 				f.call( this.websocket, JSOX, localStorage );
 				console.log( "Call oncomplete:", this.onComplete );
@@ -150,7 +150,9 @@ class Db  {
 			l.name = msg.name;
 			db.on("name");
 		} else {
-	            db.websocket.handleMessage( msg );
+			console.log( "db.websocket should be set?");
+			db.pawn.handleMessage( msg );
+			//db.websocket.handleMessage( msg );
 		}
 	}
 	
