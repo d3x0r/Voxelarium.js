@@ -32,6 +32,9 @@ const myPort = Number(process.env.PORT) || config.serve.port ||5000;
 
 
 import {UserDbRemote} from "@d3x0r/user-database/serviceLogin"
+import * as blah from "@d3x0r/user-database/service"; // host service locally
+console.log( "BLAH:", blah );
+import {loginAccept,loginConnect,loginRequest} from "@d3x0r/user-database/service"; // host service locally
 
 process.env.LOGIN_PORT = config.login.port;
 const udb =  await import( "@d3x0r/user-database" );
@@ -61,26 +64,38 @@ let serverOpts;
 const server = openServer(  serverOpts = { //npmPath:"../"
 		//, resourcePath:".."
 		port: myPort
-		, accept, connect } );
+		 }, accept, connect );
 
-	console.log( "is there a handler yet?", udb.UserDb.socketHandleRequest);
-	server.addHandler( app.handle );
-	server.addHandler( udb.UserDb.socketHandleRequest );
+//console.log( "is there a handler yet?", udb.UserDb.socketHandleRequest);
+server.addHandler( loginRequest );
+server.addHandler( app.handle );
+server.addHandler( udb.UserDb.socketHandleRequest );
 console.log( "voxelarium serving on " + serverOpts.port );
 db.init( );
 
 function accept( ws ) {
 	const protocol = ws.headers['Sec-WebSocket-Protocol'];
 	console.log( "Connection received with : ", protocol );
+	if( loginAccept.call( this, ws ) ){
+		// handled by login services.
+		console.log( "login Accept took this." );
+		return;
+	}
 	if( protocol === "VOXDB" ) {
 		this.accept();
 	} else {
 		this.reject();
-        }
+   }
 	return;
 };
 
 function connect( ws ) {
 	//const protocol = ws.headers['Sec-WebSocket-Protocol'];
+	console.log( "route connect..." );
+	if( loginConnect.call( this, ws ) ){
+		// handled by login services.
+		console.log( "login Connect took this." );
+		return;
+	}
 	db.connect( ws );
 };

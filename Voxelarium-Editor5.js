@@ -400,7 +400,7 @@ function initVoxelarium() {
 		if (controlGame) controlGame.clusters = clusters;
 		//var sector = Voxelarium.Sector(cluster,0,-1,0);
 		var sector = cluster.createSector(0, 0, 0);
-		sector.MakeSector(Voxelarium.Voxels.types[1]);
+		sector.fillSector(Voxelarium.Voxels.types[1]);
 
 		//var s = sector.stringify();
 		//sector.decode( s );

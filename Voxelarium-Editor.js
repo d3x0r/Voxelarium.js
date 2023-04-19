@@ -5,6 +5,8 @@ window.THREE = THREE;
 import {Voxelarium,glow} from "./Voxelarium.js"
 import {consts,Vector3Pool} from "./three.js/personalFill.js"
 import {myPerspective} from './three.js/my_perspective.js'
+import {SmoothMesher} from './src/mesher.smooth.js'
+
 //var words1 = voxelUniverse.createTextCluster( "Hello World" );
 //var glow = require( './glow.renderer.js' );
 
@@ -394,6 +396,7 @@ if( (Date.now() - start) > 50 ) {
 
 function initVoxelarium() {
 	var basicMesher = Voxelarium.BasicMesher(  );
+	let smoothMesher = new SmoothMesher();
 	var voxelUniverse = Voxelarium.World();
 	var geometryShader;
 
@@ -437,7 +440,7 @@ function initVoxelarium() {
 
 			//var sector = Voxelarium.Sector(cluster,0,-1,0);
 			var sector = cluster.createSector( 0, 0, 0 );
-			sector.MakeSector(Voxelarium.Voxels.types[2]);
+			sector.fillSector(Voxelarium.Voxels.types[2]);
 
 			//var s = sector.stringify();
 			//sector.decode( s );

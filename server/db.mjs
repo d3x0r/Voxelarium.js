@@ -21,7 +21,7 @@ function loadRemote() {
     }
 }
 
-const code = loadRemote();
+export const code = loadRemote();
 
 const pawns = new Map();
 

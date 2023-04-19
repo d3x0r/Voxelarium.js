@@ -1,11 +1,17 @@
 
 import {l} from "./db.local.mjs"
+import {Inventory} from "./Inventory.mjs"
+import {code} from "./db.mjs"
 
+const nearThreshold = 250;
+const nearThreshold2 = nearThreshold*nearThreshold;
 
 l.storageSetup.then( ()=>{
 	l.storage.addEncoders( [ { tag:"pwn", p:Pawn, f:pawnEncode } ] );
 	l.storage.addDecoders( [ { tag:"pwn", p:Pawn, f:pawnDecode } ] );
 })
+
+const pawns = [];
 
 export class Pawn {
 	x=0;
@@ -23,11 +29,19 @@ export class Pawn {
 	world = null;
 	
 	constructor( ){
-		pawns.forEach( val=>{
-			
-			this.nearPawns.push( val );
-			val.nearPawns.push(this );
+		pawns.forEach( val=>{			
+			if( this.near(val )) {
+				this.nearPawns.push( val );
+				val.nearPawns.push(this );
+			}
 		} );
+	}
+
+	near(other) {
+		const x = (this.x-other.x),y = (this.y-other.y),z = (this.z-other.z);
+		if( x*x+y*y+z*z < nearThreshold )
+			return true;
+		return true; // for now everyone is near everyone else....
 	}
 	destruct() {
 		pawns.delete( this.id );
@@ -62,12 +76,11 @@ export class Pawn {
 				l.expectations.delete( msg.sid );
 
 			}
-
 			console.log( "Load this client's state?", msg );
 			if( this.id ) 
 				l.storage.get( this.id ).then( (pawn)=>{
 					//const pawn = new Pawn(ws );
-					this.send( { op:"init", code:code, name:this.name, id:this.id } );
+					this.send( { op:"init", name:this.name, id:this.id } );
 				} ).catch( initPawn );
 			else 
 		        initPawn(this);
@@ -77,7 +90,7 @@ export class Pawn {
 				l.storage.put( pawn, {id:pawn.id} ).then((id)=>{
 					//console.log( "got back same ID?", id, pawn.id );
 				} );
-				this.send( { op:"init", code:code, name:pawn.name, id:pawn.id } );
+				pawn.send( { op:"init", name:pawn.name, id:pawn.id } );
 			}
 		} else if( msg.op === "setName" ) {
 			this.setName( msg.name );

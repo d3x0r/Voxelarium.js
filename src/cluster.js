@@ -170,10 +170,10 @@ Voxelarium.Cluster = function( x, y, z, props ) {
 
     cluster.WorkingFullSector = Sector.create( cluster );
     cluster.WorkingFullSector.Pos_y = -1;
-    cluster.WorkingFullSector.MakeSector( Voxelarium.Voxels.types[1] );
+    cluster.WorkingFullSector.fillSector( Voxelarium.Voxels.types[1] );
     cluster.WorkingEmptySector= Sector.create( cluster );
     cluster.WorkingEmptySector.Pos_y = 0;
-    cluster.WorkingEmptySector.MakeSector( Voxelarium.Voxels.types[0] );
+    cluster.WorkingEmptySector.fillSector( Voxelarium.Voxels.types[0] );
 
 
     return cluster;

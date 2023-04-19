@@ -5,10 +5,12 @@ import  "./cluster.js"
 import {fonts} from "./voxel.fonts.js";
 
 const typeCache = new Map();
-
-Voxelarium.World = function() {
-    const world = {
-        clusters : [],
+Voxelarium.World = newWorld;
+function newWorld() {
+	return new World();
+}
+class World {
+        clusters = [];
 
         createCluster( mesher, voxelUnitSize ) {
             var cluster = Voxelarium.Cluster(32,32,32);
@@ -17,9 +19,9 @@ Voxelarium.World = function() {
             cluster.getGeometryBuffer = Voxelarium.Settings.use_basic_material
                 ? Voxelarium.GeometryBasicBuffer
                 : Voxelarium.GeometryBuffer;
-            world.clusters.push( cluster );
+            this.clusters.push( cluster );
             return cluster;
-        },
+        }
 
 		createTextCursor( opts ){
 			const font = opts.font || Voxelarium.Fonts.TI99;
@@ -34,14 +36,14 @@ Voxelarium.World = function() {
 				cluster.setCube( x, 1, 0, v );
 			
             return cluster;
-		},
+		}
 
         createTextCluster( text, v, mesher, font, voxelUnitSize ) {
             var cluster = Voxelarium.Cluster(text.length*8,8,1);
             cluster.mesher = mesher;
             cluster.voxelUnitSize = voxelUnitSize || 20;
             cluster.getGeometryBuffer = Voxelarium.GeometryBufferMono;
-            world.clusters.push( cluster );
+            this.clusters.push( cluster );
             //var sector = cluster.createSector( 0, 0, 0 );
             var pos = { x:0, y:0};
 
@@ -54,7 +56,7 @@ Voxelarium.World = function() {
 
 
             return cluster;
-        },
+        }
 	
         createDynamicTextCluster( text, opts ) {
 			const v = opts.type;
@@ -135,5 +137,3 @@ Voxelarium.World = function() {
 		}
 
     }
-	return world;
-}
