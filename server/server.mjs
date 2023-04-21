@@ -16,7 +16,7 @@ import {uExpress} from "sack.vfs/apps/http-ws/uexpress";
 const app = uExpress();
 
 app.get( "/config.jsox", (req,res)=>{
-console.log( "express hook?", req.url ,res);
+console.log( "(config.jsox)express hook?", req.url ,res);
 	const headers = {
 		'Content-Type': "text/javascript",
 	}
@@ -24,7 +24,8 @@ console.log( "express hook?", req.url ,res);
 
 	const resultContent = "import {JSOX} from '/node_modules/jsox/lib/jsox.mjs';export const config = JSOX.parse( '" + JSOX.stringify(config) + "')";
 	res.end( resultContent );
-
+	console.log( "Handled socket." );
+	return true;
 } ) 
 
 const myPort = Number(process.env.PORT) || config.serve.port ||5000;
