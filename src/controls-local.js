@@ -44,7 +44,8 @@ function controls( object, domElement ) {
 	this.mouseClock = new THREE.Clock();
 	this.mouseEvents = [];
 	this.setDOM = (dom)=>{
-	scope.domElement = dom;
+		scope.domElement = dom;
+		scope.domElement.addEventListener( 'click', ()=>{scope.domElement.focus()}	, false );
 		scope.domElement.addEventListener( "pointerlockchange", pointerLockChanged );
 		scope.domElement.addEventListener( "pointerlockcerror", pointerLockError );
 	 	if( scope.enabled ) scope.enable();

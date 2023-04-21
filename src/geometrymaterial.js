@@ -49,6 +49,7 @@ Voxelarium.GeometryShader = function() {
     varying float ex_decal_texture;
     varying vec4 ex_FaceColor;
     #define EPSILON 1e-6
+    varying float T;
 
     uniform float time;
     uniform vec3 velocity1;
@@ -59,7 +60,7 @@ Voxelarium.GeometryShader = function() {
 
     vec3 aberration( vec3 X, vec3 Vo, vec3 Xo ){
 
-        if( enableAberration == 0 ) {
+        if( enableAberration == 0 || Vo.x == 1.0 ) {
             return X+Xo;
         }
         vec3 Xr;// = vec3();
@@ -119,7 +120,14 @@ Voxelarium.GeometryShader = function() {
         }
         return Xr;
     }
-    
+
+    vec3 hsv2rgb(vec3 c)
+    {
+        vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+        vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+        return 1.0 * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), 1.0);
+    }
+
     varying  vec2 ex_Modulous;
 
     varying vec4 fe_normal, light_dir, eye_vec, lookat;
@@ -144,21 +152,21 @@ Voxelarium.GeometryShader = function() {
     	#include <begin_vertex>
     	#include <morphtarget_vertex>
     	#include <skinning_vertex>
+        mat3 rotmat = mat3( modelViewMatrix );
+        vec3 realVel = (rotmat *  velocity1 );
         vec3 startPos = (modelViewMatrix * vec4( position, 1.0 )).xyz;
-            
+        startPos = startPos - realVel*(dot( startPos,realVel)*(1.0-sqrt(1.0-velocity1.x*velocity1.x))) ;
+        T=0.0;
         if( enableLorentz > 0 ) {
 
             // move position to real position, camera is then at (0,0,0)
-            mat3 rotmat = mat3( modelViewMatrix );
-            vec3 realVel = (rotmat *  velocity1 );
             vec3 realVel2 = (rotmat *  velocity2 );
             vec3 delpos = startPos;
             vec3 tmp = delpos - realVel2*time;
             float A = time*time*C*C - dot(tmp,tmp);
             float B = time*C*C + dot(realVel, tmp );
             float D = C*C-dot(realVel,realVel);
-            float T;
-            if( abs(D) < 0.0000001 ) T = B/(2.0*A);
+            if( abs(D) < 0.00000001 ) T = B/(2.0*A);
             else T = (sqrt( B*B - D*A ) + B)/D;
             vec3 real_position = startPos + T*realVel;
             //vec3 real_position = startPos;
@@ -171,7 +179,6 @@ Voxelarium.GeometryShader = function() {
 
             vec3 abb_pos = aberration( startPos, -realVel2, vec3(0) );
             gl_Position = projectionMatrix * vec4( abb_pos, 1.0 );
-
         } else {
             #include <project_vertex>
         }
@@ -185,8 +192,10 @@ Voxelarium.GeometryShader = function() {
 
 {
         ex_texCoord = uv;
-        ex_Color = in_Color;
+        ex_Color.rgb = hsv2rgb(vec3(mod(-T,3.0)/3.0+1.0,1.0,1.0));
+        //in_Color;
         ex_FaceColor = in_FaceColor;
+        ex_FaceColor.rgb = hsv2rgb(vec3(mod(-T,3.0)/3.0+0.3,1.0,1.0));
 
         //normal = normalMatrix * normal;
 
@@ -206,7 +215,7 @@ Voxelarium.GeometryShader = function() {
 fragmentShader:`
     uniform vec3 diffuse;
     uniform float opacity;
-
+    varying float T;
     #ifndef FLAT_SHADED
 
     	varying vec3 vNormal;
