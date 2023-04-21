@@ -1,11 +1,13 @@
 import {Voxelarium} from "./src/Voxelarium.core.js"
-import {JSOX} from "/node_modules/jsox/lib/jsox.mjs"
-import {config} from "/config.jsox";
+//import {JSOX} from "/node_modules/jsox/lib/jsox.mjs"
+//import {config} from "/config.jsox";
 
-const loginPort = config.login.port;
+const loginPort = 0;//config.login.port;
 
 //const login = await import("http://localhost:"+loginPort+"/login/webSocketClient.js" );
-import {Popup,popups} from "/node_modules/@d3x0r/popups/popups.mjs"
+//import {Popup,popups} from "/node_modules/@d3x0r/popups/popups.mjs"
+if( "undefined" !== typeof login && login ) {
+
 
 const style = document.createElement( "link" );
 style.rel = "stylesheet";
@@ -13,7 +15,7 @@ style.rel = "stylesheet";
 style.href = "/node_modules/@d3x0r/popups/dark-styles.css";
 document.head.insertBefore( style, document.head.childNodes[0] || null );
 
-if( "undefined" !== typeof login && login ) {
+
 let loggedIn = false;
 const loginForm = popups.makeLoginForm( async (loginType)=>{
 	// type === 1 if created
