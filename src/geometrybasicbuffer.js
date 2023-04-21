@@ -185,7 +185,8 @@ Voxelarium.GeometryBasicBuffer = function () {
          this.addPoint( quad[3], uvs, 6, white, white, norm, pow, 255, false, false, [max,max] );
          this.addPoint( quad[2], uvs, 4, white, white, norm, pow, 255, false, false, [min,max] );
      }
-
+     buffer.updateVoxCube = function( voxelType ) {
+     }
      buffer.makeVoxCube = function( size, voxelType ) {
         var v1 = new THREE.Vector3(1,1,1);
         var v2 = new THREE.Vector3(-1,1,1);
