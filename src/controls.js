@@ -183,7 +183,7 @@ function onTouchCancel(event) {
 
 		}
 	function onKeyUp( event ) {
-		if( event.target !== domElement ){
+		if( event.target !== scope.domElement ){
 			return
 		}
 		if( event.keyCode === 9 ) {
@@ -210,7 +210,7 @@ function onTouchCancel(event) {
 	}
 
 	function onKeyDown( event ) {
-		if( event.target !== domElement ){
+		if( event.target !== scope.domElement ){
 			return
 		}
 

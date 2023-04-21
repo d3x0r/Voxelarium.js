@@ -12,6 +12,8 @@ Voxelarium.GeometryBufferMono = function () {
              in_FaceColor : new THREE.Vector4(0,1,0,1),
              in_Pow : 20.0 ,
              edge_only : true,
+    		velocity1 : new THREE.Vector3(),
+            velocity2 : new THREE.Vector3()
      	};
     // create a simple square shape. We duplicate the top left and bottom right
     // vertices because each vertex needs to appear once per triangle.

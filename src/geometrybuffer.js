@@ -17,6 +17,8 @@ Voxelarium.GeometryBuffer = function () {
 
      buffer.geometry.uniforms = {
              edge_only : false,
+             velocity1 : new THREE.Vector3(0.5,0,0),
+             velocity2 : new THREE.Vector3(0.5,0,0),
      	};
 
     // create a simple square shape. We duplicate the top left and bottom right

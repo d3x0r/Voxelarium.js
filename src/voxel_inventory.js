@@ -150,7 +150,7 @@ Voxelarium.Inventory = function( geometryShader,domElement ) {
 		function setGeometry() {
 			const item = InventoryItem( voxel );
                         // a new texture , might have changes prior UVs
-                        inventory.items.forEach( i=>i.geometry.updateVoxCube( i.voxelType ) )
+                        inventory.items.forEach( i=>i.geometry && i.geometry.updateVoxCube( i.voxelType ) )
 
 			inventory.items.push( item );
 			inventory.THREE_solid.add( item.THREE_solid = new THREE.Mesh( item.geometry.geometry, geometryShader ) );
