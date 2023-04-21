@@ -9,6 +9,11 @@ Voxelarium.GeometryShaderMono = function() {
         in_FaceColor : { value : new THREE.Vector3() },
         in_Pow : { value : 0.0 },
         edge_only : { value : 0 },
+        enableAberration : { value : 0 },
+        enableLorentz : { value : 0 },
+		velocity1 : { value: new THREE.Vector3(0,0,0) },
+        velocity2 : { value: new THREE.Vector3(0,0,0) }
+
 	},
     transparent : true,
      blending: THREE.NormalBlending,
@@ -36,12 +41,116 @@ Voxelarium.GeometryShaderMono = function() {
     			varying vec4 ex_FaceColor;
 
     			varying  vec2 ex_Modulous;
+
+				uniform float time;
+				uniform vec3 velocity1;
+				uniform vec3 velocity2;
+				uniform int enableAberration;
+				uniform int enableLorentz;
+				const float C=1.0;
+			
+				vec3 aberration( vec3 X, vec3 Vo, vec3 Xo ){
+			
+					if( enableAberration == 0 ) {
+						return X+Xo;
+					}
+					vec3 Xr;// = vec3();
+					float delx = X.x-Xo.x;
+					float dely = X.y-Xo.y;
+					float delz = X.z-Xo.z;
+					float len2 = delx*delx+dely*dely+delz*delz;
+					float Vlen2 = Vo.x*Vo.x+Vo.y*Vo.y+Vo.z*Vo.z;
+					float Vdot = delx * Vo.x + dely * Vo.y + delz * Vo.z;
+					vec3 Vcrs = vec3(  delz*Vo.y-dely*Vo.z, delx*Vo.z-delz*Vo.x, dely*Vo.x-delx*Vo.y );
+					if( len2 < 0.0000001 || Vlen2 < 0.000001) {
+						// not far enough away to change...
+						Xr =  Xo+X;
+					} else {
+						float len = sqrt(len2);
+						float Vlen = sqrt(Vlen2);
+						float norm = Vlen*len;
+						 //const vAng = acos( Vo.x/Vlen ) * (Vo.y<0?1:-1);
+						 //console.log( "velocity angle:", vAng, "from", Vlen );
+						float CosVDot = Vdot/(norm);
+						float baseAng = acos( CosVDot );
+						float delAng = acos( ( CosVDot + Vlen/C ) 
+								/ ( 1.0 + Vlen/C * CosVDot ) )-baseAng;
+				
+						if( abs(delAng) < 0.00000001 ) {
+							Xr=Xo+X;
+							return Xr;
+						}
+						float c = cos(delAng);
+						float s = sin(delAng);
+						float n = sqrt( Vcrs.x*Vcrs.x+Vcrs.y*Vcrs.y+Vcrs.z*Vcrs.z);
+						if( n < 0.000000001 )
+						{
+							Xr=Xo+X;
+							return Xr;
+						}
+						float qx = Vcrs.x/n;
+						float qy = Vcrs.y/n;
+						float qz = Vcrs.z/n;
+				
+						float vx = delx , vy = dely , vz = delz;
+				
+						float dot =  (1.0-c)*((qx * vx ) + (qy*vy)+(qz*vz));
+						Xr.x = Xo.x + vx*c + s*(qy * vz - qz * vy) + qx * dot;
+						Xr.y = Xo.y + vy*c + s*(qz * vx - qx * vz) + qy * dot;
+						Xr.z = Xo.z + vz*c + s*(qx * vy - qy * vx) + qz * dot;
+						
+				/*
+						const lnQ = new lnQuat( delAng, Vcrs ); // normalizes vector
+						const delVec = {x:delx, y:dely, z:delz };
+						const newDel = lnQ.apply( delVec )
+				
+						Xr.x = Xo.x + newDel.x;
+						Xr.y = Xo.y + newDel.y;
+						Xr.z = Xo.z + newDel.z;
+				*/
+					}
+					return Xr;
+				}
+			
+
     			void main(void) {
     				vec3 normal;
     				float dottmp;
                     float dottmpright;
-    			    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
 
+
+					vec3 startPos = (modelViewMatrix * vec4( position, 1.0 )).xyz;
+            
+					if( enableLorentz > 0 ) {
+			
+						// move position to real position, camera is then at (0,0,0)
+						mat3 rotmat = mat3( modelViewMatrix );
+						vec3 realVel = (rotmat *  velocity1 );
+						vec3 realVel2 = (rotmat *  velocity2 );
+						vec3 delpos = startPos;
+						vec3 tmp = delpos - realVel2*time;
+						float A = time*time*C*C - dot(tmp,tmp);
+						float B = time*C*C + dot(realVel, tmp );
+						float D = C*C-dot(realVel,realVel);
+						float T;
+						if( abs(D) < 0.0000001 ) T = B/(2.0*A);
+						else T = (sqrt( B*B - D*A ) + B)/D;
+						vec3 real_position = startPos + T*realVel;
+						//vec3 real_position = startPos;
+						//gl_Position = projectionMatrix * vec4( real_position, 1.0 );
+						vec3 abb_pos = aberration( real_position, -realVel2, vec3(0) );
+						gl_Position = projectionMatrix * vec4( abb_pos, 1.0 );
+					} else if( enableAberration > 0 ) {
+						mat3 rotmat = mat3( modelViewMatrix );
+						vec3 realVel2 = (rotmat *  velocity2 );
+			
+						vec3 abb_pos = aberration( startPos, -realVel2, vec3(0) );
+						gl_Position = projectionMatrix * vec4( abb_pos, 1.0 );
+			
+					} else {
+						gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+					}
+			
     				ex_texCoord = in_Texture/32768.0;
     				ex_Color = in_Color;
     				ex_FaceColor = in_FaceColor;
