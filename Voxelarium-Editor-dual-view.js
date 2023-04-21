@@ -319,12 +319,12 @@ function render() {
 		u.enableAberration.value = chkAberration.checked;
 		u.enableLorentz.value = chkLorentz.checked;
 		if( chkLock.checked ) {
-			u.velocity1. value.x = Number(sldSpeed1.value)/100;
-			u.velocity2. value.x = Number(sldSpeed1.value)/100;
+			u.velocity1. value.x = Number(sldSpeed1.value)/100-0.0001;
+			u.velocity2. value.x = Number(sldSpeed1.value)/100-0.0001;
 			sldSpeed2.value = sldSpeed1.value;
 		}else {
-			u.velocity1. value.x = Number(sldSpeed1.value)/100;
-			u.velocity2. value.x = Number(sldSpeed2.value)/100;
+			u.velocity1. value.x = Number(sldSpeed1.value)/100-0.0001;
+			u.velocity2. value.x = Number(sldSpeed2.value)/100-0.0001;
 		
 		}
 		Voxelarium.geometryShader.uniformsNeedUpdate = true;
