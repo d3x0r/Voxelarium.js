@@ -296,7 +296,7 @@ glow.render = function glowRender() {
 	//const camera = Voxelarium.camera;
 	[Voxelarium.camera, Voxelarium.camera2].forEach( (camera,id)=>{
 		const renderer = glow.renderer;
-		const square_size = 900;
+		const square_size = window.innerWidth/2;
 		if( id ) {
 			renderer.setViewport( 0, 0, square_size, square_size );
 			renderer.setScissor( 0, 0, square_size, square_size );

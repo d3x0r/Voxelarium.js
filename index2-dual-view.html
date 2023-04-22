@@ -1,16 +1,32 @@
 <html>
-<head></head>
+<head>
+<title>Voxel world with (Correct)Relativistic Math applied</title>
+<style>
+.controls { 
+position:absolute;
+text-shadow: 4px 4px  black;
+color:white;
+font-weight:600;
+font-size:3vh;;
+}
+</style>
+
+</head>
 <body>
 
 TAB key changes mouse mode... 
 
 <a href="index.html">Front Page</a>
+<div class="controls" >
 <INPUT ID="playerNameEntry"></INPUT>
 <label><input ID="chkAberration" type="checkbox" checked=true> Aberration</label>
 <label><input ID="chkLorentz" type="checkbox" checked=true> Lorentz</label>
+<label><input ID="chkContract" type="checkbox" checked="true"> Length Contraction</label>
+<br>
 <label><input ID="chkLock" type="checkbox" checked="true"> Lock Velocity</label>
 <label><input ID="sldSpeed1" type="range" min=0 max=100 value=0> Velocity 1</label>
 <label><input ID="sldSpeed2" type="range" min=0 max=100 value=0> Velocity 2</label>
+</div>
 </body>
 
 <SCRIPT>

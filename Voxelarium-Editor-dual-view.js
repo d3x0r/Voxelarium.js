@@ -152,7 +152,7 @@ var status_line;
 		if( !Voxelarium.Settings.VR ) {
 
 			Voxelarium.renderer = renderer = new THREE.WebGLRenderer();
-			renderer.domElement.setAttribute( "tabindex", 0 )
+			renderer.domElement.setAttribute( "tabindex", 1 )
 			renderer.autoClear = false;
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			window.addEventListener( "resize", ()=>{

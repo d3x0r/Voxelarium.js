@@ -12,6 +12,8 @@ Voxelarium.GeometryShader = function() {
         map : { type : "t", value : null },
         enableAberration : { value : 0 },
         enableLorentz : { value : 0 },
+        enableContract : { value : 0 },
+
         velocity1 : { value: new THREE.Vector3(0,0,0) },
         velocity2 : { value: new THREE.Vector3(0,0,0) }		
 	},
@@ -56,6 +58,7 @@ Voxelarium.GeometryShader = function() {
     uniform vec3 velocity2;
     uniform int enableAberration;
     uniform int enableLorentz;
+    uniform int enableContract;
     const float C=1.0;
 
     vec3 aberration( vec3 X, vec3 Vo, vec3 Xo ){
@@ -155,7 +158,9 @@ Voxelarium.GeometryShader = function() {
         mat3 rotmat = mat3( modelViewMatrix );
         vec3 realVel = (rotmat *  velocity1 );
         vec3 startPos = (modelViewMatrix * vec4( position, 1.0 )).xyz;
-        startPos = startPos - realVel*(dot( startPos,realVel)*(1.0-sqrt(1.0-velocity1.x/(2.0-velocity1.x)))) ;
+		float g1= (1.0-sqrt(1.0-velocity1.x/(2.0-velocity1.x)));
+		//float g1= g0*g0;
+        startPos = startPos - realVel*(dot( startPos,realVel)*g1) ;
         T=0.0;
         if( enableLorentz > 0 ) {
 
