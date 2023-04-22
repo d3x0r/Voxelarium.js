@@ -73,9 +73,9 @@ function controls( object, domElement ) {
 	this.setMouseRay = function( camera, e ) {
 			//#define BEGIN_SCALE 1
 			var rect = scope.domElement.getBoundingClientRect();
-			const w = rect.right-rect.left;//window.innerWidth;
+			const w = (rect.right-rect.left);//window.innerWidth;
 			const h = rect.bottom-rect.top;//window.innerHeight;
-			var x = (((e.clientX-rect.left)-(w/2.0))/w) * 2;
+			var x = ((((e.clientX-w/2)-rect.left)-(w/4.0))/w) * 3;
 			var y = (((e.clientY-rect.top)-(h/2.0))/h) * 2;
 			//console.log( `mouse at ${x}, ${y}` )
 

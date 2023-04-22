@@ -156,7 +156,7 @@ var status_line;
 			renderer.autoClear = false;
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			window.addEventListener( "resize", ()=>{
-				//myPerspective( Voxelarium.camera.projectionMatrix, 90, window.innerWidth / window.innerHeight, 0.01, 10000 );
+				myPerspective( Voxelarium.camera.projectionMatrix, 90, window.innerWidth / window.innerHeight, 0.01, 10000 );
 				renderer.setSize( window.innerWidth, window.innerHeight ) 
 			} );
 			document.body.appendChild( renderer.domElement );

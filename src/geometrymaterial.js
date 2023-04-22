@@ -155,7 +155,7 @@ Voxelarium.GeometryShader = function() {
         mat3 rotmat = mat3( modelViewMatrix );
         vec3 realVel = (rotmat *  velocity1 );
         vec3 startPos = (modelViewMatrix * vec4( position, 1.0 )).xyz;
-        startPos = startPos - realVel*(dot( startPos,realVel)*(1.0-sqrt(1.0-velocity1.x*velocity1.x))) ;
+        startPos = startPos - realVel*(dot( startPos,realVel)*(1.0-sqrt(1.0-velocity1.x/(2.0-velocity1.x)))) ;
         T=0.0;
         if( enableLorentz > 0 ) {
 

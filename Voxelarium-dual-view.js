@@ -159,9 +159,9 @@ import( "./three.js/three.js.post/EffectComposer.js").then( ()=>{
 
 
 Voxelarium.camera2 = new THREE.OrthographicCamera( -2, 2, 2, -2, -500, 500 );//90, window.innerWidth / window.innerHeight, 0.001, 10000 );
-Voxelarium.camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 0.001, 10000 );
+Voxelarium.camera = new THREE.PerspectiveCamera( 90, window.innerWidth/2 / window.innerHeight, 0.001, 10000 );
 // recomputes using a slightly different procedure than ThreeJS.
-//myPerspective( Voxelarium.camera.projectionMatrix, 90, window.innerWidth / window.innerHeight, 0.01, 10000 );
+myPerspective( Voxelarium.camera.projectionMatrix, 90, window.innerWidth/2 / window.innerHeight, 0.01, 10000 );
 
   import {controls as oControls } from "./three.js/orbit_controls.js"
   Voxelarium.controls.orbit = new oControls(Voxelarium.camera);
