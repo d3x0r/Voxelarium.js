@@ -318,6 +318,7 @@ function render() {
 	if( u  ){
 		u.enableAberration.value = chkAberration.checked;
 		u.enableLorentz.value = chkLorentz.checked;
+		u.enableContract.value = chkContract.checked;
 		if( chkLock.checked ) {
 			u.velocity1. value.x = Number(sldSpeed1.value)/100-0.0001;
 			u.velocity2. value.x = Number(sldSpeed1.value)/100-0.0001;

@@ -160,6 +160,7 @@ Voxelarium.GeometryShader = function() {
         vec3 startPos = (modelViewMatrix * vec4( position, 1.0 )).xyz;
 		float g1= (1.0-sqrt(1.0-velocity1.x/(2.0-velocity1.x)));
 		//float g1= g0*g0;
+		if( enableContract > 0 )
         startPos = startPos - realVel*(dot( startPos,realVel)*g1) ;
         T=0.0;
         if( enableLorentz > 0 ) {
