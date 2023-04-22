@@ -128,7 +128,7 @@ Voxelarium.GeometryShader = function() {
     {
         vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
         vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
-        return 1.0 * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), 1.0);
+        return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
     }
 
     varying  vec2 ex_Modulous;
@@ -203,10 +203,11 @@ Voxelarium.GeometryShader = function() {
 
 {
         ex_texCoord = uv;
-        ex_Color.rgb = hsv2rgb(vec3(mod(-T,3.0)/3.0+1.0,1.0,1.0));
+        ex_Color.rgb = hsv2rgb(vec3(mod(-T,3.0)/3.0+0.3,1.0,1.0));
+			ex_Color.a = 1.0;
         //in_Color;
         ex_FaceColor = in_FaceColor;
-        ex_FaceColor.rgb = hsv2rgb(vec3(mod(-T,3.0)/3.0+0.3,1.0,1.0));
+        ex_FaceColor.rgb = hsv2rgb(vec3(mod(-T,3.0)/3.0+0.3,1.0,0.2));
 
         //normal = normalMatrix * normal;
 
