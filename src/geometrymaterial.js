@@ -158,10 +158,11 @@ Voxelarium.GeometryShader = function() {
         mat3 rotmat = mat3( modelViewMatrix );
         vec3 realVel = (rotmat *  velocity1 );
         vec3 startPos = (modelViewMatrix * vec4( position, 1.0 )).xyz;
-		//float g1= (1.0-sqrt(1.0-velocity1.x/(2.0-velocity1.x))); // goodish
-		float g1= 1.0-sqrt(1.0-velocity1.x*velocity1.x);  // also goodish
+		float g1= (1.0-sqrt(1.0-velocity1.x/(2.0-velocity1.x))); // goodish (best)
+		//float g1= 1.0-sqrt(1.0-velocity1.x*velocity1.x);  // also goodish
+		//float g1= sqrt( 1.0-(velocity1.x-1.0)*(velocity1.x-1.0) ); // bad (contracts too much. (forward circle)
 		//float g1= sqrt(1.0-sqrt(1.0-velocity1.x*velocity1.x)); // 
-		//float g1= velocity1.x*velocity1.x; // bad (contracts too much at high V)
+		//float g1= velocity1.x; // bad (contracts too much at high V)
 		//float g1= (1.0-(1.0-velocity1.x/(2.0-velocity1.x))); //bad(contracts too much at high V)
 		//float g1= g0*g0;
 		if( enableContract > 0 )
