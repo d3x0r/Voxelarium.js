@@ -2,6 +2,7 @@
 const Voxelarium = {
 
 	renderer: null,
+	login:null,
 	
 
 };
