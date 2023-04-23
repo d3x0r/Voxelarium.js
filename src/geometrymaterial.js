@@ -17,6 +17,7 @@ Voxelarium.GeometryShader = function() {
         velocity1 : { value: new THREE.Vector3(0,0,0) },
         velocity2 : { value: new THREE.Vector3(0,0,0) }		
 	},
+	side: THREE.DoubleSide,
     transparent : true,
      blending: THREE.NormalBlending,
 	vertexShader: `
@@ -156,7 +157,7 @@ Voxelarium.GeometryShader = function() {
     	#include <morphtarget_vertex>
     	#include <skinning_vertex>
         mat3 rotmat = mat3( modelViewMatrix );
-        vec3 realVel = (rotmat *  velocity1 );
+        vec3 realVel = (rotmat * (velocity2+ velocity1)/2.0 );
         vec3 startPos = (modelViewMatrix * vec4( position, 1.0 )).xyz;
 		float g1= (1.0-sqrt(1.0-velocity1.x/(2.0-velocity1.x))); // goodish (best)
 		//float g1= 1.0-sqrt(1.0-velocity1.x*velocity1.x);  // also goodish
@@ -207,7 +208,8 @@ Voxelarium.GeometryShader = function() {
 			ex_Color.a = 1.0;
         //in_Color;
         ex_FaceColor = in_FaceColor;
-        ex_FaceColor.rgb = hsv2rgb(vec3(mod(-T,3.0)/3.0+0.3,1.0,0.2));
+        ex_FaceColor.rgb = hsv2rgb(vec3(mod(-T,3.0)/3.0+0.3,1.0,0.8));
+			ex_FaceColor.a = 0.3;
 
         //normal = normalMatrix * normal;
 
