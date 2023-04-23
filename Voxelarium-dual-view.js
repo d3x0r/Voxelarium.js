@@ -188,7 +188,7 @@ import( "./src/world.js")
 
 import( "./src/geometrybasicbuffer.js")
 import( "./src/geometrybuffer.js")
-import( "./src/geometrymaterial.js")
+import( "./src/geometrymaterial-lt.js")
 import( "./src/geometrybuffer.mono.js")
 import( "./src/geometrymaterial.mono.js")
 import( "./src/textureAtlas.canvas.js")
