@@ -1,4 +1,4 @@
-"use strict";
+﻿"use strict";
 
 import * as THREE  from "./three.js/build/three.module.js"
 window.THREE = THREE;
@@ -9,7 +9,7 @@ import {SmoothMesher} from './src/mesher.smooth.js'
 
 //var words1 = voxelUniverse.createTextCluster( "Hello World" );
 //var glow = require( './glow.renderer.js' );
-
+let supportsExtension;
 var controls;
 var sceneRoot;
 	var scene;
@@ -173,8 +173,9 @@ var status_line;
 
 			if ( !renderer.extensions.get('WEBGL_depth_texture') ) {
 					          supportsExtension = false;
-					          document.querySelector('#error').style.display = 'block';
-					         return;
+					const c = document.querySelector('#error');
+					if(c) c.style.display = 'block';
+					       //  return;
 			}
 
   			if( !Voxelarium.Settings.use_basic_material ){
@@ -319,14 +320,29 @@ function render() {
 		u.enableAberration.value = chkAberration.checked;
 		u.enableLorentz.value = chkLorentz.checked;
 		u.enableContract.value = chkContract.checked;
+		const ang1 = Number(sldDir1.value)/100 * 2*Math.PI
+		const ang2 = Number(sldDir2.value)/100 * 2*Math.PI
+		spanDir1.textContent = (ang1/(Math.PI)).toFixed(2) + "π";
+		spanDir2.textContent = (ang2/(Math.PI)).toFixed(2) + "π";
+		const c = Math.cos( ang1 );
+		const s = Math.sin( ang1 );
+			const c2 = Math.cos( ang2 );
+			const s2 = Math.sin( ang2 );
 		if( chkLock.checked ) {
-			u.velocity1. value.x = Number(sldSpeed1.value)/100-0.0001;
-			u.velocity2. value.x = Number(sldSpeed1.value)/100-0.0001;
+			const speed = Number(sldSpeed1.value)/100-0.0001;
+
+			u.velocity1. value.x = speed * c;
+			u.velocity1. value.z = speed * s;
+			u.velocity2. value.x = speed * c2;
+			u.velocity2. value.z = speed * s2;
 			sldSpeed2.value = sldSpeed1.value;
 		}else {
-			u.velocity1. value.x = Number(sldSpeed1.value)/100-0.0001;
-			u.velocity2. value.x = Number(sldSpeed2.value)/100-0.0001;
-		
+			const speed = Number(sldSpeed1.value)/100-0.0001;
+			const speed2 = Number(sldSpeed2.value)/100-0.0001;
+			u.velocity1. value.x = speed * c;
+			u.velocity1. value.z = speed * s;
+			u.velocity2. value.x = speed2 * c2;
+			u.velocity2. value.z = speed2 * s2;
 		}
 		Voxelarium.geometryShader.uniformsNeedUpdate = true;
 	}

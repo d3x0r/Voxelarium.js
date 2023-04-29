@@ -150,6 +150,12 @@ Voxelarium.GeometryShader = function() {
         mat3 rotmat = mat3( modelViewMatrix );
         vec3 realVel = (rotmat * (velocity2+ velocity1)/2.0 );
         vec3 startPos = (modelViewMatrix * vec4( position, 1.0 )).xyz;
+/*
+			float vel = length(velocity1);
+			float g0 =  vel * ( sqrt( vel + sqrt(2.0)*(C*C-vel*vel) ) + vel )/(C*C-vel*vel)+1.0;
+			float g0_ = g0 / sqrt( 1.0+g0*g0);
+			float g1 = (C*g0_+vel)/(C+vel*g0_);
+*/
 		float g1= (1.0-sqrt(1.0-velocity1.x/(2.0-velocity1.x))); // goodish (best)
 		//float g1= 1.0-sqrt(1.0-velocity1.x*velocity1.x);  // also goodish
 		//float g1= sqrt( 1.0-(velocity1.x-1.0)*(velocity1.x-1.0) ); // bad (contracts too much. (forward circle)
