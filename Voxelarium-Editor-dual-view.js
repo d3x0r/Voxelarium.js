@@ -512,6 +512,7 @@ function initVoxelarium() {
 
 			var cluster = voxelUniverse.createCluster( basicMesher, 0.1 );
 			cluster.THREE_solid = new THREE.Object3D();
+			cluster.THREE_solid.frustumCulled = false;
 			if( Voxelarium.Settings.AltSpace )
 				cluster.THREE_solid.userData.altspace = { collider: { enabled: false } };
 			scene2.add( cluster.THREE_solid );
@@ -542,7 +543,7 @@ function initVoxelarium() {
 			Voxelarium.db.world.loadSector( sector ); // hook into database event read.
 
 			cluster.THREE_solid.add( sector.THREE_solid = new THREE.Mesh( sector.solid_geometry.geometry, geometryShader ) );
-
+			sector.THREE_solid.frustumCulled = false;
 			scene2.add( Voxelarium.selector.meshGlow );
 			scene3.add( Voxelarium.selector.mesh );
 			scene3.add( Voxelarium.inventory.THREE_solid );
