@@ -1,0 +1,47 @@
+<html>
+<head>
+<title>Voxel world with (Correct)Relativistic Math applied</title>
+<style>
+.controls { 
+position:absolute;
+text-shadow: 4px 4px  black;
+color:white;
+font-weight:600;
+font-size:3vh;;
+}
+</style>
+
+</head>
+<body>
+
+TAB key changes mouse mode... (click on scene, mouse select right click deletes the red selected block and left click 
+adds in the green selected block.  The type of block added is selected with 'i' key for (inventory)... (the mouse tracking isn't very good
+with the split view).  Tab will grab the mouse, and allow look-around  WSAD move forward,backward,left,right C moves down, space moves up.  Escape
+will release the mouse, but clicking will re-lock the mouse.  Tab will release the mouse also)
+
+<a href="https://github.com/d3x0r/STFRPhysics/blob/master/LightSpeedSim.md#3d-voxel-world-with-perspective-camera">More Info</a>
+<div class="controls" >
+<INPUT ID="playerNameEntry"></INPUT>
+<label><input ID="chkAberration" type="checkbox" checked=true> Aberration</label>
+<label><input ID="chkLorentz" type="checkbox" checked=true> Lorentz</label>
+<label><input ID="chkContract" type="checkbox" checked="true"> Length Contraction</label>
+<br>
+<label><input ID="chkLock" type="checkbox" checked="true"> Lock Velocity</label>
+<label><input ID="sldSpeed1" type="range" min=0 max=100 value=0> Velocity 1</label>
+<label><input ID="sldSpeed2" type="range" min=0 max=100 value=0> Velocity 2</label><br>
+<label> Direction 1<input ID="sldDir1" type="range" min=0 max=100 value=0><span ID="spanDir1"></span></label>
+<label> Direction 2<input ID="sldDir2" type="range" min=0 max=100 value=0><span ID="spanDir2"></span></label>
+</div>
+</body>
+
+<SCRIPT>
+function updateVoxelariumSettings() {
+        Voxelarium.Settings.AltSpace = false;
+	Voxelarium.Settings.VR = true;
+	Voxelarium.Settings.use_basic_material = true;
+}
+</SCRIPT>
+
+<script type="module" src="Voxelarium-Editor-dual-view-vr.js"></script>
+
+</html>
