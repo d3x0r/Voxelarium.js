@@ -16,10 +16,11 @@
   "link": "npm link sack.vfs jsox @d3x0r/popups @d3x0r/user-database @d3x0r/srg2 @d3x0r/socket-service @d3x0r/bloomnhash @d3x0r/slab-array"
  },
  "dependencies": {
-  "sack.vfs": "latest",
+  "sack.vfs": "https://github.com/d3x0r/sack.vfs",
   "jsox": "latest",
+  "three.js": "latest",
   "@d3x0r/popups": "latest",
-  "@d3x0r/user-database": "latest"
+  "@d3x0r/user-database": "https://github.com/d3x0r/user-database"
  },
  "devDependencies": {
   "rollup": "^0.34.13",

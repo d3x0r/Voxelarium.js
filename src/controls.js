@@ -274,7 +274,7 @@ function onTouchCancel(event) {
 	this.disable = function() {
 	this.enabled = false;
 	if( scope.domElement ){
-		scope.domElement.removeEventListener( 'click', ()=>{scope.domElement.focus()}), false );
+		scope.domElement.removeEventListener( 'click', ()=>{scope.domElement.focus()}, false );
 /*
 		scope.domElement.removeEventListener( 'contextmenu', ignore, false );
 		scope.domElement.removeEventListener( 'touchstart', onTouchDown, false );

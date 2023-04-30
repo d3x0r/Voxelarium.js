@@ -101,23 +101,23 @@ import {db} from "./src/Voxelarium-local.db.js"
 
 Voxelarium.Stats = function(){};  //(!Voxelarium.Settings.VR)?import( './three.js/js/stats.min.js' ):
 
-/*
+
 if( Voxelarium.Settings.VR ) {
   import( './three.js/AltSpace_WebVR_fill.js');
 
   if( Voxelarium.Settings.AltSpace )
-  import( './three.js/js/controls/AltSpaceControls.js' );
+	  import( './three.js/js/controls/AltSpaceControls.js' );
   else
-  import( './three.js/js/controls/VRControls.js' );
-  import( './three.js/js/effects/VREffect.js' );
+  	;//import( './three.js/js/controls/VRControls.js' );
+  //import( './three.js/js/effects/VREffect.js' );
 
-  import( './three.js/js/vr/ViveController.js' );
+  //import( './three.js/js/vr/ViveController.js' );
   //import( './three.js/js/vr/PaintViveController.js' );
   import( './src/VoxelariumViveController.js' );
-  import( './three.js/js/vr/WebVR.js' );
-  import( './three.js/js/loaders/OBJLoader.js' );
+  //import( './three.js/js/vr/WebVR.js' );
+  import( './three.js/jsM/loaders/OBJLoader.js' );
 }
-*/
+
 
 Voxelarium.clock = new THREE.Clock()
 
@@ -142,7 +142,7 @@ Voxelarium.controls = { orbit:null
 import {myPerspective} from './three.js/my_perspective.js'
 import {glow} from "./three.js/glow-dual.renderer.js";
 
-import( "./three.js/js/renderers/Projector.js" )
+import( "./three.js/jsm/renderers/Projector.js" )
 import( "./three.js/three.js.post/shaders/CopyShader.js")
 import( "./three.js/three.js.post/shaders/HorizontalBlurShader.js")
 import( "./three.js/three.js.post/shaders/VerticalBlurShader.js")
@@ -207,7 +207,6 @@ function tick() {
 	if( Voxelarium.World && Voxelarium.Inventory  && Voxelarium.db && Voxelarium.Voxels && Voxelarium.Sector)
         {
             Voxelarium.TextureAtlas.init( 32, 64 );
-
             if( readies.length ) readies[0]();
         } else setTimeout( tick, 100 );
 }tick();

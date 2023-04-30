@@ -100,7 +100,7 @@ function controls( object, domElement ) {
 	this.update = function() {
 		if( !scope.clusters )
 			return;
-	if( !Voxelarium.inventory.enabled ){
+	if( Voxelarium.inventory && !Voxelarium.inventory.enabled ){
 
 				switch( scope.mode )
 				{
@@ -184,7 +184,7 @@ function controls( object, domElement ) {
 	}
 
 function mouseEvent( x, y, b, down ) {
-	if( !Voxelarium.inventory.enabled ){
+	if( Voxelarium.inventory && !Voxelarium.inventory.enabled ){
 		const ev = { x : x,
 				y : y,
 				button : b,
@@ -260,7 +260,7 @@ function onTouchCancel(event) {
 			if ( scope.enabled === false ) return;
 
 			event.preventDefault();
-			if( !Voxelarium.inventory.enabled )
+			if( Voxelarium.inventory && !Voxelarium.inventory.enabled )
 					scope.setMouseRay( Voxelarium.camera, event );
 
 			}
@@ -294,11 +294,11 @@ function onTouchCancel(event) {
 	this.onKeyDown = onKeyDown;
 	function onKeyDown(event){
 		if( event.keyCode === 27 ) {
-			if( Voxelarium.inventory.enabled )
+			if( Voxelarium.inventory && Voxelarium.inventory.enabled )
 				Voxelarium.inventory.deactivate();
 		}
 		if( event.keyCode === 73 ) {
-			if( !Voxelarium.inventory.enabled ){
+			if( Voxelarium.inventory && !Voxelarium.inventory.enabled ){
 				Voxelarium.inventory.activate();
 			}else {
 				Voxelarium.inventory.deactivate();

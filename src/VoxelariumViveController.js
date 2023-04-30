@@ -1,11 +1,11 @@
 /**
 * ripped and heavily modified to fit voxelarium functions (original paintvivecontroller)
  */
-
+import {Voxelarium} from "./Voxelarium.core.js"
 Voxelarium.ViveController = function ( id ) {
 
-	THREE.ViveController.call( this, id );
-
+	//THREE.ViveController.call( this, id );
+	return;
 	var PI2 = Math.PI * 2;
 
 	var MODES = { COLOR: 0, SIZE: 1 };
@@ -139,5 +139,5 @@ Voxelarium.ViveController = function ( id ) {
 
 }
 
-Voxelarium.ViveController.prototype = Object.create( THREE.ViveController.prototype );
-Voxelarium.ViveController.prototype.constructor = Voxelarium.ViveController;
+//Voxelarium.ViveController.prototype = Object.create( THREE.ViveController.prototype );
+//Voxelarium.ViveController.prototype.constructor = Voxelarium.ViveController;

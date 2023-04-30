@@ -378,37 +378,14 @@ function render() {
 		}
     else if( Voxelarium.Settings.use_basic_material ) {
 
-		[Voxelarium.camera, Voxelarium.camera2].forEach( (camera,id)=>{
-			renderer = glow.renderer;
-			if( id ) {
-				renderer.setViewport( 0, 0, 500, 500 );
-				renderer.setScissor( 0, 0, 500, 500 );
-				renderer.setScissorTest( true );
-				renderer.setClearColor( 0x300000,1.0 );
-				finalshader2.uniforms[ "tGlow" ].value = glowcomposer2.renderTarget2;
-				finalshader2.uniforms[ "tGlowDepth" ].value = renderTargetGlow2.depthTexture.texture;
-				finalshader2.uniforms[ "tDiffuseDepth" ].value = renderTarget2.depthTexture.texture;
-				finalshader2.uniforms[ "cameraNear"].value = camera.near;
-				finalshader2.uniforms[ "cameraFar"].value = camera.far;
+		//[Voxelarium.camera].forEach( (camera,id)=>{
+			//renderer = glow.renderer;
+			
+		//effect.render( scene, Voxelarium.camera );
+		  //effect.render( scene2, Voxelarium.camera );
+		  //effect.render( scene3, Voxelarium.camera );
+		  //effect.submitFrame();
 		
-			}else {
-				renderer.setViewport( 500, 0, 500, 500 );
-				renderer.setScissor( 500, 0, 500, 500 );
-				renderer.setScissorTest( true );
-				renderer.setClearColor( 0x003000,1.0 );
-				finalshader.uniforms[ "tGlow" ].value = glowcomposer.renderTarget2;
-				finalshader.uniforms[ "tGlowDepth" ].value = renderTargetGlow.depthTexture.texture;
-				finalshader.uniforms[ "tDiffuseDepth" ].value = renderTarget.depthTexture.texture;
-				finalshader.uniforms[ "cameraNear"].value = camera.near;
-				finalshader.uniforms[ "cameraFar"].value = camera.far;
-		
-			}
-	
-		effect.render( scene, camera );
-		  effect.render( scene2, camera );
-		  effect.render( scene3, camera );
-		  effect.submitFrame();
-		});
 		}
 		else
 	    glow.render( effect );
