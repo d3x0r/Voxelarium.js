@@ -237,6 +237,7 @@ if (supported) {
 
 				document.body.appendChild( renderer.domElement );
 				renderer.domElement.setAttribute( "tabindex", 0 )
+
 				//effect = new THREE.VREffect( renderer );
 				//effect.autoSubmitFrame = false;
 				//effect.autoClear = false;
@@ -277,8 +278,8 @@ if (supported) {
 		}
 
 
-		if( !Voxelarium.Settings.VR ) {
 			scene.add( Voxelarium.controls.game.casting.mesh );
+		if( !Voxelarium.Settings.VR ) {
 			camera.matrixAutoUpdate = false;
 			Voxelarium.camera2.matrixAutoUpdate = false;
 		}
@@ -380,11 +381,17 @@ function render() {
 				console.log( err );
 			}
 		}
-    else if( Voxelarium.Settings.use_basic_material ) {
+		else if( Voxelarium.Settings.use_basic_material ) {
 
 		//[Voxelarium.camera].forEach( (camera,id)=>{
 			//renderer = glow.renderer;
-			
+					renderer.setClearColor( 0x300000,1.0 );
+			renderer.clear();
+
+			renderer.render(scene, Voxelarium.camera);
+			renderer.render(scene2, Voxelarium.camera);
+			renderer.render(scene3, Voxelarium.camera);
+
 		//effect.render( scene, Voxelarium.camera );
 		  //effect.render( scene2, Voxelarium.camera );
 		  //effect.render( scene3, Voxelarium.camera );
@@ -392,7 +399,7 @@ function render() {
 		
 		}
 		else
-	    glow.render( effect );
+	   	glow.render( effect );
 
 	}
 	else {
@@ -460,9 +467,9 @@ if( Voxelarium.inventory )
 		if( slow_animate )
 			requestAnimationFrame( slowanim );
 		else {
-				if( Voxelarium.Settings.VR )
-					vrDisplay.requestAnimationFrame( animate )
-				else
+				if( Voxelarium.Settings.VR ) {
+					//renderer.setAnimationLoop( animate );
+				} else
 					requestAnimationFrame( animate );
 		}
 		//var unit = Math.PI/2; //worst case visible
@@ -550,7 +557,10 @@ function initVoxelarium() {
 			
 			scene3.add( Voxelarium.inventory.THREE_solid );
 
-			requestAnimationFrame( animate );
+				if( Voxelarium.Settings.VR ) {
+					renderer.setAnimationLoop( animate );
+				} else
+				requestAnimationFrame( animate );
 		}, 8);
 	//});
 
