@@ -7,6 +7,8 @@ import {consts,Vector3Pool} from "./three.js/personalFill.js"
 import {myPerspective} from './three.js/my_perspective.js'
 import {SmoothMesher} from './src/mesher.smooth.js'
 
+import {XRButton} from "./three.js/jsm/webxr/XRButton.js"
+
 //var words1 = voxelUniverse.createTextCluster( "Hello World" );
 //var glow = require( './glow.renderer.js' );
 let supportsExtension;
@@ -61,8 +63,8 @@ function setupViveControls( scene ) {
 		if( Voxelarium.Settings.AltSpace ) {
 			controls = new THREE.AltSpaceControls( camera );
 		} else
-			controls = new THREE.VRControls( camera );
-		controls.standing = true;
+			;//controls = new THREE.VRControls( camera );
+		if( controls ) controls.standing = true;
 
 	scene.add( new THREE.HemisphereLight( 0x888877, 0x777788 ) );
 
@@ -78,7 +80,7 @@ function setupViveControls( scene ) {
 
 
 	// controllers
-
+	                             /*
 	controller1 = new Voxelarium.ViveController( 0 );
 	controller1.standingMatrix = controls.getStandingMatrix();
 	controller1.userData.points = [ new THREE.Vector3(), new THREE.Vector3() ];
@@ -119,14 +121,15 @@ function setupViveControls( scene ) {
 
 		pivot.material = pivot.material.clone();
 		controller2.add( controller.clone() );
-
+		                         
 	} );
+	*/
 
 
 }
 
 var status_line;
-	function init() {
+	async function init() {
 
 	if( !sceneRoot )
 		sceneRoot = new THREE.Scene();
@@ -198,13 +201,28 @@ var status_line;
 		else {
                        // is VR...
 			if( !Voxelarium.Settings.AltSpace ) {
+
+let supported = await navigator.xr.isSessionSupported('immersive-vr');
+if (supported) {
+  //ShowEnterVRButton();
+//let xrSession = await navigator.xr.requestSession('immersive-vr');
+//let xrLayer = new XRWebGLLayer(session, gl);
+//session.updateRenderState({ baseLayer: xrLayer })
+
+}
+/*
 				navigator.getVRDisplays().then(function(displays) {
 				  if (displays.length > 0) {
 				    vrDisplay = displays[0];
 				  }
 				});
-
+*/
 				Voxelarium.renderer = renderer = new THREE.WebGLRenderer( { antialias: true } );
+				if( supported ) {
+					document.body.appendChild( XRButton.createButton( renderer ) );
+					renderer.xr.enabled = true;
+					renderer.xr.setReferenceSpaceType( 'local' );
+				}
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				renderer.sortObjects = false;
@@ -215,10 +233,10 @@ var status_line;
 
 				document.body.appendChild( renderer.domElement );
 				renderer.domElement.setAttribute( "tabindex", 0 )
-				effect = new THREE.VREffect( renderer );
-				effect.autoSubmitFrame = false;
-				effect.autoClear = false;
-				effect.setSize( window.innerWidth, window.innerHeight );
+				//effect = new THREE.VREffect( renderer );
+				//effect.autoSubmitFrame = false;
+				//effect.autoClear = false;
+				//effect.setSize( window.innerWidth, window.innerHeight );
 
 
 									if( !Voxelarium.Settings.use_basic_material ){
@@ -271,6 +289,7 @@ function slowanim() {
 }
 
 function handleController( controller ) {
+	return;
   // update controller object from VR input (gamepad)
 	controller.update();
 
@@ -454,7 +473,7 @@ if( delta > 0.033 || (now - start) > 50 )
 		}
 
 		Voxelarium.selector.update();
-
+if( Voxelarium.inventory )
 		Voxelarium.inventory.animate( camera, delta );
 
 		if( slow_animate )
@@ -546,6 +565,8 @@ function initVoxelarium() {
 			sector.THREE_solid.frustumCulled = false;
 			scene2.add( Voxelarium.selector.meshGlow );
 			scene3.add( Voxelarium.selector.mesh );
+			if( Voxelarium.inventory )
+			
 			scene3.add( Voxelarium.inventory.THREE_solid );
 
 			requestAnimationFrame( animate );
