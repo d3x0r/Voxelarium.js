@@ -324,7 +324,7 @@ function onTouchCancel(event) {
 				inventory_geometryShader.vertexColors = THREE.VertexColors;
 				inventory_geometryShader.map = Voxelarium.TextureAtlas.texture;
 				if( inventory_geometryShader.uniforms )
-					inventory_geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
+					inventory_geometryShader.uniforms.mymap.value = Voxelarium.TextureAtlas.texture;
 				inventory_geometryShader.needsUpdate = true;
 				//inventory_geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
 

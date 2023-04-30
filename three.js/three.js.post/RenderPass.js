@@ -12,7 +12,7 @@ var RenderPass = function ( scene, camera, overrideMaterial, clearColor, clearAl
 	this.scene = scene;
 	this.camera = camera;
 
-	this.overrideMaterial = overrideMaterial;
+	this.overrideMaterial = overrideMaterial || null;
 
 	this.clearColor = clearColor;
 	this.clearAlpha = ( clearAlpha !== undefined ) ? clearAlpha : 0;

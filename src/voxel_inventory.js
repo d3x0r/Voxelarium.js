@@ -3,6 +3,7 @@ import * as THREE from "../three.js/build/three.module.js"
 import {Voxelarium} from "./Voxelarium.core.js"
 import {consts} from "../three.js/personalFill.js"
 import {keys} from "./constants.js"
+import {BasicBuffer} from "./BasicBuffer.js"
 
 
 function InventoryItem ( voxelType ) {
@@ -205,10 +206,14 @@ Voxelarium.Inventory = function( geometryShader,domElement ) {
             //,vertexColors: THREE.VertexColors
             ,linewidth:1 /* windows == 1 always */
             }),
-        geometry : new THREE.Geometry(),
+        geometry : new BasicBuffer(),
         THREE_solid : null,
         meshGlow : null,
     };
+
+//	const vertAtt = inventory.selector.geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3)) 
+//	const colAtt = inventory.selector.geometry.setAttribute( 'color', new THREE.BufferAttribute( colors, 3)) 
+
     inventory.selector.material.depthWrite = false;
     inventory.selector.material.depthTest = false;
 
@@ -228,8 +233,7 @@ Voxelarium.Inventory = function( geometryShader,domElement ) {
         var y = 0
         var z = 0
         var geometry = inventory.selector.geometry;
-        geometry.vertices.length = 0;
-        geometry.colors.length = 0;
+			geometry.clear();
         if( !currentRef ){
             geometry.computeBoundingSphere();
             geometry.verticesNeedUpdate = true;
@@ -255,8 +259,7 @@ Voxelarium.Inventory = function( geometryShader,domElement ) {
                     ]
                 
 		for( let point of pointOrder ) {	
-		        geometry.colors.push( color );
-                	geometry.vertices.push( P[point] );
+				geometry.addPoint( P[point], color );
 		}
 
         }

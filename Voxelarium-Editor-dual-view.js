@@ -518,7 +518,7 @@ function initVoxelarium() {
 			//geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
 			geometryShader.vertexColors = THREE.VertexColors;
 			if( geometryShader.uniforms )
-				geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
+				geometryShader.uniforms.mymap.value = Voxelarium.TextureAtlas.texture;
 			else
 				geometryShader.map = Voxelarium.TextureAtlas.texture;
 			//geometryShader.needsUpdate = true;

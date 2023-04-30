@@ -164,7 +164,8 @@ function makeComposers( renderer, sceneFlat, preFlatSetup, sceneGlow, preGlowSet
 			//, format: THREE.RGBFormat
 			, stencilBufer: false };
 	if( !renderTargetGlow ){
-          let size = renderer.getSize();
+		const sz = new THREE.Vector2();
+          let size = renderer.getSize(sz);
           console.log( size );
 	  renderTargetGlow = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight/*, renderTargetParameters*/ );
 	  renderTargetGlow.texture.minFilter = THREE.LinearFilter;

@@ -4,12 +4,12 @@ import * as THREE from "../three.js/build/three.module.js"
 Voxelarium.GeometryShader = function() {
     return new THREE.ShaderMaterial( {
 	defines:{
-		USE_MAP:'',
+//		USE_MAP:'',
 		USE_UV:'',
 	},
 	uniforms: {
         edge_only : { type: "f", value : 0 },
-        map : { type : "t", value : null },
+        mymap : { type : "t", value : null },
         enableAberration : { value : 0 },
         enableLorentz : { value : 0 },
         enableContract : { value : 0 },
@@ -25,7 +25,6 @@ Voxelarium.GeometryShader = function() {
 
     #include <common>
     #include <uv_pars_vertex>
-    #include <uv2_pars_vertex>
     #include <envmap_pars_vertex>
     #include <color_pars_vertex>
     #include <morphtarget_pars_vertex>
@@ -131,7 +130,6 @@ Voxelarium.GeometryShader = function() {
     void main() {
 
     	#include <uv_vertex>
-    	#include <uv2_vertex>
     	#include <color_vertex>
     	#include <skinbase_vertex>
 
@@ -236,7 +234,6 @@ fragmentShader:`
     #include <common>
     #include <uv_pars_fragment>
     #include <color_pars_fragment>
-    #include <uv2_pars_fragment>
     #include <map_pars_fragment>
     #include <alphamap_pars_fragment>
     #include <aomap_pars_fragment>
@@ -260,6 +257,7 @@ fragmentShader:`
 
     uniform float logDepthBufFC;
     varying float vFragDepth;
+    uniform sampler2D  mymap;
 
     void main() {
 
@@ -280,7 +278,7 @@ fragmentShader:`
                     if( edge_only > 0.5 )
                         diffuseColor = vec4(1.0);
                     else
-                        diffuseColor = vec4(  texture2D( map, ex_texCoord ).rgb, 1.0 );
+                        diffuseColor = vec4(  texture2D( mymap, ex_texCoord ).rgb, 1.0 );
                 }
                 else if( ex_flat_color > 0.5 )
                 {

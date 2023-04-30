@@ -150,6 +150,10 @@ var status_line;
 	//	light = new THREE.PointLight( 0xffFFFF, 1, 10000 );
 	//	light.position.set( 0, 0, 1000 );
   //		scene.add( light );
+		sceneRoot.overrideMaterial = null;
+		scene.overrideMaterial = null;
+		scene2.overrideMaterial = null;
+		scene3.overrideMaterial = null;
 
 		camera = Voxelarium.camera;
 		if( !Voxelarium.Settings.VR ) {
@@ -495,7 +499,7 @@ function initVoxelarium() {
 			//geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
 			geometryShader.vertexColors = THREE.VertexColors;
 			if( geometryShader.uniforms )
-				geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
+				geometryShader.uniforms.mymap.value = Voxelarium.TextureAtlas.texture;
 			else
 				geometryShader.map = Voxelarium.TextureAtlas.texture;
 			//geometryShader.needsUpdate = true;
