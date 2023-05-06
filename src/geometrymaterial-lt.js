@@ -154,7 +154,11 @@ Voxelarium.GeometryShader = function() {
 			float g0_ = g0 / sqrt( 1.0+g0*g0);
 			float g1 = (C*g0_+vel)/(C+vel*g0_);
 */
-		float g1= (1.0-sqrt(1.0-velocity1.x/(2.0-velocity1.x))); // goodish (best)
+		//float g1= (1.0-sqrt(1.0-velocity1.x/(2.0-velocity1.x))); // goodish 
+		//float g1= (1.0-(C*C-velocity1.x*velocity1.x)/(C*sqrt(C*C-velocity1.x*velocity1.x)); // goodish
+		//float g1 = ((C*velocity1.x)/(2.0-velocity1.x))*0.50; // best - looks very square
+		//float g1 = sqrt(C*C-velocity1.x*velocity1.x); // inverse gamma (looks good too) [circle]
+		float g1 = (C*C-velocity1.x*velocity1.x)/(C*C); // time-accurate [parabola]
 		//float g1= 1.0-sqrt(1.0-velocity1.x*velocity1.x);  // also goodish
 		//float g1= sqrt( 1.0-(velocity1.x-1.0)*(velocity1.x-1.0) ); // bad (contracts too much. (forward circle)
 		//float g1= sqrt(1.0-sqrt(1.0-velocity1.x*velocity1.x)); // 
@@ -187,7 +191,8 @@ Voxelarium.GeometryShader = function() {
             vec3 abb_pos = aberration( startPos, -realVel2, vec3(0) );
             gl_Position = projectionMatrix * vec4( abb_pos, 1.0 );
         } else {
-            #include <project_vertex>
+            gl_Position = projectionMatrix * vec4(startPos,1.0);
+            //#include <project_vertex>
         }
         
         #include <logdepthbuf_vertex>
