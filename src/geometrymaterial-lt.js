@@ -14,8 +14,10 @@ Voxelarium.GeometryShader = function() {
         enableLorentz : { value : 0 },
         enableContract : { value : 0 },
 
-        velocity1 : { value: new THREE.Vector3(0,0,0) },
-        velocity2 : { value: new THREE.Vector3(0,0,0) }		
+        direction1 : { value: new THREE.Vector3(0,0,0) },
+        direction2 : { value: new THREE.Vector3(0,0,0) },
+        speed1 : { value: new THREE.Vector3(0,0,0) },
+        speed2 : { value: new THREE.Vector3(0,0,0) }		
 	},
 	side: THREE.DoubleSide,
     transparent : true,
@@ -55,8 +57,10 @@ Voxelarium.GeometryShader = function() {
     varying float T;
 
     uniform float time;
-    uniform vec3 velocity1;
-    uniform vec3 velocity2;
+    uniform vec3 direction1;
+    uniform vec3 direction2;
+    uniform float speed1;
+    uniform float speed2;
     uniform int enableAberration;
     uniform int enableLorentz;
     uniform int enableContract;
@@ -145,48 +149,35 @@ Voxelarium.GeometryShader = function() {
     	#include <begin_vertex>
     	#include <morphtarget_vertex>
     	#include <skinning_vertex>
-        mat3 rotmat = mat3( modelViewMatrix );
-        vec3 realVel = (rotmat * (velocity2+ velocity1)/2.0 );
-        vec3 startPos = (modelViewMatrix * vec4( position, 1.0 )).xyz;
-/*
-			float vel = length(velocity1);
-			float g0 =  vel * ( sqrt( vel + sqrt(2.0)*(C*C-vel*vel) ) + vel )/(C*C-vel*vel)+1.0;
-			float g0_ = g0 / sqrt( 1.0+g0*g0);
-			float g1 = (C*g0_+vel)/(C+vel*g0_);
-*/
-		//float g1= (1.0-sqrt(1.0-velocity1.x/(2.0-velocity1.x))); // goodish 
-		//float g1= (1.0-(C*C-velocity1.x*velocity1.x)/(C*sqrt(C*C-velocity1.x*velocity1.x)); // goodish
-		//float g1 = ((C*velocity1.x)/(2.0-velocity1.x))*0.50; // best - looks very square
-		//float g1 = sqrt(C*C-velocity1.x*velocity1.x); // inverse gamma (looks good too) [circle]
-		float g1 = (C*C-velocity1.x*velocity1.x)/(C*C); // time-accurate [parabola]
-		//float g1= 1.0-sqrt(1.0-velocity1.x*velocity1.x);  // also goodish
-		//float g1= sqrt( 1.0-(velocity1.x-1.0)*(velocity1.x-1.0) ); // bad (contracts too much. (forward circle)
-		//float g1= sqrt(1.0-sqrt(1.0-velocity1.x*velocity1.x)); // 
-		//float g1= velocity1.x; // bad (contracts too much at high V)
-		//float g1= (1.0-(1.0-velocity1.x/(2.0-velocity1.x))); //bad(contracts too much at high V)
-		//float g1= g0*g0;
-		if( enableContract > 0 )
-        startPos = startPos - realVel*(dot( startPos,realVel)*g1) ;
+      mat3 rotmat = mat3( modelViewMatrix );
+      vec3 realVel = (rotmat * (direction1) );
+      vec3 startPos = (modelViewMatrix * vec4( position, 1.0 )).xyz;
+		
+		float g1 = sqrt(C*C-speed1*speed1)/(C); // cc-vv/cc * c/sqrt(cc-vv) time-accurate [parabola]
+
+		vec3 posDir = realVel * dot(startPos,realVel);
+
+		if( enableContract > 0 && speed1 > 0.0)
+        startPos = ( startPos - posDir) + posDir*g1;
         T=0.0;
         if( enableLorentz > 0 ) {
-
             // move position to real position, camera is then at (0,0,0)
-            vec3 realVel2 = (rotmat *  velocity2 );
+            vec3 realVel2 = (rotmat *  (speed2*direction2) );
             vec3 delpos = startPos;
             vec3 tmp = delpos - realVel2*time;
             float A = time*time*C*C - dot(tmp,tmp);
-            float B = time*C*C + dot(realVel, tmp );
-            float D = C*C-dot(realVel,realVel);
+            float B = time*C*C + dot( (realVel*speed1) , tmp );
+            float D = C*C-speed1*speed1;
             if( abs(D) < 0.00000001 ) T = A/(2.0*B);
             else T = (sqrt( B*B - D*A ) + B)/D;
-            vec3 real_position = startPos + T*realVel;
+            vec3 real_position = startPos + T*realVel*speed1;
             //vec3 real_position = startPos;
             //gl_Position = projectionMatrix * vec4( real_position, 1.0 );
             vec3 abb_pos = aberration( real_position, -realVel2, vec3(0) );
             gl_Position = projectionMatrix * vec4( abb_pos, 1.0 );
         } else if( enableAberration > 0 ) {
             mat3 rotmat = mat3( modelViewMatrix );
-            vec3 realVel2 = (rotmat *  velocity2 );
+            vec3 realVel2 = (rotmat *  (speed2*direction2) );
 
             vec3 abb_pos = aberration( startPos, -realVel2, vec3(0) );
             gl_Position = projectionMatrix * vec4( abb_pos, 1.0 );
