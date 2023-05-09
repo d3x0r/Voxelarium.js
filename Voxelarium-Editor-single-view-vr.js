@@ -2,7 +2,7 @@
 
 import * as THREE  from "./three.js/build/three.module.js"
 window.THREE = THREE;
-import {Voxelarium,glow} from "./Voxelarium-dual-view.js"
+import {Voxelarium,glow} from "./Voxelarium-single-view.js"
 import {consts,Vector3Pool} from "./three.js/personalFill.js"
 import {myPerspective} from './three.js/my_perspective.js'
 import {SmoothMesher} from './src/mesher.smooth.js'
@@ -156,10 +156,17 @@ var status_line;
 		scene3.overrideMaterial = null;
 
 		camera = Voxelarium.camera;
+
+			camera.matrixAutoUpdate = false;
+			camera.position.y = 3.3;
+			camera.position.x = 1.5;
+			camera.position.z = 1.5;
+                        camera.matrix.origin.copy( camera.position );
+
 		if( !Voxelarium.Settings.VR ) {
 
 			Voxelarium.renderer = renderer = new THREE.WebGLRenderer();
-			renderer.domElement.setAttribute( "tabindex", 1 )
+			renderer.domElement.setAttribute( "tabindex", 0 )
 			renderer.autoClear = false;
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			window.addEventListener( "resize", ()=>{
@@ -175,8 +182,8 @@ var status_line;
 			camera.position.z = 1.5;
                         camera.matrix.origin.copy( camera.position );
 			
-			Voxelarium.camera2.matrixAutoUpdate = false;
-            Voxelarium.camera2.matrix.copy( camera.matrix );
+			//Voxelarium.camera2.matrixAutoUpdate = false;
+         //   Voxelarium.camera2.matrix.copy( camera.matrix );
 
 			if ( !renderer.extensions.get('WEBGL_depth_texture') ) {
 					          supportsExtension = false;
@@ -206,14 +213,14 @@ var status_line;
                        // is VR...
 			if( !Voxelarium.Settings.AltSpace ) {
 
-let supported = await navigator.xr.isSessionSupported('immersive-vr');
-if (supported) {
-  //ShowEnterVRButton();
-//let xrSession = await navigator.xr.requestSession('immersive-vr');
-//let xrLayer = new XRWebGLLayer(session, gl);
-//session.updateRenderState({ baseLayer: xrLayer })
+			let supported = await navigator.xr.isSessionSupported('immersive-vr');
+			if (supported) {
+			  //ShowEnterVRButton();
+				//let xrSession = await navigator.xr.requestSession('immersive-vr');
+				//let xrLayer = new XRWebGLLayer(session, gl);
+				//session.updateRenderState({ baseLayer: xrLayer })
 
-}
+			}
 /*
 				navigator.getVRDisplays().then(function(displays) {
 				  if (displays.length > 0) {
@@ -235,17 +242,12 @@ if (supported) {
 				renderer.gammaInput = true;
 				renderer.gammaOutput = true;
 
+				Voxelarium.controls.setDOM( renderer.domElement );
 				document.body.appendChild( renderer.domElement );
 				renderer.domElement.setAttribute( "tabindex", 0 )
 
-				//effect = new THREE.VREffect( renderer );
-				//effect.autoSubmitFrame = false;
-				//effect.autoClear = false;
-				//effect.setSize( window.innerWidth, window.innerHeight );
-
-
 									if( !Voxelarium.Settings.use_basic_material ){
-													glow.makeComposers( effect, scene
+													glow.makeComposers( renderer, scene
 														, ()=>{
 															clusters.forEach( (cluster)=>{ cluster.SectorList.forEach( (sector)=>{
 																sector.solid_geometry.geometry.uniforms.edge_only = 0;
@@ -263,12 +265,9 @@ if (supported) {
 
 		 		if ( typeof WEBVR !== "undefined" )
 					if ( WEBVR.isAvailable() === true ) {
-
 						document.body.appendChild( WEBVR.getButton( effect ) );
-
 					} else {
 						document.body.appendChild( WEBVR.getMessage() );
-
 					}
 
 			} else { // is AltSpace
@@ -281,7 +280,7 @@ if (supported) {
 			scene.add( Voxelarium.controls.game.casting.mesh );
 		if( !Voxelarium.Settings.VR ) {
 			camera.matrixAutoUpdate = false;
-			Voxelarium.camera2.matrixAutoUpdate = false;
+			//Voxelarium.camera2.matrixAutoUpdate = false;
 		}
 		initVoxelarium();
 
@@ -336,8 +335,8 @@ function handleController( controller ) {
 
 var priorError = { message: ""};
 function render() {
-	Voxelarium.camera2.matrix.copy( camera.matrix );
-	Voxelarium.camera2.matrixWorldNeedsUpdate = Voxelarium.camera.matrixWorldNeedsUpdate;
+	//Voxelarium.camera2.matrix.copy( camera.matrix );
+	//Voxelarium.camera2.matrixWorldNeedsUpdate = Voxelarium.camera.matrixWorldNeedsUpdate;
 
 	const u = Voxelarium.geometryShader.uniforms;
 	if( u  ){
@@ -352,21 +351,20 @@ function render() {
 		const s = Math.sin( ang1 );
 			const c2 = Math.cos( ang2 );
 			const s2 = Math.sin( ang2 );
+			u.direction1. value.x = c;
+			u.direction1. value.z = s;
+			u.direction2. value.x = c2;
+			u.direction2. value.z = s2;
 		if( chkLock.checked ) {
 			const speed = Number(sldSpeed1.value)/100-0.0001;
-
-			u.velocity1. value.x = speed * c;
-			u.velocity1. value.z = speed * s;
-			u.velocity2. value.x = speed * c2;
-			u.velocity2. value.z = speed * s2;
+			u.speed1.value = speed;
+			u.speed2.value = speed;
 			sldSpeed2.value = sldSpeed1.value;
 		}else {
 			const speed = Number(sldSpeed1.value)/100-0.0001;
 			const speed2 = Number(sldSpeed2.value)/100-0.0001;
-			u.velocity1. value.x = speed * c;
-			u.velocity1. value.z = speed * s;
-			u.velocity2. value.x = speed2 * c2;
-			u.velocity2. value.z = speed2 * s2;
+			u.speed1.value = speed;
+			u.speed2.value = speed2;
 		}
 		Voxelarium.geometryShader.uniformsNeedUpdate = true;
 	}
@@ -405,25 +403,10 @@ function render() {
 	else {
 		if( Voxelarium.Settings.use_basic_material ) {
 			renderer.clear();
-			[Voxelarium.camera, Voxelarium.camera2].forEach( (camera,id)=>{
-				if( id ) {
-					renderer.setViewport( 0, 0, 500, 500 );
-					renderer.setScissor( 0, 0, 500, 500 );
-					renderer.setScissorTest( true );
-					renderer.setClearColor( 0x300000,1.0 );
-			
-				}else {
-					renderer.setViewport( 500, 0, 500, 500 );
-					renderer.setScissor( 500, 0, 500, 500 );
-					renderer.setScissorTest( true );
-					renderer.setClearColor( 0x003000,1.0 );
-			
-				}
-		
+			const camera = Voxelarium.camera		
 				renderer.render( scene, camera );
 			renderer.render( scene2, camera );
 			renderer.render( scene3, camera );
-			});
 
 		}
 		else

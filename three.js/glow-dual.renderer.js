@@ -346,7 +346,7 @@ glow.render = function glowRender() {
 
 	}
 	} )
-	if( Voxelarium.Settings.VR )
-		effect.submitFrame();
+	//if( Voxelarium.Settings.VR )
+	//	effect.submitFrame();
 }
 export {glow}

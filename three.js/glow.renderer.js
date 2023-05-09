@@ -105,8 +105,9 @@ function makeComposers( renderer, sceneFlat, preFlatSetup, sceneGlow, preGlowSet
 			//, format: THREE.RGBFormat
 			, stencilBufer: false };
 	if( !renderTargetGlow ){
-          var size = renderer.getSize();
-          console.log( size );
+		const sz = new THREE.Vector2();
+          let size = renderer.getSize(sz);
+          console.log( sz );
 	  renderTargetGlow = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight/*, renderTargetParameters*/ );
 	  renderTargetGlow.texture.minFilter = THREE.LinearFilter;
 	  renderTargetGlow.texture.magFilter = THREE.LinearFilter;
@@ -219,8 +220,8 @@ glow.render = function glowRender() {
   	     glow.renderer.render( overlay, camera );
 
   }
-  if( Voxelarium.Settings.VR )
-	  effect.submitFrame();
+  //if( Voxelarium.Settings.VR )
+	//  effect.submitFrame();
 
 }
 export {glow}

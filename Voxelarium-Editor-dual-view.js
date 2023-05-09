@@ -347,21 +347,20 @@ function render() {
 		const s = Math.sin( ang1 );
 			const c2 = Math.cos( ang2 );
 			const s2 = Math.sin( ang2 );
+			u.direction1. value.x = c;
+			u.direction1. value.z = s;
+			u.direction2. value.x = c2;
+			u.direction2. value.z = s2;
 		if( chkLock.checked ) {
 			const speed = Number(sldSpeed1.value)/100-0.0001;
-
-			u.velocity1. value.x = speed * c;
-			u.velocity1. value.z = speed * s;
-			u.velocity2. value.x = speed * c2;
-			u.velocity2. value.z = speed * s2;
+			u.speed1.value = speed;
+			u.speed2.value = speed;
 			sldSpeed2.value = sldSpeed1.value;
 		}else {
 			const speed = Number(sldSpeed1.value)/100-0.0001;
 			const speed2 = Number(sldSpeed2.value)/100-0.0001;
-			u.velocity1. value.x = speed * c;
-			u.velocity1. value.z = speed * s;
-			u.velocity2. value.x = speed2 * c2;
-			u.velocity2. value.z = speed2 * s2;
+			u.speed1.value = speed;
+			u.speed2.value = speed2;
 		}
 		Voxelarium.geometryShader.uniformsNeedUpdate = true;
 	}
