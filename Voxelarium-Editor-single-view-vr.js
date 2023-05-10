@@ -379,7 +379,7 @@ function render() {
 				console.log( err );
 			}
 		}
-		else if( Voxelarium.Settings.use_basic_material ) {
+		else if( true || Voxelarium.Settings.use_basic_material ) {
 
 		//[Voxelarium.camera].forEach( (camera,id)=>{
 			//renderer = glow.renderer;
