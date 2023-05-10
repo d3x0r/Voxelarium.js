@@ -356,12 +356,16 @@ function render() {
 			u.speed1.value = speed;
 			u.speed2.value = speed;
 			sldSpeed2.value = sldSpeed1.value;
+			
 		}else {
 			const speed = Number(sldSpeed1.value)/100-0.0001;
 			const speed2 = Number(sldSpeed2.value)/100-0.0001;
 			u.speed1.value = speed;
 			u.speed2.value = speed2;
 		}
+		txtSpeed1.textContent = "|" + (u.speed1.value.toFixed(4)) + "c |" ;
+		txtSpeed2.textContent = "|" + (u.speed2.value.toFixed(4)) + "c |";
+
 		Voxelarium.geometryShader.uniformsNeedUpdate = true;
 	}
 
