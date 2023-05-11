@@ -163,16 +163,16 @@ var status_line;
 				renderer.setSize( window.innerWidth, window.innerHeight ) 
 			} );
 			document.body.appendChild( renderer.domElement );
-			Voxelarium.controls.setDOM( renderer.domElement );
+			///Voxelarium.controls.setDOM( renderer.domElement );
 
-			camera.matrixAutoUpdate = false;
-			camera.position.y = 3.3;
-			camera.position.x = 1.5;
-			camera.position.z = 1.5;
-                        camera.matrix.origin.copy( camera.position );
+			//camera.matrixAutoUpdate = false;
+			///camera.position.y = 3.3;
+			//camera.position.x = 1.5;
+			//camera.position.z = 1.5;
+                        //camera.matrix.origin.copy( camera.position );
 			
-			Voxelarium.camera2.matrixAutoUpdate = false;
-            Voxelarium.camera2.matrix.copy( camera.matrix );
+			//Voxelarium.camera2.matrixAutoUpdate = false;
+            		//Voxelarium.camera2.matrix.copy( camera.matrix );
 
 			if ( !renderer.extensions.get('WEBGL_depth_texture') ) {
 					          supportsExtension = false;

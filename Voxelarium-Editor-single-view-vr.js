@@ -177,7 +177,7 @@ var status_line;
 			Voxelarium.controls.setDOM( renderer.domElement );
 
 			camera.matrixAutoUpdate = false;
-			camera.position.y = 3.3;
+			camera.position.y = -3.3;
 			camera.position.x = 1.5;
 			camera.position.z = 1.5;
                         camera.matrix.origin.copy( camera.position );
@@ -241,7 +241,11 @@ var status_line;
 				renderer.shadowMap.enabled = true;
 				renderer.gammaInput = true;
 				renderer.gammaOutput = true;
-
+        		camera.position.y = -10.3;
+			camera.position.x = 15.5;
+			camera.position.z = 15.5;
+                        camera.matrix.origin.copy( camera.position );
+	
 				Voxelarium.controls.setDOM( renderer.domElement );
 				document.body.appendChild( renderer.domElement );
 				renderer.domElement.setAttribute( "tabindex", 0 )
@@ -383,7 +387,7 @@ function render() {
 
 		//[Voxelarium.camera].forEach( (camera,id)=>{
 			//renderer = glow.renderer;
-					renderer.setClearColor( 0x300000,1.0 );
+			renderer.setClearColor( 0x300000,1.0 );
 			renderer.clear();
 
 			renderer.render(scene, Voxelarium.camera);
@@ -543,7 +547,7 @@ function initVoxelarium() {
 				if( Voxelarium.Settings.VR ) {
 					renderer.setAnimationLoop( animate );
 				} else
-				requestAnimationFrame( animate );
+					requestAnimationFrame( animate );
 		}, 8);
 	//});
 
