@@ -163,16 +163,18 @@ var status_line;
 				renderer.setSize( window.innerWidth, window.innerHeight ) 
 			} );
 			document.body.appendChild( renderer.domElement );
-			///Voxelarium.controls.setDOM( renderer.domElement );
 
-			//camera.matrixAutoUpdate = false;
-			///camera.position.y = 3.3;
-			//camera.position.x = 1.5;
-			//camera.position.z = 1.5;
-                        //camera.matrix.origin.copy( camera.position );
 			
-			//Voxelarium.camera2.matrixAutoUpdate = false;
-            		//Voxelarium.camera2.matrix.copy( camera.matrix );
+			Voxelarium.controls.setDOM( renderer.domElement );
+
+			camera.matrixAutoUpdate = false;
+			camera.position.y = 3.3;
+			camera.position.x = 1.5;
+			camera.position.z = 1.5;
+                        camera.matrix.origin.copy( camera.position );
+			
+			Voxelarium.camera2.matrixAutoUpdate = false;
+            		Voxelarium.camera2.matrix.copy( camera.matrix );
 
 			if ( !renderer.extensions.get('WEBGL_depth_texture') ) {
 					          supportsExtension = false;
@@ -232,7 +234,7 @@ if (supported) {
 				renderer.gammaOutput = true;
 
 				document.body.appendChild( renderer.domElement );
-				renderer.domElement.setAttribute( "tabindex", 0 )
+				renderer.domElement.setAttribute( "tabindex", 1 )
 				//effect = new THREE.VREffect( renderer );
 				//effect.autoSubmitFrame = false;
 				//effect.autoClear = false;
