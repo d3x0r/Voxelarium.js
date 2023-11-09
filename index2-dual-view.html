@@ -14,17 +14,20 @@ font-size:3vh;;
 </head>
 <body>
 
+<p font-size="5vh">
 TAB key changes mouse mode... (click on scene, mouse select right click deletes the red selected block and left click 
-adds in the green selected block.  The type of block added is selected with 'i' key for (inventory)... (the mouse tracking isn't very good
-with the split view).  Tab will grab the mouse, and allow look-around  WSAD move forward,backward,left,right C moves down, space moves up.  Escape
-will release the mouse, but clicking will re-lock the mouse.  Tab will release the mouse also)
+adds in the green selected block.  The type of block added is selected with 'i' key for (inventory)...
+Tab will grab the mouse, and allow look-around  WSAD move forward,backward,left,right C moves down, space moves up.  Escape
+will release the mouse; Tab will release the mouse also.
+</p>
 
 <a href="https://github.com/d3x0r/STFRPhysics/blob/master/LightSpeedSim.md#3d-voxel-world-with-perspective-camera">More Info</a>
 <div class="controls" >
 <INPUT ID="playerNameEntry"></INPUT>
-<label><input ID="chkAberration" type="checkbox" checked=true> Aberration</label>
-<label><input ID="chkLorentz" type="checkbox" checked=true> Lorentz</label>
-<label><input ID="chkContract" type="checkbox" checked="true"> Length Contraction</label>
+<label><input ID="chkAberration" type="checkbox" checked> Aberration</label>
+<label><input ID="chkLorentz" type="checkbox" checked> Lorentz</label>
+<label><input ID="chkContract" type="checkbox" checked> Length Contraction</label>
+<label><input ID="chkTransparent" type="checkbox" unchecked> Transparent</label>
 <br>
 <label><input ID="chkLock" type="checkbox" checked="true"> Lock Velocity</label>
 <label><input ID="sldSpeed1" type="range" min=0 max=100 value=0> Velocity 1</label><span ID="txtSpeed1"></span>

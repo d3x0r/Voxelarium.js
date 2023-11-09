@@ -341,6 +341,10 @@ function render() {
 		u.enableAberration.value = chkAberration.checked;
 		u.enableLorentz.value = chkLorentz.checked;
 		u.enableContract.value = chkContract.checked;
+		if( chkTransparent.checked )
+			Voxelarium.geometryShader.side = THREE.DoubleSide;
+		else
+			Voxelarium.geometryShader.side = THREE.FrontSide;
 		const ang1 = Number(sldDir1.value)/100 * 2*Math.PI
 		const ang2 = Number(sldDir2.value)/100 * 2*Math.PI
 		spanDir1.textContent = (ang1/(Math.PI)).toFixed(2) + "π";
@@ -495,7 +499,7 @@ if( Voxelarium.inventory )
 		render();
 		//stats.begin();
 if( (Date.now() - start) > 50 ) {
-	console.log( "Taaaick is:", delta, Date.now() - start );
+	console.log( "Tick is:", delta, Date.now() - start );
 }
 	start = Date.now();
 }

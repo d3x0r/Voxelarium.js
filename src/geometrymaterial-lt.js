@@ -19,7 +19,7 @@ Voxelarium.GeometryShader = function() {
         speed1 : { value: new THREE.Vector3(0,0,0) },
         speed2 : { value: new THREE.Vector3(0,0,0) }		
 	},
-	side: THREE.DoubleSide,
+	//side: THREE.DoubleSide,
     transparent : true,
 	depthTest:false,
      blending: THREE.NormalBlending,
