@@ -346,7 +346,7 @@ function render() {
 		else
 			Voxelarium.geometryShader.side = THREE.FrontSide;
 		const ang1 = Number(sldDir1.value)/100 * 2*Math.PI
-		const ang2 = Number(sldDir2.value)/100 * 2*Math.PI
+		const ang2 = Number(chkLockD?sldDir1.value:sldDir2.value)/100 * 2*Math.PI
 		spanDir1.textContent = (ang1/(Math.PI)).toFixed(2) + "π";
 		spanDir2.textContent = (ang2/(Math.PI)).toFixed(2) + "π";
 		const c = Math.cos( ang1 );
