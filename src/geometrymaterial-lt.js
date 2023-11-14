@@ -13,6 +13,7 @@ Voxelarium.GeometryShader = function() {
         enableAberration : { value : 0 },
         enableLorentz : { value : 0 },
         enableContract : { value : 0 },
+	time : {value: 0 },
 
         direction1 : { value: new THREE.Vector3(0,0,0) },
         direction2 : { value: new THREE.Vector3(0,0,0) },
@@ -151,7 +152,7 @@ Voxelarium.GeometryShader = function() {
     	#include <skinning_vertex>
       mat3 rotmat = mat3( modelViewMatrix );
       vec3 realVel = (rotmat * (direction1) );
-      vec3 startPos = (modelViewMatrix * vec4( position, 1.0 )).xyz;
+      vec3 startPos = (modelViewMatrix * vec4( position + time*direction1*speed1, 1.0 )).xyz;
 		
 		float g1 = sqrt(C*C-speed1*speed1)/(C); // cc-vv/cc * c/sqrt(cc-vv) time-accurate [parabola]
 
@@ -170,7 +171,8 @@ Voxelarium.GeometryShader = function() {
             float D = C*C-speed1*speed1;
             if( abs(D) < 0.00000001 ) T = A/(2.0*B);
             else T = (sqrt( B*B - D*A ) + B)/D;
-            vec3 real_position = startPos + T*realVel*speed1;
+            //vec3 real_position = (modelViewMatrix*vec4(position+ T*realVel*speed1,1.0)).xyz ;
+            vec3 real_position = startPos+ T*realVel*speed1;
             //vec3 real_position = startPos;
             //gl_Position = projectionMatrix * vec4( real_position, 1.0 );
             vec3 abb_pos = aberration( real_position, -realVel2, vec3(0) );

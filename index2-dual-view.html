@@ -8,9 +8,19 @@ text-shadow: 0 0 5px black;
 color:white;
 font-weight:600;
 font-size:3vh;;
+z-index:2;
 }
 .instructions {
 font-size:2vh;
+z-index:2;
+position:relative;
+color:white;
+text-shadow: 0 0 5px black;
+}
+canvas {
+	position:absolute;
+	top: 1vh;
+	z-index:1;
 }
 </style>
 
@@ -36,8 +46,10 @@ will release the mouse; Tab will release the mouse also.
 <label><input ID="sldSpeed1" type="range" min=0 max=100 value=0> Velocity 1</label><span ID="txtSpeed1"></span>
 <label><input ID="sldSpeed2" type="range" min=0 max=100 value=0> Velocity 2</label><span ID="txtSpeed2"></span><br>
 <label><input ID="chkLockD" type="checkbox" checked="true"> Lock Direction | </label>
-<label> Direction 1<input ID="sldDir1" type="range" min=0 max=100 value=0><span ID="spanDir1"></span></label>
-<label> Direction 2<input ID="sldDir2" type="range" min=0 max=100 value=0><span ID="spanDir2"></span></label>
+<label> Direction 1<input ID="sldDir1" type="range" min=0 max=360 value=0><span ID="spanDir1"></span></label>
+<label> Direction 2<input ID="sldDir2" type="range" min=0 max=360 value=0><span ID="spanDir2"></span></label>
+<br><label>Now<input ID="sldTime" type="range" min=-100 max=100 value=0><span ID="spanTime"></span></label>
+<br><label>Position: <span ID="spanPosition"></span></label>
 </div>
 </body>
 

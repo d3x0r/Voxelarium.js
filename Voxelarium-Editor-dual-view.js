@@ -335,7 +335,7 @@ var priorError = { message: ""};
 function render() {
 	Voxelarium.camera2.matrix.copy( camera.matrix );
 	Voxelarium.camera2.matrixWorldNeedsUpdate = Voxelarium.camera.matrixWorldNeedsUpdate;
-
+	spanPosition.textContent = "(" + camera.matrix.origin.x.toFixed(2) + "," + camera.matrix.origin.y.toFixed(2) + "," + camera.matrix.origin.z.toFixed(2)+  ")";
 	const u = Voxelarium.geometryShader.uniforms;
 	if( u  ){
 		u.enableAberration.value = chkAberration.checked;
@@ -345,8 +345,8 @@ function render() {
 			Voxelarium.geometryShader.side = THREE.DoubleSide;
 		else
 			Voxelarium.geometryShader.side = THREE.FrontSide;
-		const ang1 = Number(sldDir1.value)/100 * 2*Math.PI
-		const ang2 = Number(chkLockD?sldDir1.value:sldDir2.value)/100 * 2*Math.PI
+		const ang1 = Number(sldDir1.value)/360 * 2*Math.PI
+		const ang2 = Number(chkLockD?sldDir1.value:sldDir2.value)/360 * 2*Math.PI
 		spanDir1.textContent = (ang1/(Math.PI)).toFixed(2) + "π";
 		spanDir2.textContent = (ang2/(Math.PI)).toFixed(2) + "π";
 		const c = Math.cos( ang1 );
@@ -369,6 +369,8 @@ function render() {
 			u.speed1.value = speed;
 			u.speed2.value = speed2;
 		}
+		u.time.value = sldTime.value/10;
+		spanTime.textContent =  (u.time.value.toFixed(1)) ;
 		txtSpeed1.textContent = "|" + (u.speed1.value.toFixed(4)) + "c |" ;
 		txtSpeed2.textContent = "|" + (u.speed2.value.toFixed(4)) + "c |";
 
@@ -442,8 +444,8 @@ function render() {
 				}
 		
 				renderer.render( scene, camera );
-			renderer.render( scene2, camera );
-			renderer.render( scene3, camera );
+				renderer.render( scene2, camera );
+				renderer.render( scene3, camera );
 			});
 
 		}
