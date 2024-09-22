@@ -10,6 +10,7 @@ import ( "./Voxelarium.js" ).then ( (V)=>{
 
 	const Voxelarium = V.Voxelarium;
 	const glow = V.glow;
+	let supportsExtension = true;
 	Voxelarium.onready( ()=>{
 		var clusters = [];
 
@@ -65,8 +66,8 @@ import ( "./Voxelarium.js" ).then ( (V)=>{
 
 			if ( !renderer.extensions.get('WEBGL_depth_texture') ) {
 					supportsExtension = false;
-					document.querySelector('#error').style.display = 'block';
-					return;
+					//document.querySelector('#error').style.display = 'block';
+					///return;
 					}
 
 			glow.makeComposers( renderer, scene

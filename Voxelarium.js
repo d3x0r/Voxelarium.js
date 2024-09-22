@@ -1,11 +1,7 @@
 import {Voxelarium} from "./src/Voxelarium.core.js"
 import {JSOX} from "/node_modules/jsox/lib/jsox.mjs"
-import {config} from "/config.jsox";
+import config from "/config.jsox";
 
-const loginPort = config.login.port;
-
-const login = await import("http://localhost:"+loginPort+"/login/webSocketClient.js" );
-import {Popup,popups} from "/node_modules/@d3x0r/popups/popups.mjs"
 
 const style = document.createElement( "link" );
 style.rel = "stylesheet";
@@ -15,6 +11,7 @@ document.head.insertBefore( style, document.head.childNodes[0] || null );
 
 
 let loggedIn = false;
+/*
 const loginForm = popups.makeLoginForm( async (loginType)=>{
 	// type === 1 if created
 	// loginType === false if guest
@@ -39,13 +36,13 @@ const loginForm = popups.makeLoginForm( async (loginType)=>{
 	, sashScript : null//"http://localhost:"+loginPort+"/login/pickSashForm.js"
 	, wsLoginClient:login.connection} );
 
-const loginSocket = login.openSocket( "ws://localhost:"+loginPort+""/*, "login" */ );
+const loginSocket = login.openSocket( "ws://localhost:"+loginPort+""/*, "login" * / );
 loginSocket.then( (ws)=>{
 
 	ws.on( "close", reconnect );
 	function reconnect(code,reason){
 		if( !loggedIn )
-		login.openSocket( "ws://localhost:"+loginPort+""/*, "login" */ ).then( (ws)=>{
+		login.openSocket( "ws://localhost:"+loginPort+""/*, "login" * / ).then( (ws)=>{
 			//loginForm.setSocket( ws );
 			ws.on( "close", reconnect );
 			return ws;
@@ -56,7 +53,7 @@ loginSocket.then( (ws)=>{
 	Voxelarium.login = loginForm;
 
 })
-
+*/
 
 const readies = [];
 Voxelarium.onready = function(cb) {
@@ -89,6 +86,17 @@ import * as THREE from "./three.js/build/three.module.js"
 import  "./three.js/personalFill.js"
 
 import {db} from "./src/Voxelarium.db.js"
+
+
+// does a canned login form, and on successful login requests the service.
+import {requestService} from "/node_modules/@d3x0r/user-database-remote/requestService.js"
+
+requestService( "d3x0r.org", "Voxelarium(js)", (token)=>{
+	db.connect( token );
+	console.log( "Got key for service... start connecting to service..." );
+} );
+
+
 
 //if( Voxelarium.Settings.AltSpace )
 //   var altspace = import( "./AltSpaceVR/dist/altspace.js" );

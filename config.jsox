@@ -6,5 +6,9 @@
 	},
 	serve: {
 		port:7999
-	}
+	},
+	// list of login servers?
+   // port this serves on?
+	loginTowers : ["ws://app.d3x0r.org:8399","wss://d3x0r.org:31337/","wss://www.d3x0r.org:31337/","ws://sp.d3x0r.org:31337/" ],
+
 }

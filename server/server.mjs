@@ -12,53 +12,36 @@ import path from "path";
 import {db} from "./db.mjs"
 import {openServer} from "sack.vfs/apps/http-ws";
 import {uExpress} from "sack.vfs/apps/http-ws/uexpress";
+import {enableLogin,getUser} from "@d3x0r/user-database-remote/enableLogin.mjs";
 
 const app = uExpress();
-
-app.get( "/config.jsox", (req,res)=>{
-console.log( "(config.jsox)express hook?", req.url ,res);
-	const headers = {
-		'Content-Type': "text/javascript",
-	}
-	res.writeHead( 200, headers );
-
-	const resultContent = "import {JSOX} from '/node_modules/jsox/lib/jsox.mjs';export const config = JSOX.parse( '" + JSOX.stringify(config) + "')";
-	res.end( resultContent );
-	console.log( "Handled socket." );
-	return true;
-} ) 
 
 const myPort = Number(process.env.PORT) || config.serve.port ||5000;
 //const AsyncFunction = Object.getPrototypeOf( async function() {} ).constructor;
 
 
-import {UserDbRemote} from "@d3x0r/user-database/serviceLogin"
-import * as blah from "@d3x0r/user-database/service"; // host service locally
-console.log( "BLAH:", blah );
-import {loginAccept,loginConnect,loginRequest} from "@d3x0r/user-database/service"; // host service locally
+import {UserDbRemote} from "@d3x0r/user-database-remote"
+
+//import * as blah from "@d3x0r/user-database/service"; // host service locally
+//console.log( "BLAH:", blah );
+//import {loginAccept,loginConnect,loginRequest} from "@d3x0r/user-database/service"; // host service locally
 
 process.env.LOGIN_PORT = config.login.port;
-const udb =  await import( "@d3x0r/user-database" );
+//const udb =  await import( "@d3x0r/user-database" );
 
 //console.log( "Got UDB:", udb );
 //const dbx = await import( "@d3x0r/user-database/service" ); // start service locally
 //console.log( 'dbx =', dbx );
 
-//udb.go.then( ()=>{
 
 	UserDbRemote.open( {
 		configPath : nearPath + '/../',
-		server:"ws://localhost:"+config.login.port,
-		port : myPort,
 		connect(ws) {
 			console.log( "Voxelarium service registry....connected to login service" );
 			db.userDbConnect(ws);
 		}
 	})
 
-//} );
-//		udb.server
-		
 
 
 let serverOpts;
@@ -67,21 +50,30 @@ const server = openServer(  serverOpts = { //npmPath:"../"
 		port: myPort
 		 }, accept, connect );
 
+enableLogin( server, app, (msg)=>{
+	console.log( "expect callback..." );
+	const id = sack.Id();
+	const user = msg;
+	console.log( "Told to expect a user: does this result with my own unique ID?", msg, id );
+//	connections.set( id, user );
+	
+	// lookup my own user ? Prepare with right object?
+	// connections.set( msg.something, msg ) ;	
+	return id;
+
+} );
+
 //console.log( "is there a handler yet?", udb.UserDb.socketHandleRequest);
-server.addHandler( loginRequest );
+//server.addHandler( loginRequest );
 server.addHandler( app.handle );
-server.addHandler( udb.UserDb.socketHandleRequest );
+
+//server.addHandler( udb.UserDb.socketHandleRequest );
 console.log( "voxelarium serving on " + serverOpts.port );
 db.init( );
 
 function accept( ws ) {
 	const protocol = ws.headers['Sec-WebSocket-Protocol'];
 	console.log( "Connection received with : ", protocol );
-	if( loginAccept.call( this, ws ) ){
-		// handled by login services.
-		console.log( "login Accept took this." );
-		return;
-	}
 	if( protocol === "VOXDB" ) {
 		this.accept();
 	} else {
@@ -93,10 +85,5 @@ function accept( ws ) {
 function connect( ws ) {
 	//const protocol = ws.headers['Sec-WebSocket-Protocol'];
 	console.log( "route connect..." );
-	if( loginConnect.call( this, ws ) ){
-		// handled by login services.
-		console.log( "login Connect took this." );
-		return;
-	}
 	db.connect( ws );
 };

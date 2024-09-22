@@ -13,18 +13,18 @@
   "dev": "rollup -c -w",
   "start": "node --experimental-modules server/server.mjs",
   "test": "echo \"Error: no test specified\" && exit 1",
-  "link": "npm link sack.vfs jsox @d3x0r/popups @d3x0r/user-database @d3x0r/srg2 @d3x0r/socket-service @d3x0r/bloomnhash @d3x0r/slab-array"
+  "link": "npm link sack.vfs jsox @d3x0r/popups @d3x0r/user-database-remote @d3x0r/srg2 @d3x0r/socket-service @d3x0r/bloomnhash @d3x0r/slab-array"
  },
  "dependencies": {
-  "sack.vfs": "https://github.com/d3x0r/sack.vfs",
+  "sack.vfs": "latest",
   "jsox": "latest",
   "three.js": "latest",
   "@d3x0r/popups": "latest",
-  "@d3x0r/user-database": "https://github.com/d3x0r/user-database"
+  "@d3x0r/user-database-remote": "latest"
  },
  "devDependencies": {
-  "rollup": "^0.34.13",
-  "rollup-plugin-replace": "^1.2.1",
+  "rollup": "latest",
+  "@rollup/plugin-replace": "latest",
   "rollup-watch": "^2.5.0",
   "uglify-js": "^2.6.0"
  }
