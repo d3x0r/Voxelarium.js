@@ -33,7 +33,7 @@ process.env.LOGIN_PORT = config.login.port;
 //const dbx = await import( "@d3x0r/user-database/service" ); // start service locally
 //console.log( 'dbx =', dbx );
 
-
+if(0)
 	UserDbRemote.open( {
 		configPath : nearPath + '/../',
 		connect(ws) {
@@ -47,6 +47,7 @@ process.env.LOGIN_PORT = config.login.port;
 let serverOpts;
 const server = openServer(  serverOpts = { //npmPath:"../"
 		//, resourcePath:".."
+		configPath : nearPath + '/../',
 		port: myPort
 		 }, accept, connect );
 
