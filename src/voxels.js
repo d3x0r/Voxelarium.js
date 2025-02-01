@@ -1,3 +1,4 @@
+import {JSOX} from "/node_modules/jsox/lib/jsox.mjs"
 import {Voxelarium} from "./Voxelarium.core.js"
 
 const voxelEvents = {};
@@ -139,6 +140,9 @@ Voxelarium.Voxels.add( "Void", {
       LiquidDensity : 0.0,
 } ) );
 
+let loadList = [];
+let loaded = 0;
+let loading = 0;
 
 Voxelarium.Voxels.getIndex = function( type ) {
 	var types = Voxelarium.Voxels.types;
@@ -147,16 +151,38 @@ Voxelarium.Voxels.getIndex = function( type ) {
 
 Voxelarium.Voxels.load = function( m, cb, req ) {
 	var n = 1
+	
+	import( "./voxels/inventory.jsox").then( module=>{
+		return module.default
+	}).then( (content)=>{
+		loadList = content;
+		loaded = 0;
+		loading = 0;
+		loadAVoxel( n );
+	})
 	//xhrObj = new XMLHttpRequest();
 	//var xhrObj2 = new XMLHttpRequest();
-	loadAVoxel( n, m, cb, req );
-}
 
-function loadAVoxel( n, m, cb, req ) {
+function loadAVoxel( n ) {
 	let xhrObj;
-
+	if( (loading+loaded+1) > req ) {
+		// required means we can trigger the callback sooner than loading the full set...
+		if( loaded+1 > req ) {
+			let n;
+			for( n = 0; n < req; n++ ) if( !Voxelarium.Voxels.types[n]) break;
+			if( n === req ) {
+				if( cb ) cb();
+				cb = null;
+			}
+		}
+	}
+	loading++;
+	const index = loaded+loading;
+	if( loading < 10 && (loading+loaded< loadList.length)) {
+		loadAVoxel( n+1 );
+	}
 	xhrObj = new XMLHttpRequest();
-	xhrObj.open('GET', `./src/voxels/voxel_${n}.js`);
+	xhrObj.open('GET', `./src/voxels/voxel_${index}.js`);
 	xhrObj.responseType = "text";
 	//xhrObj.responseType = "text";
 	//xhrObj.response = "";
@@ -164,26 +190,23 @@ function loadAVoxel( n, m, cb, req ) {
 	xhrObj.onerror = (err)=>{
 			  //console.log( "require ", n );
 		      //console.log( err );
+			  loading--;
 			cb();
 			return;
 	};
 	xhrObj.onload = ()=>{
-		if( req && cb && ( n > req ) ) {
-			cb();
-			cb = null;
-		}
 		if( !xhrObj.status || xhrObj.status === 200 ) {
 			//console.log( "load ", n)
-			Voxelarium.Voxels.types.push( eval(xhrObj.responseText) );
+			Voxelarium.Voxels.types[n] = ( eval(xhrObj.responseText) );
 			var t = Voxelarium.Voxels.types[n];
 
 			t.codeData = xhrObj.responseText;
 			xhrObj = new XMLHttpRequest();
-			xhrObj.open('GET', `./src/voxels/images/voxel_${n}.png`);
+			xhrObj.open('GET', `./src/voxels/images/voxel_${index}.png`);
 			xhrObj.responseType = "blob";
 			xhrObj.onerror = (err)=>{
 				console.log( "error:", err);
-				loadAVoxel( n+1, m, cb, req );
+				loadAVoxel( n+1 );
 			}
 			xhrObj.send(null);
 			xhrObj.onload = ()=>{
@@ -191,6 +214,10 @@ function loadAVoxel( n, m, cb, req ) {
 					( t.image = new Image() );
 					var reader = new FileReader();
 					reader.onload = function(e) {
+
+						loading--;
+						loaded++;
+				
 						t.image.src = t.textureData = e.target.result;
 					        
 //						( t.image = new Image() ).src = 'data:image/png;base64,' + b64Response;
@@ -209,11 +236,23 @@ function loadAVoxel( n, m, cb, req ) {
 							//console.log( "don't have to delay load?")
 							//t.textureCoords = Voxelarium.TextureAtlas.add( t.image )
 				  	  	}
-						loadAVoxel( n+1, m, cb, req );
+						if( loading < 10 && (loading+loaded< ((req<loadList.length)?req:loadList.length) ))
+							loadAVoxel( n+1 );
+						else if( loading === 0 ) {
+							if( cb ) cb();
+							cb = null;
+						}
 					};
 					reader.readAsDataURL(xhrObj.response);
-				}else 								
-					loadAVoxel( n+1, m, cb, req );
+				}else {
+
+					if( loading < 10 && (loading+loaded< loadList.length))
+						loadAVoxel( n+1 );
+					else if( loading === 0 ) {
+						if( cb ) cb();
+						cb = null;
+					}
+				}
 			}
 		}
 		else {
@@ -223,6 +262,7 @@ function loadAVoxel( n, m, cb, req ) {
 		}
 	}
 	//require( `./voxels/voxel_${n}.js` )
+}
 }
 
 //Voxelarium.Voxels.types[0] = Voxelarium.Voxels.types.Void;
