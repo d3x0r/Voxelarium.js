@@ -98,7 +98,7 @@ class Db  {
 	}
 	connect(  info ) {
 		console.log( "can use info?", info );
-		const addr = (info.svc.addr.addr[0].family === "IPv4")?info.svc.addr.addr[0].address:"["+info.asvc.addr.addr[0].address+"]"
+		const addr = location.hostname;//(info.svc.addr.addr[0].family === "IPv4")?info.svc.addr.addr[0].address:"["+info.asvc.addr.addr[0].address+"]"
 		const ws = this.websocket = makeSocket( (location.protocol==="https:"?"wss://":"ws://") + addr + ":" + info.svc.addr.port  + "/" + (info.svc.key[0] + '/~'+ info.svc.key[1])  , "VOXDB" );
 		this.player.name = info.name;
 		l.serviceId = info.svc.key;

@@ -12,7 +12,7 @@ import path from "path";
 import {db} from "./db.mjs"
 import {openServer} from "sack.vfs/apps/http-ws";
 import {uExpress} from "sack.vfs/apps/http-ws/uexpress";
-import {enableLogin,getUser} from "@d3x0r/user-database-remote/enableLogin.mjs";
+import {enableLogin,getUser} from "@d3x0r/user-database-remote/enableLogin";
 
 const app = uExpress();
 
@@ -48,6 +48,7 @@ let serverOpts;
 const server = openServer(  serverOpts = { //npmPath:"../"
 		//, resourcePath:".."
 		configPath : nearPath + '/../',
+		commonPath : "common/",
 		port: myPort
 		 }, accept, connect );
 

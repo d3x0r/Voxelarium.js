@@ -5,7 +5,7 @@ import {BloomNHash} from  "@d3x0r/bloomnhash" ;
 import {World} from "./World.mjs";
 import {Inventory} from "./Inventory.mjs"
 import {l} from "./db.local.mjs"
-
+import {ObjectStorage} from "sack.vfs/object-storage"
 //console.log( "sack:", sack );
 const JSOX = sack.JSOX
 
@@ -45,7 +45,7 @@ class Db  {
 		this.read = cb;
 		if( !l.storage ){
 			console.log( "Server initialzied storage" );
-			l.storage = new sack.ObjectStorage( "server.os" );
+			l.storage = new ObjectStorage( "server.os" );
 			//l.storage.addEncoders( [ { tag:"pwn", p:Pawn, f:pawnEncode } ] );
 			//l.storage.addDecoders( [ { tag:"pwn", p:Pawn, f:pawnDecode } ] );
 			BloomNHash.hook( l.storage );

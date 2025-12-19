@@ -25,8 +25,8 @@ function myPerspective( m, fovy, aspect, zNear, zFar ) {
 	}
 	cotangent=Math.cos(radians)/sine;
 
-	m.elements[0+0] = cotangent / aspect;
-	 m.elements[4+1] = cotangent;
+	m.elements[0+0] = cotangent;
+	 m.elements[4+1] = aspect/ cotangent;
 //		#if defined( _D3D_DRIVER ) || defined( _D3D10_DRIVER )
 //		    m[2][2] = (zFar + zNear) / deltaZ;
 //		    m[2][3] = 1.0f;

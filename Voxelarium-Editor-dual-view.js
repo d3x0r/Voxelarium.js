@@ -78,57 +78,8 @@ function setupViveControls( scene ) {
 	headLight.shadow.mapSize.set( 4096, 4096 );
 	scene.add( headLight );
 
-
-	// controllers
-	                             /*
-	controller1 = new Voxelarium.ViveController( 0 );
-	controller1.standingMatrix = controls.getStandingMatrix();
-	controller1.userData.points = [ new THREE.Vector3(), new THREE.Vector3() ];
-	controller1.userData.matrices = [ new THREE.Matrix4(), new THREE.Matrix4() ];
-	controller1.userData.altspace = { collider: { enabled: false } };
-	scene.add( controller1 );
-
-	controller2 = new Voxelarium.ViveController( 1 );
-	controller2.standingMatrix = controls.getStandingMatrix();
-	controller2.userData.points = [ new THREE.Vector3(), new THREE.Vector3() ];
-	controller2.userData.matrices = [ new THREE.Matrix4(), new THREE.Matrix4() ];
-	controller2.userData.altspace = { collider: { enabled: false } };
-	scene.add( controller2 );
-
-	var loader = new THREE.OBJLoader();
-	loader.setPath( 'models/obj/vive-controller/' );
-	loader.load( 'vr_controller_vive_1_5.obj', function ( object ) {
-
-		var loader = new THREE.TextureLoader();
-		loader.setPath( 'models/obj/vive-controller/' );
-
-		var controller = object.children[ 0 ];
-		controller.material.map = loader.load( 'onepointfive_texture.png' );
-		controller.material.specularMap = loader.load( 'onepointfive_spec.png' );
-		controller.castShadow = true;
-		controller.receiveShadow = true;
-
-		// var pivot = new THREE.Group();
-		// var pivot = new THREE.Mesh( new THREE.BoxGeometry( 0.01, 0.01, 0.01 ) );
-		var pivot = new THREE.Mesh( new THREE.IcosahedronGeometry( 0.002, 2 ) );
-		pivot.name = 'pivot';
-		pivot.position.y = -0.016;
-		pivot.position.z = -0.043;
-		pivot.rotation.x = Math.PI / 5.5;
-		controller.add( pivot );
-
-		controller1.add( controller.clone() );
-
-		pivot.material = pivot.material.clone();
-		controller2.add( controller.clone() );
-		                         
-	} );
-	*/
-
-
 }
 
-var status_line;
 	async function init() {
 
 	if( !sceneRoot )
@@ -159,7 +110,19 @@ var status_line;
 			renderer.autoClear = false;
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			window.addEventListener( "resize", ()=>{
-				myPerspective( Voxelarium.camera.projectionMatrix, 90, window.innerWidth / window.innerHeight, 0.01, 10000 );
+				myPerspective( Voxelarium.camera.projectionMatrix, 90, window.innerWidth/2 / window.innerHeight, 0.01, 10000 );
+				//Voxelarium.camera2.top = -1/window.innerWidth/2 ;
+				//Voxelarium.camera2.bottom = 1/window.innerWidth/2 ;
+				Voxelarium.camera2.top = 50/Math.sqrt(window.innerWidth);
+				Voxelarium.camera2.bottom = -50/Math.sqrt(window.innerWidth);
+				Voxelarium.camera2.top = window.innerHeight/(window.innerWidth/4);
+				Voxelarium.camera2.bottom = -window.innerHeight/(window.innerWidth/4);
+				Voxelarium.camera2.updateProjectionMatrix();
+				//Voxelarium.camera2.left = window.innerWidth/2 * (window.innerHeight/window.innerWidth/2) / -2;
+				//Voxelarium.camera2.right = window.innerWidth/2 * (window.innerHeight/window.innerWidth/2) / 2;
+				//50/Math.sqrt(window.innerWidth), -50/Math.sqrt(window.innerWidth)
+				//Voxelarium.camera2.left = window.innerWidth/2 * (window.innerHeight/window.innerWidth/2) / -2;
+				//Voxelarium.camera2.right = window.innerWidth/2 * (window.innerHeight/window.innerWidth/2) / 2;
 				renderer.setSize( window.innerWidth, window.innerHeight ) 
 			} );
 			document.body.appendChild( renderer.domElement );
@@ -171,10 +134,11 @@ var status_line;
 			camera.position.y = 3.3;
 			camera.position.x = 1.5;
 			camera.position.z = 1.5;
-                        camera.matrix.origin.copy( camera.position );
+			camera.matrix.origin.copy( camera.position );
 			
 			Voxelarium.camera2.matrixAutoUpdate = false;
-            		Voxelarium.camera2.matrix.copy( camera.matrix );
+			Voxelarium.camera2.matrix.copy( camera.matrix );
+			
 
 			if ( !renderer.extensions.get('WEBGL_depth_texture') ) {
 					          supportsExtension = false;
@@ -204,21 +168,21 @@ var status_line;
                        // is VR...
 			if( !Voxelarium.Settings.AltSpace ) {
 
-let supported = await navigator.xr.isSessionSupported('immersive-vr');
-if (supported) {
-  //ShowEnterVRButton();
-//let xrSession = await navigator.xr.requestSession('immersive-vr');
-//let xrLayer = new XRWebGLLayer(session, gl);
-//session.updateRenderState({ baseLayer: xrLayer })
+			let supported = await navigator.xr.isSessionSupported('immersive-vr');
+			if (supported) {
+			//ShowEnterVRButton();
+			//let xrSession = await navigator.xr.requestSession('immersive-vr');
+			//let xrLayer = new XRWebGLLayer(session, gl);
+			//session.updateRenderState({ baseLayer: xrLayer })
 
-}
-/*
-				navigator.getVRDisplays().then(function(displays) {
-				  if (displays.length > 0) {
-				    vrDisplay = displays[0];
-				  }
-				});
-*/
+			}
+				/*
+					navigator.getVRDisplays().then(function(displays) {
+					if (displays.length > 0) {
+						vrDisplay = displays[0];
+					}
+					});
+				*/
 				Voxelarium.renderer = renderer = new THREE.WebGLRenderer( { antialias: true } );
 				if( supported ) {
 					document.body.appendChild( XRButton.createButton( renderer ) );
@@ -392,8 +356,8 @@ function render() {
 		[Voxelarium.camera, Voxelarium.camera2].forEach( (camera,id)=>{
 			const renderer = glow.renderer;
 			if( id ) {
-				renderer.setViewport( 0, 0, 500, 500 );
-				renderer.setScissor( 0, 0, 500, 500 );
+				renderer.setViewport( 0, 0, window.innerWidth, window.innerHeight );
+				renderer.setScissor( 0, 0, window.innerWidth, window.innerHeight );
 				renderer.setScissorTest( true );
 				renderer.setClearColor( 0x300000,1.0 );
 				finalshader2.uniforms[ "tGlow" ].value = glowcomposer2.renderTarget2;
@@ -403,8 +367,8 @@ function render() {
 				finalshader2.uniforms[ "cameraFar"].value = camera.far;
 		
 			}else {
-				renderer.setViewport( 500, 0, 500, 500 );
-				renderer.setScissor( 500, 0, 500, 500 );
+				renderer.setViewport( window.innerWidth/2, 0, window.innerWidth/2, window.innerHeight );
+				renderer.setScissor( window.innerWidth/2, 0, window.innerWidth/2, window.innerHeight );
 				renderer.setScissorTest( true );
 				renderer.setClearColor( 0x003000,1.0 );
 				finalshader.uniforms[ "tGlow" ].value = glowcomposer.renderTarget2;
@@ -430,14 +394,14 @@ function render() {
 			renderer.clear();
 			[Voxelarium.camera, Voxelarium.camera2].forEach( (camera,id)=>{
 				if( id ) {
-					renderer.setViewport( 0, 0, 500, 500 );
-					renderer.setScissor( 0, 0, 500, 500 );
+					renderer.setViewport( 0, 0, window.innerWidth, window.innerHeight );
+					renderer.setScissor( 0, 0, window.innerWidth, window.innerHeight );
 					renderer.setScissorTest( true );
 					renderer.setClearColor( 0x300000,1.0 );
 			
 				}else {
-					renderer.setViewport( 500, 0, 500, 500 );
-					renderer.setScissor( 500, 0, 500, 500 );
+					renderer.setViewport( window.innerWidth/2, 0, window.innerWidth/2, window.innerHeight );
+					renderer.setScissor( window.innerWidth/2, 0, window.innerWidth/2, window.innerHeight );
 					renderer.setScissorTest( true );
 					renderer.setClearColor( 0x003000,1.0 );
 			

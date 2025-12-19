@@ -151,7 +151,7 @@ Voxelarium.Voxels.getIndex = function( type ) {
 
 Voxelarium.Voxels.load = function( m, cb, req ) {
 	var n = 1
-	
+
 	import( "./voxels/inventory.jsox").then( module=>{
 		return module.default
 	}).then( (content)=>{
@@ -236,7 +236,7 @@ function loadAVoxel( n ) {
 							//console.log( "don't have to delay load?")
 							//t.textureCoords = Voxelarium.TextureAtlas.add( t.image )
 				  	  	}
-						if( loading < 10 && (loading+loaded< ((req<loadList.length)?req:loadList.length) ))
+						if( loading < 10 && (loading+loaded< loadList.length ))
 							loadAVoxel( n+1 );
 						else if( loading === 0 ) {
 							if( cb ) cb();

@@ -299,8 +299,8 @@ glow.render = function glowRender() {
 		const renderer = glow.renderer;
 		const square_size = window.innerWidth/2;
 		if( id ) {
-			renderer.setViewport( 0, 0, square_size, square_size );
-			renderer.setScissor( 0, 0, square_size, square_size );
+			renderer.setViewport( 0, 0, square_size, window.innerHeight );
+			renderer.setScissor( 0, 0, square_size, window.innerHeight );
 			renderer.setScissorTest( true );
 			renderer.setClearColor( 0x300000,1.0 );
 			finalshader2.uniforms[ "tGlow" ].value = glowcomposer2.renderTarget2;
@@ -310,8 +310,8 @@ glow.render = function glowRender() {
 			finalshader2.uniforms[ "cameraFar"].value = camera.far;
 	
 		}else {
-			renderer.setViewport( square_size, 0, square_size, square_size );
-			renderer.setScissor( square_size, 0, square_size, square_size );
+			renderer.setViewport( square_size, 0, square_size, window.innerHeight );
+			renderer.setScissor( square_size, 0, square_size, window.innerHeight );
 			renderer.setScissorTest( true );
 			renderer.setClearColor( 0x003000,1.0 );
 			finalshader.uniforms[ "tGlow" ].value = glowcomposer.renderTarget2;

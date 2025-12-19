@@ -327,4 +327,6 @@ import ( "./Voxelarium.js" ).then ( (V)=>{
 		animate();
 
 	})
+}).catch( (err)=>{
+	console.log( "Error fetching Voxelarium.js(or sub-component?)", err );
 })

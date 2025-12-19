@@ -66,8 +66,9 @@ export class BasicBuffer extends THREE.BufferGeometry {
 
           this.attribs.forEach( (attrib)=>{
             newbuf =   new attrib.buftype( new ArrayBuffer( this.available * ( attrib.bytes * attrib.size ) ) );
-            newbuf.set( buffer[attrib.name] );
-            buffer[attrib.name] = newbuf;
+            const buffer = this.attributes[attrib.name].array;
+            newbuf.set( buffer );
+            this[attrib.name] = this.attributes[attrib.name].array = newbuf;
           })
      }
 

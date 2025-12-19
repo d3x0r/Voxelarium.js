@@ -12,6 +12,7 @@ import {SmoothMesher} from './src/mesher.smooth.js'
 
 var controls;
 var sceneRoot;
+let supportsExtension; // frame bufffer depth
 	var scene;
 	var scene2;
 	var scene3;
@@ -159,6 +160,7 @@ var status_line;
 				renderer.setSize( window.innerWidth, window.innerHeight ) 
 			} );
 			document.body.appendChild( renderer.domElement );
+			renderer.domElement.setAttribute( "tabindex", 1 );
 
 			Voxelarium.controls.setDOM( renderer.domElement );
 
@@ -170,8 +172,8 @@ var status_line;
 
 			if ( !renderer.extensions.get('WEBGL_depth_texture') ) {
 					          supportsExtension = false;
-					          document.querySelector('#error').style.display = 'block';
-					         return;
+					          //document.querySelector('#error').style.display = 'block';
+					         //return;
 			}
 
   			if( !Voxelarium.Settings.use_basic_material ){
@@ -407,16 +409,16 @@ function initVoxelarium() {
 	geometryShader = Voxelarium.Settings.use_basic_material
 			? new THREE.MeshBasicMaterial()
 	    : Voxelarium.GeometryShader();
-
-	//Voxelarium.TextureAtlas.init( 32, 64 );
+	geometryShader.side = THREE.FrontSide;
+		//Voxelarium.TextureAtlas.init( 32, 64 );
 
 		Voxelarium.db.init( ()=>{
 			//geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
 			geometryShader.vertexColors = THREE.VertexColors;
 			if( geometryShader.uniforms )
 				geometryShader.uniforms.map.value = Voxelarium.TextureAtlas.texture;
-			else
-				geometryShader.map = Voxelarium.TextureAtlas.texture;
+			
+			geometryShader.map = Voxelarium.TextureAtlas.texture;
 			//geometryShader.needsUpdate = true;
 			//document.body.appendChild( Voxelarium.TextureAtlas.canvas );
 			//mesh.material.needsUpdate = true;

@@ -2,6 +2,7 @@
 import {l} from "./db.local.mjs"
 import {Inventory} from "./Inventory.mjs"
 import {code} from "./db.mjs"
+import {JSOX} from "jsox"
 
 const nearThreshold = 250;
 const nearThreshold2 = nearThreshold*nearThreshold;
@@ -95,6 +96,12 @@ export class Pawn {
 		} else if( msg.op === "setName" ) {
 			this.setName( msg.name );
 		} else if( msg.op === "loadWorld" ) {
+		} else if( msg.op === "load" ) {
+			console.log( "This is supposed to load a sector:", msg.pos, msg.uid );
+		} else if( msg.op === "store" ) {
+			console.log( "A change to a world sector happened...");
+		} else if( msg.op === "move" ) {
+			console.log( "A pawn moved, maybe tell others?" );
 		} else {
 			console.log( "Unhandled pawn message:", msg);
 		}
@@ -110,6 +117,7 @@ export class Pawn {
 	joinWorld( world ) {
 
 	}
+
 }
 
 function pawnEncode(stringifer){
