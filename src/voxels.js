@@ -1,4 +1,4 @@
-import {JSOX} from "/node_modules/jsox/lib/jsox.mjs"
+import {JSOX} from "../common/JSOX.js"
 import {Voxelarium} from "./Voxelarium.core.js"
 
 const voxelEvents = {};
